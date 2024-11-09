@@ -1,0 +1,85 @@
+﻿@page "/CarToRentDetails/{carID:int}"
+@using Browser_FrontEnd.Services
+@using MiNICarRentalBrowser.Data
+@inject RentalServicecs renatalService
+<div class="container">
+	<div class="car-info">
+		<h3>Szczegóły samochodu</h3>
+		<p><strong>Marka:</strong> @car.Brand</p>
+		<p><strong>Model:</strong> @car.Model</p>
+		<p><strong>Rok produkcji:</strong> @car.Year</p>
+		<p><strong>Kolor:</strong> Czarny</p>
+		<p><strong>Silnik:</strong> 3.0L V6</p>
+	</div>
+
+	<div class="car-info">
+		<h3>Oferty</h3>
+
+		@foreach(Offer offer in offers){
+		<div class="offer-row">
+		<p><strong>@offer.text </strong>@offer.price</p>
+		<button class="button">Rent Me</button>
+		</div>
+		} 
+
+	</div>
+</div>
+
+
+@code {
+	[Parameter]
+	public int carID { get; set; }
+	private Car car;
+
+	private List<Offer> offers;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+		car = await renatalService.GetCarDetailsAsync(carID);
+		offers = await renatalService.GetOffersAsync(carID);
+	}
+}
+
+<style>
+	.container {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 20px;
+		padding: 20px;
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		justify-content: center;
+		align-items: flex-start;
+		max-width: 1200px;
+		margin: 0 auto;
+	}
+
+	.car-info {
+		border-radius: 12px;
+		padding: 20px;
+		width: 100%;
+		max-width: 450px;
+		box-shadow: 0 10px 20px rgba(186, 104, 200, 0.3), 0 6px 6px rgba(0, 0, 0, 0.1);
+		align-self: center
+	}
+
+		.car-info h3 {
+			border-bottom: 2px solid #AB47BC;
+			padding-bottom: 8px;
+			margin-bottom: 15px;
+			font-size: 1.3rem;
+		}
+
+		.car-info p {
+			font-size: 1rem;
+			line-height: 1.6;
+			margin-bottom: 10px;
+		}
+
+	.offer-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 10px;
+	}
+</style>
