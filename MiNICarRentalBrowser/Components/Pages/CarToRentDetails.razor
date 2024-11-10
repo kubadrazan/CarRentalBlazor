@@ -1,11 +1,17 @@
 ﻿@page "/CarToRentDetails/{carID:int}"
 @using Browser_FrontEnd.Services
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @using SharedDataModels
+@using System.Security.Claims
+@rendermode InteractiveServer
 @inject RentalServicecs renatalService
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject NavigationManager navigation
 <div class="container">
 	<div class="car-info">
 		<h3>Szczegóły samochodu</h3>
-		<p><strong>Marka:</strong>@car.Model.Brand.Name</p>
+				<p><strong>Marka:</strong>@car.Model.Brand.Name</p>
 		<p><strong>Model:</strong> @car.Model.Name</p>
 		<p><strong>Rok produkcji:</strong> @car.ProductionYear</p>
 		<p><strong>Kolor:</strong> Czarny</p>
@@ -15,20 +21,21 @@
 	<div class="car-info">
 		<h3>Oferty</h3>
 
-		@foreach(Offer offer in offers){
+				@foreach (Offer offer in offers)
+		{
 		<div class="offer-row">
 		<p><strong>@offer </strong>@offer</p>
-		<button class="button">Rent Me</button>
+		<button onclick="@CheckAndLogin()" class="button">Rent Me</button>
 		</div>
-		} 
-
+		}
+		
 	</div>
 </div>
 
 
 @code {
-	[Parameter]
-	public int carID { get; set; }
+		[Parameter]
+		public int carID { get; set; }
 	private Car car;
 
 	private List<Offer> offers;
@@ -38,6 +45,22 @@
 		await base.OnInitializedAsync();
 		car = await renatalService.GetCarDetailsAsync(carID);
 		offers = await renatalService.GetOffersAsync(carID);
+	}
+	public async Task CheckAndLogin()
+	{
+		var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+		var user = authState.User;
+		if (user.Identity != null && user.Identity.IsAuthenticated)
+		{
+			var email = user.FindFirst(c => c.Type == ClaimTypes.Email)?.Value;
+			// TODO SendMail
+			navigation.NavigateTo("/confirmation");
+		}
+		else
+		{
+			var returnUrl = navigation.Uri;
+			navigation.NavigateTo($"/login");//?returnUrl={Uri.EscapeDataString(returnUrl)}");
+		}
 	}
 }
 
