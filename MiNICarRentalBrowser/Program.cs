@@ -1,3 +1,4 @@
+using Browser_FrontEnd.Services;
 using MiNICarRentalBrowser.Components;
 using MudBlazor.Services;
 
@@ -14,7 +15,10 @@ namespace MiNICarRentalBrowser
 				.AddInteractiveServerComponents();
             builder.Services.AddMudServices();
 
-            var app = builder.Build();
+			builder.Services.AddHttpClient();
+			builder.Services.AddScoped<RentalServicecs>();
+
+			var app = builder.Build();
 
 			// Configure the HTTP request pipeline.
 			if (!app.Environment.IsDevelopment())
@@ -31,6 +35,8 @@ namespace MiNICarRentalBrowser
 
 			app.MapRazorComponents<App>()
 				.AddInteractiveServerRenderMode();
+
+
 
 			app.Run();
 		}
