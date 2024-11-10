@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MiniCarRentalAPI.Models
+namespace SharedDataModels
 {
-    public class Model
+	public class Model
     {
         public int ID { get; set; }
 

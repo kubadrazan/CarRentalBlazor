@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MiniCarRentalAPI.Models;
+using SharedDataModels;
 
 namespace MiniCarRentalAPI.Data
 {

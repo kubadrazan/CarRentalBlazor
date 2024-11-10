@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MiniCarRentalAPI.Models
+namespace SharedDataModels
 {
-    public class Rental
+	public class Rental
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // change to none and replace with your own or smth
         public int ID { get; set; }

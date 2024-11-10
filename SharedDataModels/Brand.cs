@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MiniCarRentalAPI.Models
+namespace SharedDataModels
 {
     public class Brand
     {

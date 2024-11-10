@@ -6,8 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MiniCarRentalAPI.Data;
-using MiniCarRentalAPI.Models;
-
+using SharedDataModels;
 namespace MiniCarRentalAPI.Controllers
 {
     public class CarsController : Controller

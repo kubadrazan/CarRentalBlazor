@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
-using MiNICarRentalBrowser.Data;
+using SharedDataModels;
 
 namespace Browser_FrontEnd.Services
 {
