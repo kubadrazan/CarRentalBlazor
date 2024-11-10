@@ -1,6 +1,6 @@
-﻿namespace MiniCarRentalAPI.Models
+﻿namespace SharedDataModels
 {
-    public class Localization
+	public class Localization
     {
         public int ID { get; set; }
 

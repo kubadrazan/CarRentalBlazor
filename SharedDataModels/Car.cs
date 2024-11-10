@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MiniCarRentalAPI.Models
+namespace SharedDataModels
 {
     public enum Availability
     {

@@ -1,13 +1,13 @@
 ﻿@page "/CarToRentDetails/{carID:int}"
 @using Browser_FrontEnd.Services
-@using MiNICarRentalBrowser.Data
+@using SharedDataModels
 @inject RentalServicecs renatalService
 <div class="container">
 	<div class="car-info">
 		<h3>Szczegóły samochodu</h3>
-		<p><strong>Marka:</strong> @car.Brand</p>
-		<p><strong>Model:</strong> @car.Model</p>
-		<p><strong>Rok produkcji:</strong> @car.Year</p>
+		<p><strong>Marka:</strong>@car.Model.Brand.Name</p>
+		<p><strong>Model:</strong> @car.Model.Name</p>
+		<p><strong>Rok produkcji:</strong> @car.ProductionYear</p>
 		<p><strong>Kolor:</strong> Czarny</p>
 		<p><strong>Silnik:</strong> 3.0L V6</p>
 	</div>
@@ -17,7 +17,7 @@
 
 		@foreach(Offer offer in offers){
 		<div class="offer-row">
-		<p><strong>@offer.text </strong>@offer.price</p>
+		<p><strong>@offer </strong>@offer</p>
 		<button class="button">Rent Me</button>
 		</div>
 		} 
