@@ -1,3 +1,4 @@
+using Browser_FrontEnd.Services;
 using MiNICarRentalBrowser.Components;
 
 namespace MiNICarRentalBrowser
@@ -11,6 +12,9 @@ namespace MiNICarRentalBrowser
 			// Add services to the container.
 			builder.Services.AddRazorComponents()
 				.AddInteractiveServerComponents();
+
+			builder.Services.AddHttpClient();
+			builder.Services.AddScoped<RentalServicecs>();
 
 			var app = builder.Build();
 
@@ -29,6 +33,8 @@ namespace MiNICarRentalBrowser
 
 			app.MapRazorComponents<App>()
 				.AddInteractiveServerRenderMode();
+
+
 
 			app.Run();
 		}
