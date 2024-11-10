@@ -1,0 +1,13 @@
+﻿@attribute [Authorize]
+@page "/login"
+@using Browser_FrontEnd.Services
+@using Microsoft.AspNetCore.Authorization
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@code {
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+		navigation.NavigateTo("/");
+	}
+}
