@@ -1,0 +1,223 @@
+﻿@page "/car-browser"
+@using Data
+@using System.Linq
+@using Browser_FrontEnd.Services
+@rendermode RenderMode.InteractiveServer
+@inject NavigationManager Navigation
+@inject RentalServicecs renatalService
+
+<MudContainer Class="d-flex align-center justify-center">
+    <MudPaper Class="pa-2" Outlined="true">
+        <MudStack Row="true" Wrap="Wrap.NoWrap" Spacing="1">
+            <MudItem>
+                <MudSelect MultiSelectionTextFunc="@(new Func<List<string>, string>(GetBrandsMultiSelectionText))" MultiSelection="true" @bind-SelectedValues="brandOptions" T="string"
+                           AdornmentIcon="@Icons.Material.Filled.Search" AnchorOrigin="Origin.BottomCenter" Label="Brands" ValueChanged="OnBrandSelectionChanged" Variant="Variant.Outlined">
+                    @foreach (var brand in uniqueBrands)
+                    {
+                        <MudSelectItem T="string" Value="@brand">@brand</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem>
+                <MudSelect MultiSelectionTextFunc="@(new Func<List<string>, string>(GetModelsMultiSelectionText))" MultiSelection="true" @bind-SelectedValues="modelOptions" T="string"
+                           AdornmentIcon="@Icons.Material.Filled.Search" AnchorOrigin="Origin.BottomCenter" Label="Models" ValueChanged="OnModelSelectionChanged" Variant="Variant.Outlined">
+                    @foreach (var model in uniqueModels)
+                    {
+                        <MudSelectItem T="string" Value="@model">@model</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+        </MudStack>
+    </MudPaper>
+</MudContainer>
+
+<MudGrid Class="mt-4" Spacing="12" Justify="Justify.Center">
+    @if (filteredCars.Any())
+    {
+        @foreach (var car in pagedCars)
+        {
+            <MudItem xs="12" Style="margin: 5px">
+                <MudPaper Class="p-4" Style="max-width: 600px; height: 200px; margin: auto" Elevation="4">
+                    <MudGrid>
+                        <MudItem xs="7" sm="7">
+                            <div style="display: flex; flex-direction: column; align-items: flex-start; padding-left: 16px">
+                                <MudText Typo="Typo.h5">@car.Brand @car.Model</MudText>
+                                <MudText Typo="Typo.body2" Class="my-1">Rocznik: @car.Year</MudText>
+                                <MudText Typo="Typo.body2" Class="my-1">Bez limitu kilometrów</MudText>
+                            </div>
+                        </MudItem>
+                        <MudItem xs="5" sm="5">
+                            <div style="display: flex; flex-direction: column; align-items: flex-end; padding-right: 16px">
+                                <MudImage Src="car.jpg" Style="width: 100px; height: 100px; object-fit: cover;" />
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="() => NavigateToCarDetails(car.Id)">Zobacz oferty</MudButton>
+                            </div>
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+            </MudItem>
+        }
+    }
+    else
+    {
+        <MudText Typo="Typo.h4" Color="Color.Secondary" Class="text-center">Brak wyników spełniających twoje kryteria.</MudText>
+    }
+</MudGrid>
+
+<div class="mt-5 mb-5 d-flex flex-column align-center">
+    <MudPagination Count="@((filteredCars.Count + pageSize - filteredCars.Count%pageSize)/pageSize)" @bind-Page="currentPage" PageSize="5" TotalItems="@filteredCars.Count" SelectedChanged="OnPageChanged" />
+</div>
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "brand")]
+    public string[]? brands { get; set; }
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "model")]
+    public string[]? models { get; set; }
+
+    private IEnumerable<string> brandOptions { get; set; } = new HashSet<string>() { };
+    private IEnumerable<string> modelOptions { get; set; } = new HashSet<string>() { };
+
+    private List<Car> cars = new List<Car>(); // Lista wszystkich samochodów
+    private List<string> uniqueBrands = new List<string>(); // Lista marek do selectBoxa
+    private List<string> uniqueModels = new List<string>(); // Lista modeli do selectBoxa
+    private List<Car> pagedCars = new List<Car>(); // Lista samochodów na bieżącej stronie
+    private List<Car> filteredCars = new List<Car>(); // Przefiltrowana lista samochodów
+
+    private int currentPage = 1;
+    private int pageSize = 5;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+
+        //cars = await renatalService.GetCarsAsync();
+        LoadCars();
+
+        uniqueBrands = cars.Select(car => car.Brand).Distinct().ToList();
+        uniqueModels = cars.Select(car => car.Model).Distinct().ToList();
+        if (brands != null)
+            brandOptions = new HashSet<string>(brands) { };
+        if (models != null)
+            modelOptions = new HashSet<string>(models) { };
+
+        ApplyFilters();
+
+        if (query.Get("page") != null)
+        {
+            if (int.TryParse(query.Get("page"), out var page))
+            {
+                if (filteredCars.Count > (page - 1) * pageSize)
+                    currentPage = page;
+            }
+        }
+
+        ApplyPaging();
+    }
+
+    private void LoadCars()
+    {
+        cars = new List<Car>
+        {
+            new Car { Id = 1, Brand = "Toyota", Model = "Corolla", Year = 2020},
+            new Car { Id = 2, Brand = "Toyota", Model = "Camry", Year = 2019},
+            new Car { Id = 3, Brand = "Honda", Model = "Civic", Year = 2021},
+            new Car { Id = 4, Brand = "Ford", Model = "Focus", Year = 2018},
+            new Car { Id = 5, Brand = "Ford", Model = "Fiesta", Year = 2017},
+            new Car { Id = 6, Brand = "Honda", Model = "Accord", Year = 2020},
+        };
+    }
+
+    private void ApplyFilters()
+    {
+        if (brandOptions.Any())
+        {
+            filteredCars = cars.Where(car => brandOptions.Contains(car.Brand))
+                .ToList();
+        }
+        else
+        {
+            filteredCars = cars;
+        }
+
+        if (modelOptions.Any())
+        {
+            filteredCars = filteredCars.Where(car => modelOptions.Contains(car.Model))
+            .ToList();
+        }
+
+        ApplyPaging();
+    }
+
+    private void ApplyPaging()
+    {
+        pagedCars = filteredCars
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+    }
+
+    private async Task OnBrandSelectionChanged(string brand)
+    {
+        ApplyFilters();
+        await UpdateUrl();
+    }
+
+    private async Task OnModelSelectionChanged()
+    {
+        ApplyFilters();
+        await UpdateUrl();
+    }
+
+    private async Task OnPageChanged(int page)
+    {
+        currentPage = page;
+        ApplyPaging();
+        await UpdateUrl();
+    }
+
+    private string GetBrandsMultiSelectionText(List<string> selectedValues)
+    {
+        return $"{string.Join(", ", selectedValues.Select(x => x))}";
+    }
+
+    private string GetModelsMultiSelectionText(List<string> selectedValues)
+    {
+        return $"{string.Join(", ", selectedValues.Select(x => x))}";
+    }
+
+    private void NavigateToCarDetails(int carId)
+    {
+        Navigation.NavigateTo($"/CarToRentDetails/{carId}");
+    }
+
+    private async Task UpdateUrl()
+    {
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+
+        query.Remove("brand");
+        query.Remove("model");
+        query.Remove("page");
+
+        foreach (var brand in brandOptions)
+        {
+            query.Add("brand", brand);
+        }
+
+        foreach (var model in modelOptions)
+        {
+            query.Add("model", model);
+        }
+
+        query.Add("page", currentPage.ToString());
+
+        await Task.Delay(100);
+        var newUri = $"{uri.GetLeftPart(UriPartial.Path)}?{query}";
+        Navigation.NavigateTo(newUri);
+    }
+}

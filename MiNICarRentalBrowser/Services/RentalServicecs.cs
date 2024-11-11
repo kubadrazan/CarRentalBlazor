@@ -14,7 +14,22 @@ namespace Browser_FrontEnd.Services
 				_url = configuration.GetValue<string>("ApiSettings:Url");
 			}
 		}
-		public async Task<Car> GetCarDetailsAsync(int carId)
+
+        public async Task<List<Car>> GetCarsAsync()
+        {
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<List<Car>>($"{_url}/cars");
+                return response;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching car data: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<Car> GetCarDetailsAsync(int carId)
 		{
 			try
 			{
