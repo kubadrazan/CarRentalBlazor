@@ -28,4 +28,10 @@
     <ProjectReference Include="..\SharedDataModels\SharedDataModels.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="wwwroot\landing_page_car.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
