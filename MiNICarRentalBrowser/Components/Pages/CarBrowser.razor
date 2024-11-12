@@ -6,62 +6,90 @@
 @inject NavigationManager Navigation
 @inject RentalServicecs renatalService
 
-<MudContainer Class="d-flex align-center justify-center">
-    <MudPaper Class="pa-2" Outlined="true">
-        <MudStack Row="true" Wrap="Wrap.NoWrap" Spacing="1">
-            <MudItem>
-                <MudSelect MultiSelectionTextFunc="@(new Func<List<string>, string>(GetBrandsMultiSelectionText))" MultiSelection="true" @bind-SelectedValues="brandOptions" T="string"
-                           AdornmentIcon="@Icons.Material.Filled.Search" AnchorOrigin="Origin.BottomCenter" Label="Brands" ValueChanged="OnBrandSelectionChanged" Variant="Variant.Outlined">
+<MudContainer>
+    <MudGrid>
+        <!-- Filtry dla małych ekranów -->
+        <MudItem xs="12" sm="12" Class="d-flex d-md-none mb-2" Style="justify-content: center">
+            <MudPaper Class="pa-2" Outlined="true">
+                <MudStack Row="true" Wrap="Wrap.NoWrap" Spacing="1">
+                    <MudItem>
+                        <MudSelect Style="width: 230px" MultiSelectionTextFunc="@(new Func<List<string>, string>(GetBrandsMultiSelectionText))" MultiSelection="true" T="string" AdornmentIcon="@Icons.Material.Filled.Search"
+                                   AnchorOrigin="Origin.BottomCenter" Label="Brands" SelectedValuesChanged="OnBrandMultiSelectionChanged" Variant="Variant.Outlined">
                     @foreach (var brand in uniqueBrands)
-                    {
+                            {
                         <MudSelectItem T="string" Value="@brand">@brand</MudSelectItem>
-                    }
-                </MudSelect>
-            </MudItem>
-            <MudItem>
-                <MudSelect MultiSelectionTextFunc="@(new Func<List<string>, string>(GetModelsMultiSelectionText))" MultiSelection="true" @bind-SelectedValues="modelOptions" T="string"
-                           AdornmentIcon="@Icons.Material.Filled.Search" AnchorOrigin="Origin.BottomCenter" Label="Models" ValueChanged="OnModelSelectionChanged" Variant="Variant.Outlined">
-                    @foreach (var model in uniqueModels)
-                    {
-                        <MudSelectItem T="string" Value="@model">@model</MudSelectItem>
-                    }
-                </MudSelect>
-            </MudItem>
-        </MudStack>
-    </MudPaper>
-</MudContainer>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem>
+                        <MudSelect Style="width: 230px" MultiSelectionTextFunc="@(new Func<List<string>, string>(GetModelsMultiSelectionText))" MultiSelection="true" @bind-SelectedValues="modelOptions" T="string"
+                                   AdornmentIcon="@Icons.Material.Filled.Search" AnchorOrigin="Origin.BottomCenter" Label="Models" ValueChanged="OnModelSelectionChanged" Variant="Variant.Outlined">
+                            @foreach (var model in uniqueModels)
+                            {
+                                <MudSelectItem T="string" Value="@model">@model</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
 
-<MudGrid Class="mt-4" Spacing="12" Justify="Justify.Center">
-    @if (filteredCars.Any())
-    {
-        @foreach (var car in pagedCars)
-        {
-            <MudItem xs="12" Style="margin: 5px">
-                <MudPaper Class="p-4" Style="max-width: 600px; height: 200px; margin: auto" Elevation="4">
-                    <MudGrid>
-                        <MudItem xs="7" sm="7">
-                            <div style="display: flex; flex-direction: column; align-items: flex-start; padding-left: 16px">
-                                <MudText Typo="Typo.h5">@car.Model.Brand.Name @car.Model</MudText>
-                                <MudText Typo="Typo.body2" Class="my-1">Rocznik: @car.ProductionYear</MudText>
-                                <MudText Typo="Typo.body2" Class="my-1">Bez limitu kilometrów</MudText>
-                            </div>
+        <!-- Filtry dla dużych ekranów -->
+        <MudItem xs="0" sm="0" md="4" Class="d-none d-md-block">
+            <MudPaper Elevation="1" Class="pa-4" Width="310px">
+                <MudText Typo="Typo.h6">Filtry</MudText>
+                <MudDivider Class="my-2" />
+                <MudText Typo="Typo.subtitle2" Class="mt-2">Marka</MudText>
+                @foreach (var brand in filterBrandList)
+                {
+                    <MudCheckBox T="bool" Label="@brand.Name" ValueChanged="value => OnBrandSelectionChanged(brand.Name, value)"/>
+                }
+                <MudDivider Class="my-2" />
+            </MudPaper>
+        </MudItem>
+
+        <!-- Lista aut -->
+        <MudItem xs="12" sm="12" md="8">
+            <MudGrid Class="mt-4" Spacing="12">
+                @if (filteredCars.Any())
+                {
+                    <MudItem xs="12" Style="margin: 5px; margin: auto">
+                        <MudText Typo="Typo.h5">Dostępne samochody: @filteredCars.Count</MudText>
+                    </MudItem>
+
+                    @foreach (var car in pagedCars)
+                    {
+                        <MudItem xs="12" Style="margin: 5px">
+                            <MudPaper Class="p-4" Style="max-width: 800px; height: 200px; margin: auto" Elevation="4">
+                                <MudGrid>
+                                    <MudItem xs="7" sm="7">
+                                        <div style="display: flex; flex-direction: column; align-items: flex-start; padding-left: 16px">
+                                            <MudText Typo="Typo.h5">@car.Model.Brand.Name @car.Model.Name</MudText>
+                                            <MudText Typo="Typo.body2" Class="my-1">Rocznik: @car.ProductionYear</MudText>
+                                            <MudText Typo="Typo.body2" Class="my-1">Bez limitu kilometrów</MudText>
+                                        </div>
+                                    </MudItem>
+                                    <MudItem xs="5" sm="5">
+                                        <div style="display: flex; flex-direction: column; align-items: flex-end; padding-right: 16px">
+                                            <MudImage Src="car.jpg" Style="width: 100px; height: 100px; object-fit: cover;" />
+                                            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="() => NavigateToCarDetails(car.ID)">Zobacz oferty</MudButton>
+                                        </div>
+                                    </MudItem>
+                                </MudGrid>
+                            </MudPaper>
                         </MudItem>
-                        <MudItem xs="5" sm="5">
-                            <div style="display: flex; flex-direction: column; align-items: flex-end; padding-right: 16px">
-                                <MudImage Src="car.jpg" Style="width: 100px; height: 100px; object-fit: cover;" />
-                                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="() => NavigateToCarDetails(car.ID)">Zobacz oferty</MudButton>
-                            </div>
-                        </MudItem>
-                    </MudGrid>
-                </MudPaper>
-            </MudItem>
-        }
-    }
-    else
-    {
-        <MudText Typo="Typo.h4" Color="Color.Secondary" Class="text-center">Brak wyników spełniających twoje kryteria.</MudText>
-    }
-</MudGrid>
+                    }
+                }
+                else
+                {
+                    <MudItem xs="12" Style="margin: 5px">
+                        <MudText Typo="Typo.h4" Color="Color.Secondary" Class="text-center">Brak wyników spełniających twoje kryteria.</MudText>
+                    </MudItem>
+                }
+            </MudGrid>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
 
 <div class="mt-5 mb-5 d-flex flex-column align-center">
     <MudPagination Count="@((filteredCars.Count + pageSize - filteredCars.Count%pageSize)/pageSize)" @bind-Page="currentPage" PageSize="5" TotalItems="@filteredCars.Count" SelectedChanged="OnPageChanged" />
@@ -84,9 +112,16 @@
     private List<string> uniqueModels = new List<string>(); // Lista modeli do selectBoxa
     private List<Car> pagedCars = new List<Car>(); // Lista samochodów na bieżącej stronie
     private List<Car> filteredCars = new List<Car>(); // Przefiltrowana lista samochodów
+    private List<FilterBrand> filterBrandList = new List<FilterBrand>();
 
     private int currentPage = 1;
     private int pageSize = 5;
+
+    public class FilterBrand
+    {
+        public string Name;
+        public bool IsSelected;
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -95,10 +130,18 @@
         var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
         var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
 
-        cars = await renatalService.GetCarsAsync();
+        //cars = await renatalService.GetCarsAsync();
+        cars = new List<Car>() { new Car() { Model = new Model { Name = "Astra", Brand = new SharedDataModels.Brand() { Name = "Opel" } } },
+                                 new Car() { Model = new Model { Name = "Punto", Brand = new SharedDataModels.Brand() { Name = "Fiat" } } }};
 
-        uniqueBrands = cars.Select(car => car.Model.Brand.Name).Distinct().ToList();
-        uniqueModels = cars.Select(car => car.Model.Name).Distinct().ToList();
+        if (cars != null)
+        {
+            uniqueBrands = cars.Select(car => car.Model.Brand.Name).Distinct().ToList();
+            foreach (var brand in uniqueBrands)
+                filterBrandList.Add(new FilterBrand() { Name = brand, IsSelected = false });
+            uniqueModels = cars.Select(car => car.Model.Name).Distinct().ToList();
+        }
+
         if (brands != null)
             brandOptions = new HashSet<string>(brands) { };
         if (models != null)
@@ -125,7 +168,7 @@
             filteredCars = cars.Where(car => brandOptions.Contains(car.Model.Brand.Name))
                 .ToList();
         }
-        else
+        else if (cars != null)
         {
             filteredCars = cars;
         }
@@ -141,14 +184,26 @@
 
     private void ApplyPaging()
     {
-        pagedCars = filteredCars
-            .Skip((currentPage - 1) * pageSize)
-            .Take(pageSize)
-            .ToList();
+        if (filteredCars != null)
+            pagedCars = filteredCars
+                .Skip((currentPage - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
     }
 
-    private async Task OnBrandSelectionChanged(string brand)
+    private async Task OnBrandMultiSelectionChanged(IEnumerable<string> brands)
     {
+        brandOptions = brands;
+        ApplyFilters();
+        filterBrandList.ForEach(brand => brand.IsSelected = brands.Contains(brand.Name));
+        await UpdateUrl();
+    }
+
+    private async Task OnBrandSelectionChanged(string brand, bool state)
+    {
+        filterBrandList.Where(b => b.Name == brand).ToList().ForEach(b => b.IsSelected = state);
+        HashSet<string> hash = new HashSet<string>(filterBrandList.Where(x => x.IsSelected).Select(x => x.Name).ToList());
+        brandOptions = hash;
         ApplyFilters();
         await UpdateUrl();
     }
