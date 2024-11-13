@@ -17,8 +17,8 @@ namespace MiniCarRentalAPI
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Services.AddSwaggerGen();
 
-			// TODO Change to AddDbContextFactory??
-			builder.Services.AddDbContext<CarRentalContext>(options =>
+            // TODO Change to AddDbContextFactory??
+            builder.Services.AddDbContext<CarRentalContext>(options =>
 				options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 				);
 

@@ -1,4 +1,9 @@
 using Browser_FrontEnd.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server;
 using MiNICarRentalBrowser.Components;
 using MudBlazor.Services;
 
@@ -10,15 +15,33 @@ namespace MiNICarRentalBrowser
 		{
 			var builder = WebApplication.CreateBuilder(args);
 
-			// Add services to the container.
-			builder.Services.AddRazorComponents()
+			// Google Authentication
+			builder.Services.AddAuthentication(options =>
+			{
+				options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+				options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+				options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+			})
+			.AddCookie()
+			.AddGoogle(googleOptions =>
+			{
+				googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+				googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+			});
+			builder.Services.AddAuthorization();
+			builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
+            builder.Services.AddHttpContextAccessor();
+
+
+            // Add services to the container.
+            builder.Services.AddRazorComponents()
 				.AddInteractiveServerComponents();
             builder.Services.AddMudServices();
 
-			builder.Services.AddHttpClient();
+            builder.Services.AddHttpClient();
 			builder.Services.AddScoped<RentalServicecs>();
 
-			var app = builder.Build();
+            var app = builder.Build();
 
 			// Configure the HTTP request pipeline.
 			if (!app.Environment.IsDevelopment())
@@ -32,6 +55,9 @@ namespace MiNICarRentalBrowser
 
 			app.UseStaticFiles();
 			app.UseAntiforgery();
+
+			app.UseAuthentication();
+			app.UseAuthorization();
 
 			app.MapRazorComponents<App>()
 				.AddInteractiveServerRenderMode();

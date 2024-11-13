@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiNICarRentalBrowser", "MiN
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiniCarRentalAPI", "MiniCarRentalAPI\MiniCarRentalAPI.csproj", "{218F77AA-AE52-4B61-AE30-A63943A4404C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedDataModels", "SharedDataModels\SharedDataModels.csproj", "{7399B25F-70E1-498E-AD2F-569BCFAA8582}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharedDataModels", "SharedDataModels\SharedDataModels.csproj", "{7399B25F-70E1-498E-AD2F-569BCFAA8582}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

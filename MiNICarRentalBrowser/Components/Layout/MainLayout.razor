@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager navigation
 
 <MudThemeProvider @rendermode="InteractiveServer" />
 <MudPopoverProvider @rendermode="InteractiveServer" />
@@ -14,3 +15,11 @@
         @Body
     </MudMainContent>
 </MudLayout>
+
+@code {
+	private async Task Login()
+	{
+		navigation.NavigateTo("/login", forceLoad: true);
+	}
+
+}
