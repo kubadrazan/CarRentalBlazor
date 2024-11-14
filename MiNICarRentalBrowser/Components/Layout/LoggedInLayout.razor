@@ -1,0 +1,30 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+
+<MudThemeProvider @rendermode="InteractiveServer" />
+<MudPopoverProvider @rendermode="InteractiveServer" />
+<MudDialogProvider @rendermode="InteractiveServer" />
+<MudSnackbarProvider @rendermode="InteractiveServer" />
+
+<MudLayout>
+    <MudAppBar Color="Color.Primary" Fixed="false" Elevation="1">
+        <MudNavLink Href="/" Match="NavLinkMatch.All"><MudText Typo="Typo.h5" Class="ml-3">MiNICarRental</MudText></MudNavLink>
+        <MudSpacer />
+        <MudMenu Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" AriaLabel="Open menu">
+            <MudMenuItem Icon="@Icons.Material.Filled.AccountCircle" IconSize="Size.Large">Account</MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Filled.History" IconSize="Size.Large">Rental history</MudMenuItem>
+            <MudMenuItem OnClick="logOutButtonOnClick" Icon="@Icons.Material.Filled.Logout" IconSize="Size.Large">Logout</MudMenuItem>
+        </MudMenu>
+    </MudAppBar>
+
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private void logOutButtonOnClick()
+    {
+        Navigation.NavigateTo("/logout", forceLoad: true);
+    }
+}
