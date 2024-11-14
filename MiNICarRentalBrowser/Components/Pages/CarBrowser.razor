@@ -15,9 +15,9 @@
                     <MudItem>
                         <MudSelect Style="width: 230px" MultiSelectionTextFunc="@(new Func<List<string>, string>(GetBrandsMultiSelectionText))" MultiSelection="true" T="string" AdornmentIcon="@Icons.Material.Filled.Search"
                                    AnchorOrigin="Origin.BottomCenter" Label="Brands" SelectedValuesChanged="OnBrandMultiSelectionChanged" Variant="Variant.Outlined">
-                    @foreach (var brand in uniqueBrands)
+                            @foreach (var brand in uniqueBrands)
                             {
-                        <MudSelectItem T="string" Value="@brand">@brand</MudSelectItem>
+                                <MudSelectItem T="string" Value="@brand">@brand</MudSelectItem>
                             }
                         </MudSelect>
                     </MudItem>
@@ -39,12 +39,31 @@
             <MudPaper Elevation="1" Class="pa-4" Width="310px">
                 <MudText Typo="Typo.h6">Filtry</MudText>
                 <MudDivider Class="my-2" />
-                <MudText Typo="Typo.subtitle2" Class="mt-2">Marka</MudText>
-                @foreach (var brand in filterBrandList)
-                {
-                    <MudCheckBox T="bool" Label="@brand.Name" ValueChanged="value => OnBrandSelectionChanged(brand.Name, value)"/>
-                }
-                <MudDivider Class="my-2" />
+                <MudExpansionPanels MultiExpansion="true" Outlined="false" Elevation="0">
+                    <MudExpansionPanel Text="Brands" Expanded="true">
+                        @foreach (var brand in filterBrandList)
+                        {
+                            <MudCheckBox T="bool" Label="@brand.Name" ValueChanged="value => OnBrandSelectionChanged(brand.Name, value)" />
+                        }
+                    </MudExpansionPanel>
+                    <MudExpansionPanel Text="Models">
+                        <MudStack Justify="Justify.Center" Class="mud-width-full">
+                            <MudSelect MultiSelectionTextFunc="@(new Func<List<string>, string>(GetModelsMultiSelectionText))" MultiSelection="true" @bind-SelectedValues="modelOptions" T="string"
+                                       AdornmentIcon="@Icons.Material.Filled.Search" AnchorOrigin="Origin.BottomCenter" Label="Models" ValueChanged="OnModelSelectionChanged" Variant="Variant.Outlined">
+                                @foreach (var model in uniqueModels)
+                                {
+                                    <MudSelectItem T="string" Value="@model">@model</MudSelectItem>
+                                }
+                            </MudSelect>
+                            <MudChipSet T="string" AllClosable="true" CheckMark="true" SelectionMode="SelectionMode.MultiSelection" OnClose="OnChipClose">
+                                @foreach (var model in modelOptions)
+                                {
+                                    <MudChip Value="model" />
+                                }
+                            </MudChipSet>
+                        </MudStack>
+                    </MudExpansionPanel>
+                </MudExpansionPanels>
             </MudPaper>
         </MudItem>
 
@@ -235,6 +254,9 @@
     {
         Navigation.NavigateTo($"/CarToRentDetails/{carId}");
     }
+
+    private void OnChipClose(MudChip<string> chip) =>
+        modelOptions = modelOptions.Where(x => x != chip.Value);
 
     private async Task UpdateUrl()
     {
