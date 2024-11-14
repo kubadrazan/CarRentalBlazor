@@ -141,7 +141,7 @@
 
     public class FilterBrand
     {
-        public string Name;
+        public required string Name;
         public bool IsSelected;
     }
 
@@ -175,9 +175,7 @@
 
         ApplyFilters();
 
-        if (query.Get("page") != null && int.TryParse(query.Get("page"), out var page) && filteredCars.Count > (page - 1) * pageSize)
-            currentPage = page;
-        else
+        if (currentPage == 0 || filteredCars.Count <= (currentPage - 1) * pageSize)
             currentPage = 1;
 
         ApplyPaging();
