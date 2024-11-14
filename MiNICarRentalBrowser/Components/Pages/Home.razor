@@ -2,6 +2,8 @@
 @using MudBlazor
 @using System.Threading
 @inject NavigationManager Navigation
+@using Browser_FrontEnd.Services
+@inject RentalServicecs rentalService
 
 <style>
     .centered {
@@ -124,8 +126,9 @@
     {
         await base.OnInitializedAsync();
 
-        _models = new();
-        // todo get brands and models
+        _models = await rentalService.GetCarBrandsAndModels();
+        if (_models is not null)
+            _brands = _models.Keys.ToArray();
     }
 
     protected async Task BrandChanged(string newValue)
@@ -160,6 +163,7 @@
     {
         await Task.Delay(delay);
         CloseAlert(true);
+        await InvokeAsync(StateHasChanged);
     }
 
     private void CloseAlert(bool value)

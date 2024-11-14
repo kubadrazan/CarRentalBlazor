@@ -15,6 +15,22 @@ namespace Browser_FrontEnd.Services
 			}
 		}
 
+		public async Task<Dictionary<string, string[]>?> GetCarBrandsAndModels()
+		{
+            try
+            {
+				// todo design better url
+                var response = await _httpClient
+					.GetFromJsonAsync<Dictionary<string, string[]>>($"{_url}/carBrandsModels");
+                return response;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching car data: {ex.Message}");
+                return null;
+            }
+        }
+
         public async Task<List<Car>> GetCarsAsync()
         {
             try
