@@ -10,33 +10,48 @@
 @inject NavigationManager navigation
 <div class="container">
 	<div class="car-info">
-		<h3>Szczegóły samochodu</h3>
-				<p><strong>Marka:</strong>@car.Model.Brand.Name</p>
-		<p><strong>Model:</strong> @car.Model.Name</p>
-		<p><strong>Rok produkcji:</strong> @car.ProductionYear</p>
-		<p><strong>Kolor:</strong> Czarny</p>
-		<p><strong>Silnik:</strong> 3.0L V6</p>
+		@if (isCarLoaded)
+		{
+			<h3>Szczegóły samochodu</h3>
+			<p><strong>Marka:</strong>@car.Model.Brand.Name</p>
+			<p><strong>Model:</strong> @car.Model.Name</p>
+			<p><strong>Rok produkcji:</strong> @car.ProductionYear</p>
+			<p><strong>Lokalizacja:</strong> @car.Localization</p>
+			<p><strong>Silnik:</strong> 3.0L V6</p>
+		}
+		else
+		{
+			<p>Wczytywanie danych samochodu...</p>
+		}
 	</div>
 
 	<div class="car-info">
 		<h3>Oferty</h3>
-
-				@foreach (Offer offer in offers)
+		@if (areOffersLoaded)
 		{
-		<div class="offer-row">
-		<p><strong>@offer </strong>@offer</p>
-		<button onclick="@CheckAndLogin()" class="button">Rent Me</button>
-		</div>
+			@foreach (Offer offer in offers)
+			{
+				<div class="offer-row">
+					<p><strong>@offer </strong>@offer</p>
+					<button onclick="@CheckAndLogin()" class="button">Rent Me</button>
+				</div>
+			}
 		}
-		
+		else
+		{
+			<p>Loading offers...</p>
+		}
 	</div>
 </div>
 
 
 @code {
-		[Parameter]
-		public int carID { get; set; }
+	[Parameter]
+	public int carID { get; set; }
 	private Car car;
+
+	private bool areOffersLoaded = false;
+	private bool isCarLoaded = false;
 
 	private List<Offer> offers;
 
@@ -44,7 +59,17 @@
 	{
 		await base.OnInitializedAsync();
 		car = await renatalService.GetCarDetailsAsync(carID);
+		if (car != null)
+		{
+			isCarLoaded = true;
+		}
 		offers = await renatalService.GetOffersAsync(carID);
+		if (offers == null)
+		{
+			offers = new List<Offer>();
+		}
+		areOffersLoaded = true;
+		await InvokeAsync(StateHasChanged);
 	}
 	public async Task CheckAndLogin()
 	{
