@@ -1,12 +1,21 @@
 ﻿@page "/"
 @using MudBlazor
 @using System.Threading
+@inject NavigationManager Navigation
+
 <style>
     .centered {
         position: fixed;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
+    }
+
+
+    .centered-top {
+        position: fixed;
+        left: 50%;
+        transform: translate(-50%, 0);
     }
 
     img.home {
@@ -23,42 +32,76 @@
         border-color: #A64DB6;
         border-width: 3px
     }
+
+    .gray-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
+        border-color: #808080;
+        border-width: 3px
+    }
 </style>
+
 <MudCard Class="centered rounded-xl" Style="padding-top:20px;
     padding-left:50px; padding-right:50px; padding-bottom:20px">
     <MudStack Row="true">
         <MudStack Style="width: 300px; height:300px; margin-top:50px; margin-right:20px"
-        Justify="Justify.Center">
-            <MudAutocomplete T="string"
-                             @bind-Value="_brand"
-                             SearchFunc="SearchBrand"
-                             Variant=Variant.Outlined
-                             Label="Brand"
-                             Placeholder="Choose car brand"
-                             Clearable="true"
-                             Style="margin-top:15px"
-                             Class="purple-accents" />
+                  Justify="Justify.Center">
+            <MudSelect @bind-Value="_brand"
+                       TextChanged="BrandChanged"
+                       Label="Brand"
+                       Clearable="true"
+                       Variant=Variant.Outlined
+                       Style="margin-top:15px"
+                       Class="purple-accents">
+                @foreach (var state in _states)
+                {
+                    <MudSelectItem Value="state">@state</MudSelectItem>
+                }
+            </MudSelect>
 
-            <MudAutocomplete T="string"
-                             @bind-Value="_model"
-                             SearchFunc="SearchModel"
-                             Variant=Variant.Outlined
-                             Label="Model"
-                             Placeholder="Choose car model"
-                             Clearable="true"
-                             Style="margin-bottom:15px"
-                             Class="purple-accents" />
+            @if (String.IsNullOrEmpty(_brand))
+            {
 
-            <button class="button home_btn" onclick="Search">Search</button>
+                <MudSelect @bind-Value="_brand"
+                        Label="Model"
+                        Disabled="true"
+                        Variant=Variant.Outlined
+                        Style="margin-bottom:15px"
+                        Class="gray-accents">
+                </MudSelect>
+            }
+            else
+            {
+                <MudSelect @bind-Value="_model"
+                        Label="Model"
+                        Clearable="true"
+                        Variant=Variant.Outlined
+                        Style="margin-bottom:15px"
+                        Class="purple-accents">
+                    @foreach (var state in _states)
+                    {
+                        <MudSelectItem Value="state">@state</MudSelectItem>
+                    }
+                </MudSelect>
+            }
+
+            <button @onclick=SearchCar class="button home_btn">Search</button>
         </MudStack>
 
-        <img class="home "src="landing_page_car.jpg" height="400"/>
+        <img class="home " src="landing_page_car.jpg" height="400" />
     </MudStack>
 </MudCard>
 
+@if (_showBrandAlert)
+{
+    <MudCard Class="centered-top rounded-xl">
+        <MudAlert Class="rounded-xl" Severity="Severity.Error" ShowCloseIcon="true"
+                  CloseIconClicked="(() => CloseAlert(true))">Car brand is required!</MudAlert>
+    </MudCard>
+}
+
 @code {
-    string _brand;
-    string _model;
+    private string? _brand;
+    private string? _model;
+    private bool _showBrandAlert = false;
 
     private string[] _states =
     {
@@ -74,32 +117,53 @@
         "Washington", "West Virginia", "Wisconsin", "Wyoming"
     };
 
-    private async Task<IEnumerable<string>> SearchBrand(string value, CancellationToken token)
+    private string[] _brands;
+    private Dictionary<string, string[]> _models;
+
+    protected override async Task OnInitializedAsync()
     {
-        // In real life use an asynchronous function for fetching data from an api.
-        await Task.Delay(5, token);
+        await base.OnInitializedAsync();
 
-        // if text is null or empty, show complete list
-        if (string.IsNullOrEmpty(value))
-            return _states;
-
-        return _states.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        _models = new();
+        // todo get brands and models
     }
 
-    private async Task<IEnumerable<string>> SearchModel(string value, CancellationToken token)
+    protected async Task BrandChanged(string newValue)
     {
-        // In real life use an asynchronous function for fetching data from an api.
-        await Task.Delay(5, token);
-
-        // if text is null or empty, show complete list
-        if (string.IsNullOrEmpty(value))
-            return _states;
-
-        return _states.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        _model = String.Empty;
     }
 
-    public void Search()
+    private async Task SearchCar()
     {
-        Console.WriteLine("Search");
+        if (String.IsNullOrEmpty(_brand))
+        {
+            _showBrandAlert = true;
+            await CloseAlertAfterDelay(10*1000);
+        }
+        else
+        {
+            _showBrandAlert = false;
+            var uri = Navigation.ToAbsoluteUri("/car-browser");
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            query.Add("brand", _brand);
+            if (!String.IsNullOrEmpty(_model))
+                query.Add("model", _model);
+
+            var newUri = $"{uri.GetLeftPart(UriPartial.Path)}?{query}";
+            Navigation.NavigateTo(newUri);
+            Navigation.NavigateTo(newUri);
+        }
+    }
+
+    // todo add cancellation token
+    public async Task CloseAlertAfterDelay(int delay)
+    {
+        await Task.Delay(delay);
+        CloseAlert(true);
+    }
+
+    private void CloseAlert(bool value)
+    {
+        _showBrandAlert = !value;
     }
 }
