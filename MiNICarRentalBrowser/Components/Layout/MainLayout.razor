@@ -6,8 +6,10 @@
 <MudSnackbarProvider @rendermode="InteractiveServer" />
 
 <MudLayout>
-    <MudAppBar Color="Color.Primary" Fixed="false">
-        <MudNavLink Href="/" Match="NavLinkMatch.All">MiNICarRental</MudNavLink>
+    <MudAppBar Color="Color.Primary" Fixed="false" Elevation="1">
+        <MudNavLink Href="/" Match="NavLinkMatch.All"><MudText Typo="Typo.h5" Class="ml-3">MiNICarRental</MudText></MudNavLink>
+        <MudSpacer />
+        <MudButton DropShadow="false" StartIcon="@Icons.Material.Filled.AccountCircle" IconSize="Size.Large" Color="Color.Inherit">Account</MudButton>
     </MudAppBar>
 
     <MudMainContent>

@@ -104,6 +104,10 @@
     [SupplyParameterFromQuery(Name = "model")]
     public string[]? models { get; set; }
 
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "page")]
+    public int currentPage { get; set; }
+
     private IEnumerable<string> brandOptions { get; set; } = new HashSet<string>() { };
     private IEnumerable<string> modelOptions { get; set; } = new HashSet<string>() { };
 
@@ -114,7 +118,6 @@
     private List<Car> filteredCars = new List<Car>(); // Przefiltrowana lista samochodów
     private List<FilterBrand> filterBrandList = new List<FilterBrand>();
 
-    private int currentPage = 1;
     private int pageSize = 5;
 
     public class FilterBrand
@@ -143,20 +146,20 @@
         }
 
         if (brands != null)
+        {
             brandOptions = new HashSet<string>(brands) { };
+            filterBrandList.ForEach(brand => brand.IsSelected = brandOptions.Contains(brand.Name));
+        }
+
         if (models != null)
             modelOptions = new HashSet<string>(models) { };
 
         ApplyFilters();
 
-        if (query.Get("page") != null)
-        {
-            if (int.TryParse(query.Get("page"), out var page))
-            {
-                if (filteredCars.Count > (page - 1) * pageSize)
-                    currentPage = page;
-            }
-        }
+        if (query.Get("page") != null && int.TryParse(query.Get("page"), out var page) && filteredCars.Count > (page - 1) * pageSize)
+            currentPage = page;
+        else
+            currentPage = 1;
 
         ApplyPaging();
     }
