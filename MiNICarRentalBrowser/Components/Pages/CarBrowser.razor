@@ -157,17 +157,17 @@
             uniqueBrands = cars.Select(car => car.Model.Brand.Name).Distinct().ToList();
             uniqueModels = cars.Select(car => car.Model.Name).Distinct().ToList();
         }
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
 
         if (brands != null)
             brandOptions = new HashSet<string>(brands) { };
 
         if (models != null)
             modelOptions = new HashSet<string>(models) { };
-    }
-
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
 
         ApplyFilters();
 
@@ -207,10 +207,10 @@
                 .ToList();
     }
 
-    private async Task ApplyFiltersButtonClick()
+    private void ApplyFiltersButtonClick()
     {
         ApplyFilters();
-        await UpdateUrl();
+        UpdateUrl();
     }
 
     private void OnBrandSelectionChanged(string brand, bool state)
@@ -233,11 +233,11 @@
 
     }
 
-    private async Task OnPageChanged(int page)
+    private void OnPageChanged(int page)
     {
         currentPage = page;
         ApplyPaging();
-        await UpdateUrl();
+        UpdateUrl();
     }
 
     private string GetBrandsMultiSelectionText(List<string> selectedValues)
@@ -258,7 +258,7 @@
     private void OnChipClose(MudChip<string> chip) =>
         modelOptions = modelOptions.Where(x => x != chip.Value);
 
-    private async Task UpdateUrl()
+    private void UpdateUrl()
     {
         var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
         var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
@@ -279,7 +279,6 @@
 
         query.Add("page", currentPage.ToString());
 
-        await Task.Delay(100);
         var newUri = $"{uri.GetLeftPart(UriPartial.Path)}?{query}";
         Navigation.NavigateTo(newUri, forceLoad: false);
     }
