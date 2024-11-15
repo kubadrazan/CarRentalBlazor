@@ -8,7 +8,9 @@
 
 <MudLayout>
     <MudAppBar Color="Color.Primary" Fixed="false" Elevation="1">
-        <MudNavLink Href="/" Match="NavLinkMatch.All"><MudText Typo="Typo.h5" Class="ml-3">MiNICarRental</MudText></MudNavLink>
+        <MudButton DropShadow="false" Href="/" Color="Color.Inherit" Style="display: inline-flex; align-items: center; justify-content: left">
+            <MudText Typo="Typo.h5" Class="ml-3" Style="display: inline-flex">MiNICarRental</MudText>
+        </MudButton>
         <MudSpacer />
         <MudButton DropShadow="false" OnClick="logInButtonOnClick" Style="font-size: 15px; white-space: nowrap;" Color="Color.Inherit">
             <MudIcon Icon="@Icons.Material.Filled.AccountCircle" Style="font-size: 45px;" /> Log In
@@ -20,7 +22,7 @@
     </MudMainContent>
 </MudLayout>
 
-@code{
+@code {
     private void logInButtonOnClick()
     {
         Navigation.NavigateTo("/login", forceLoad: true);

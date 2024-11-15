@@ -10,7 +10,7 @@
             }
             else
             {
-                <RouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.LoggedInLayout)" />
+                <RouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.LoggedOutLayout)" />
             }
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />
         </Found>
