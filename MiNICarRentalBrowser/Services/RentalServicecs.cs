@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using SharedDataModels;
+using SharedDataModels.DTO;
 
 namespace Browser_FrontEnd.Services
 {
@@ -19,7 +20,7 @@ namespace Browser_FrontEnd.Services
         {
             try
             {
-                var response = await _httpClient.GetFromJsonAsync<List<string>>($"{_apiA}/brands");
+                var response = await _httpClient.GetFromJsonAsync<List<string>>($"{_apiA}/api/Cars/brands");
                 return response ?? new List<string>();
             }
             catch (Exception ex)
@@ -33,7 +34,7 @@ namespace Browser_FrontEnd.Services
         {
             try
             {
-                var response = await _httpClient.GetFromJsonAsync<List<string>>($"{_apiA}/models");
+                var response = await _httpClient.GetFromJsonAsync<List<string>>($"{_apiA}/api/Cars/models");
                 return response ?? new List<string>();
             }
             catch (Exception ex)
@@ -73,17 +74,19 @@ namespace Browser_FrontEnd.Services
 
         public async Task<(List<Car>,int filteredCarsCount)> GetCars(List<string>? brands, List<string>? models, int? lastId, int pageSize)
         {
-            var url = CreateQuery(_apiA, brands, models, lastId, pageSize);
+            var queryParams = CreateQuery( brands, models, lastId, pageSize);
 
-            var response = await _httpClient.GetFromJsonAsync<(List<Car>,int)>(url);
+            var urlA = $"{_apiA}/api/Cars?{queryParams}";
 
-            if (response.Item1 != null && response.Item1.Any())
-                return response;
+            var response = await _httpClient.GetFromJsonAsync<PagedCarsResponse>(urlA);
+
+            if ( response != null && response.Cars != null && response.Cars.Any())
+                return (response.Cars, response.TotalCount);
 
             return (new List<Car>(),0);
         }
 
-        private string CreateQuery(string url, List<string>? brands, List<string>? models, int? lastId, int pageSize)
+        private string CreateQuery( List<string>? brands, List<string>? models, int? lastId, int pageSize)
         {
             var queryParams = new List<string>();
 

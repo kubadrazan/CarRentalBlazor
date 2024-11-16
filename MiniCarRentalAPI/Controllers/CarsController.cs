@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using MiniCarRentalAPI.Data;
 using SharedDataModels;
+using SharedDataModels.DTO;
 
 namespace MiniCarRentalAPI.Controllers
 {
@@ -40,7 +42,7 @@ namespace MiniCarRentalAPI.Controllers
         public async Task<IActionResult> GetUniqueBrands()
         {
             var brands = await _context.Cars
-                .Select(c => c.Model.Brand)
+                .Select(c => c.Model.Brand.Name)
                 .Distinct()
                 .ToListAsync();
 
@@ -78,9 +80,13 @@ namespace MiniCarRentalAPI.Controllers
             if (lastId.HasValue)
                 query = query.Where(car => car.ID > lastId.Value);
 
+            int allCount = query.Count();
+
             var cars = await query.OrderBy(car => car.ID).Take(pageSize).ToListAsync();
 
-            return Ok((query,1));
+            var result = new PagedCarsResponse() { Cars = cars, TotalCount = allCount };
+
+            return Ok(result);
         }
 
         // POST: api/Cars

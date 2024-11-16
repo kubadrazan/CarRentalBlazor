@@ -179,33 +179,24 @@
         await base.OnInitializedAsync();
 
         uniqueBrands = await rentalService.GetUniqueBrandNamesAsyc();
-        uniqueModels = await rentalService.GetUniqueBrandNamesAsyc();
+        uniqueModels = await rentalService.GetUniqueModelNamesAsyc();
     }
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
-        base.OnParametersSet();
+        await base.OnParametersSetAsync();
 
         if (brands != null)
             brandOptions = new HashSet<string>(brands) { };
 
         if (models != null)
             modelOptions = new HashSet<string>(models) { };
-    }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        await base.OnAfterRenderAsync(firstRender);
-
-        if (firstRender)
-        {
-            (cars, filteredCarsCount) = await rentalService.GetCars(brandOptions.ToList(), modelOptions.ToList(), lastId, pageSize);
-        }
+        (cars, filteredCarsCount) = await rentalService.GetCars(brandOptions.ToList(), modelOptions.ToList(), lastId, pageSize);
     }
 
     private void ApplyFiltersButtonClick()
     {
-
         UpdateUrl();
     }
 
