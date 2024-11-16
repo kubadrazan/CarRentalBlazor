@@ -16,7 +16,7 @@ namespace MiniCarRentalAPI.Controllers
     {
         private readonly CarRentalContext _context;
 
-        public CarsControllerScaffolded(CarRentalContext context)
+        public CarsController(CarRentalContext context)
         {
             _context = context;
         }
@@ -108,7 +108,7 @@ namespace MiniCarRentalAPI.Controllers
             return NoContent();
         }
 
-        // DELETE: apiCcars/5
+        // DELETE: api/Cars/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCar(int id)
         {
