@@ -14,5 +14,8 @@ namespace MiniCarRentalAPI.Data
         public DbSet<Brand> Brands { get; set; }
         public DbSet<Localization> Localizations { get; set; }
         public DbSet<Rental> Rentals { get; set; }
+
+        // todo add other tables: Return, Acceptation, Description, Image
+
     }
 }

@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
+using Microsoft.EntityFrameworkCore;
 using MiNICarRentalBrowser.Components;
+using MiNICarRentalBrowser.Data;
 using MudBlazor.Services;
 
 namespace MiNICarRentalBrowser
@@ -15,8 +17,12 @@ namespace MiNICarRentalBrowser
 		{
 			var builder = WebApplication.CreateBuilder(args);
 
-			// Google Authentication
-			builder.Services.AddAuthentication(options =>
+            builder.Services.AddDbContext<UsersContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+                );
+
+            // Google Authentication
+            builder.Services.AddAuthentication(options =>
 			{
 				options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 				options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
