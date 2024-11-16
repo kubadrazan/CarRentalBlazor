@@ -22,7 +22,7 @@ namespace SharedDataModels
 
         [DataType(DataType.Currency)]
         [Column(TypeName = "money")]
-        public float InsurancePricePerDat { get; set; }
+        public float InsurancePricePerDay { get; set; }
 
         public int ModelID { get; set; }
         public int LocalizationID { get; set; }

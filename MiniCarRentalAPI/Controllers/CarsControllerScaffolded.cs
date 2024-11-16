@@ -16,7 +16,7 @@ namespace MiniCarRentalAPI.Controllers
     {
         private readonly CarRentalContext _context;
 
-        public CarsController(CarRentalContext context)
+        public CarsControllerScaffolded(CarRentalContext context)
         {
             _context = context;
         }
