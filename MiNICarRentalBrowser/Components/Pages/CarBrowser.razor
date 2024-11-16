@@ -130,17 +130,15 @@
     public string[]? models { get; set; }
 
     [Parameter]
-    [SupplyParameterFromQuery(Name = "page")]
-    public int currentPage { get; set; }
+    [SupplyParameterFromQuery(Name = "lastId")]
+    public int? lastId { get; set; }
 
     private IEnumerable<string> brandOptions { get; set; } = new HashSet<string>() { };
     private IEnumerable<string> modelOptions { get; set; } = new HashSet<string>() { };
 
-    private List<Car> cars = new List<Car>(); // Lista wszystkich samochodów
+    private List<Car> cars = new List<Car>();
     private List<string> uniqueBrands = new List<string>(); // Lista marek do selectBoxa
     private List<string> uniqueModels = new List<string>(); // Lista modeli do selectBoxa
-    private List<Car> pagedCars = new List<Car>(); // Lista samochodów na bieżącej stronie
-    private List<Car> filteredCars = new List<Car>(); // Przefiltrowana lista samochodów
 
     private int pageSize = 5;
 
@@ -148,15 +146,8 @@
     {
         await base.OnInitializedAsync();
 
-        //cars = await renatalService.GetCarsAsync();
-        cars = new List<Car>() { new Car() { Model = new Model { Name = "Astra", Brand = new SharedDataModels.Brand() { Name = "Opel" } } },
-                                 new Car() { Model = new Model { Name = "Punto", Brand = new SharedDataModels.Brand() { Name = "Fiat" } } }};
-
-        if (cars != null)
-        {
-            uniqueBrands = cars.Select(car => car.Model.Brand.Name).Distinct().ToList();
-            uniqueModels = cars.Select(car => car.Model.Name).Distinct().ToList();
-        }
+        uniqueBrands = await rentalService.GetUniqueBrandNamesAsyc();
+        uniqueModels = await rentalService.GetUniqueBrandNamesAsyc();
     }
 
     protected override void OnParametersSet()
@@ -168,48 +159,20 @@
 
         if (models != null)
             modelOptions = new HashSet<string>(models) { };
-
-        ApplyFilters();
-
-        if (currentPage == 0 || filteredCars.Count <= (currentPage - 1) * pageSize)
-            currentPage = 1;
-
-        ApplyPaging();
     }
 
-    private void ApplyFilters()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (brandOptions.Any())
-        {
-            filteredCars = cars.Where(car => brandOptions.Contains(car.Model.Brand.Name))
-                .ToList();
-        }
-        else if (cars != null)
-        {
-            filteredCars = cars;
-        }
+        await base.OnAfterRenderAsync(firstRender);
 
-        if (modelOptions.Any())
+        if (firstRender)
         {
-            filteredCars = filteredCars.Where(car => modelOptions.Contains(car.Model.Name))
-            .ToList();
+            (cars, filteredCarsCount) = await rentalService.GetCars(brandOptions.ToList(), modelOptions.ToList(), lastId, pageSize);
         }
-
-        ApplyPaging();
-    }
-
-    private void ApplyPaging()
-    {
-        if (filteredCars != null)
-            pagedCars = filteredCars
-                .Skip((currentPage - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
     }
 
     private void ApplyFiltersButtonClick()
     {
-        ApplyFilters();
         UpdateUrl();
     }
 
@@ -233,10 +196,8 @@
 
     }
 
-    private void OnPageChanged(int page)
+    private void OnPageChanged()
     {
-        currentPage = page;
-        ApplyPaging();
         UpdateUrl();
     }
 
@@ -265,7 +226,15 @@
 
         query.Remove("brand");
         query.Remove("model");
-        query.Remove("page");
+        query.Remove("pageSize");
+        query.Remove("lastId");
+
+        lastId = cars.Last().ID;
+
+        query.Add("pageSize",pageSize.ToString());
+
+        if (lastId.HasValue)
+            query.Add("lastId", lastId.ToString());
 
         foreach (var brand in brandOptions)
         {
@@ -276,8 +245,6 @@
         {
             query.Add("model", model);
         }
-
-        query.Add("page", currentPage.ToString());
 
         var newUri = $"{uri.GetLeftPart(UriPartial.Path)}?{query}";
         Navigation.NavigateTo(newUri, forceLoad: false);
