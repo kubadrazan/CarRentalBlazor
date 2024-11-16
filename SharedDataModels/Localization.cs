@@ -15,5 +15,6 @@
         public int HouseNumber { get; set; }
 
         public ICollection<Car> Cars { get; set; }
+        public ICollection<Return> Returns { get; set; }
     }
 }
