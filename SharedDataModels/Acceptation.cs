@@ -26,5 +26,11 @@ namespace SharedDataModels
 
         public Description Description { get; set; }
 
+        public ICollection<Image> Images { get; set; }
+
+
+        //[FromForm]
+        //[NotMapped]
+        //public IFormFileCollection Files { get; set; }
     }
 }
