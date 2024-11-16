@@ -7,9 +7,12 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MiniCarRentalAPI.Data;
 using SharedDataModels;
+
 namespace MiniCarRentalAPI.Controllers
 {
-    public class CarsController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class CarsController : ControllerBase
     {
         private readonly CarRentalContext _context;
 
@@ -18,152 +21,107 @@ namespace MiniCarRentalAPI.Controllers
             _context = context;
         }
 
-        // GET: Cars
-        public async Task<IActionResult> Index()
+        // GET: api/Cars/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Car>> GetCar(int id)
         {
-            var carRentalContext = _context.Cars.Include(c => c.Localization).Include(c => c.Model);
-            return View(await carRentalContext.ToListAsync());
-        }
-
-        // GET: Cars/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var car = await _context.Cars
-                .Include(c => c.Localization)
-                .Include(c => c.Model)
-                .FirstOrDefaultAsync(m => m.ID == id);
-            if (car == null)
-            {
-                return NotFound();
-            }
-
-            return View(car);
-        }
-
-        // GET: Cars/Create
-        public IActionResult Create()
-        {
-            ViewData["LocalizationID"] = new SelectList(_context.Localizations, "ID", "ID");
-            ViewData["ModelID"] = new SelectList(_context.Models, "ID", "Name");
-            return View();
-        }
-
-        // POST: Cars/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,ProductionYear,Availability,PricePerDay,InsurancePricePerDat,ModelID,LocalizationID")] Car car)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(car);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["LocalizationID"] = new SelectList(_context.Localizations, "ID", "ID", car.LocalizationID);
-            ViewData["ModelID"] = new SelectList(_context.Models, "ID", "Name", car.ModelID);
-            return View(car);
-        }
-
-        // GET: Cars/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var car = await _context.Cars.FindAsync(id);
+
             if (car == null)
             {
                 return NotFound();
             }
-            ViewData["LocalizationID"] = new SelectList(_context.Localizations, "ID", "ID", car.LocalizationID);
-            ViewData["ModelID"] = new SelectList(_context.Models, "ID", "Name", car.ModelID);
-            return View(car);
+
+            return Ok(car);
         }
 
-        // POST: Cars/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // GET: api/Cars/brands
+        [HttpGet("brands")]
+        public async Task<IActionResult> GetUniqueBrands()
+        {
+            var brands = await _context.Cars
+                .Select(c => c.Model.Brand)
+                .Distinct()
+                .ToListAsync();
+
+            return Ok(brands);
+        }
+
+        // GET: api/Cars/models
+        [HttpGet("models")]
+        public async Task<IActionResult> GetUniqueModels()
+        {
+            var models = await _context.Cars
+                .Select(c => c.Model.Name)
+                .Distinct()
+                .ToListAsync();
+
+            return Ok(models);
+        }
+
+        // GET: api/Cars
+        [HttpGet]
+        public async Task<IActionResult> GetFilteredCars(
+            [FromQuery] List<string> brands,
+            [FromQuery] List<string> models,
+            [FromQuery] int? lastId = null,
+            [FromQuery] int pageSize = 5)
+        {
+            var query = _context.Cars.AsQueryable();
+
+            if (brands != null && brands.Any())
+                query = query.Where(car => brands.Contains(car.Model.Brand.Name));
+
+            if (models != null && models.Any())
+                query = query.Where(car => models.Contains(car.Model.Name));
+
+            if (lastId.HasValue)
+                query = query.Where(car => car.ID > lastId.Value);
+
+            var cars = await query.OrderBy(car => car.ID).Take(pageSize).ToListAsync();
+
+            return Ok((query,1));
+        }
+
+        // POST: api/Cars
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,ProductionYear,Availability,PricePerDay,InsurancePricePerDat,ModelID,LocalizationID")] Car car)
+        public async Task<ActionResult<Car>> PostCar(Car car)
+        {
+            _context.Cars.Add(car);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetCar), new { id = car.ID }, car);
+        }
+
+        // PUT: api/Cars/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutCar(int id, Car car)
         {
             if (id != car.ID)
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(car);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CarExists(car.ID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["LocalizationID"] = new SelectList(_context.Localizations, "ID", "ID", car.LocalizationID);
-            ViewData["ModelID"] = new SelectList(_context.Models, "ID", "Name", car.ModelID);
-            return View(car);
+            _context.Entry(car).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
-        // GET: Cars/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // DELETE: apiCcars/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCar(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var car = await _context.Cars
-                .Include(c => c.Localization)
-                .Include(c => c.Model)
-                .FirstOrDefaultAsync(m => m.ID == id);
+            var car = await _context.Cars.FindAsync(id);
             if (car == null)
             {
                 return NotFound();
             }
 
-            return View(car);
-        }
-
-        // POST: Cars/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var car = await _context.Cars.FindAsync(id);
-            if (car != null)
-            {
-                _context.Cars.Remove(car);
-            }
-
+            _context.Cars.Remove(car);  // Usunięcie samochodu z bazy danych
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
 
-        private bool CarExists(int id)
-        {
-            return _context.Cars.Any(e => e.ID == id);
+            return NoContent();
         }
     }
 }
