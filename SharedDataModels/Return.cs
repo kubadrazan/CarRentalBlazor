@@ -8,19 +8,22 @@ using System.Threading.Tasks;
 
 namespace SharedDataModels
 {
-    public class RentalBrowser
+    public class Return
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // change to none and replace with your own or smth
         public int ID { get; set; }
 
         [DataType(DataType.Date)]
-        public DateTime RentDate { get; set; }
+        public DateTime ReturnDate { get; set; }
 
-        public int CarID { get; set; }
-        public int UserID { get; set; } 
-        public int SourceAPI { get; set; }
+        public int RentalID { get; set; }
 
-        public User User { get; set; }
+        public int LocalizationID { get; set; }
+
+        public Localization Localization { get; set; }
+
+        public Rental Rental { get; set; }
+
+        public Acceptation? Acceptation { get; set; }
     }
 }
-
