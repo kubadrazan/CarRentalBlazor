@@ -105,6 +105,8 @@
     private string? _model;
     private bool _showBrandAlert = false;
 
+    // todo add for smaller screens
+    // todo delete this and update rest
     private string[] _states =
     {
         "Alabama", "Alaska", "Arizona", "Arkansas", "California",
@@ -158,7 +160,6 @@
         }
     }
 
-    // todo add cancellation token
     public async Task CloseAlertAfterDelay(int delay)
     {
         await Task.Delay(delay);
