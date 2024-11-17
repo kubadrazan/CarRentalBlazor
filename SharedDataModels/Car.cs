@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace SharedDataModels
 {
@@ -30,6 +31,7 @@ namespace SharedDataModels
         public Model Model { get; set; }
         public Localization Localization { get; set; }
 
+        [JsonIgnore]
         public ICollection<Rental> Rentals { get; set; }
     }
 }
