@@ -27,7 +27,12 @@ namespace MiniCarRentalAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Car>> GetCar(int id)
         {
-            var car = await _context.Cars.FindAsync(id);
+            var car = await _context.Cars
+                .Include(c => c.Localization)
+                .Include(c => c.Model)
+                .ThenInclude(m => m.Brand)
+                .FirstOrDefaultAsync(c => c.ID == id);
+            //.FindAsync(id);
 
             if (car == null)
             {

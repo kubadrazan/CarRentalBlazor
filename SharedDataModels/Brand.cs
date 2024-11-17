@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace SharedDataModels
 {
@@ -10,6 +11,7 @@ namespace SharedDataModels
         [StringLength(50, MinimumLength = 1)]
         public string Name { get; set; }
 
+        [JsonIgnore]
         public ICollection<Model> Models { get; set; }
 
     }

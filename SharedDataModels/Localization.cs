@@ -1,4 +1,6 @@
-﻿namespace SharedDataModels
+﻿using System.Text.Json.Serialization;
+
+namespace SharedDataModels
 {
 	public class Localization
     {
@@ -14,7 +16,10 @@
 
         public int HouseNumber { get; set; }
 
+        [JsonIgnore]
         public ICollection<Car> Cars { get; set; }
+
+        [JsonIgnore]
         public ICollection<Return> Returns { get; set; }
     }
 }
