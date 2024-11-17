@@ -148,7 +148,7 @@
 </MudContainer>
 
 <div class="mt-5 mb-5 d-flex flex-column align-center">
-    <MudPagination ShowPageButtons="false" PageSize="5" TotalItems="@filteredCarsCount" SelectedChanged="OnPageChanged" />
+    <MudPagination ShowPageButtons="false" PageSize="5" Count="@filteredCarsCount" SelectedChanged="OnPageChanged" />
 </div>
 
 @code {
@@ -184,8 +184,6 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        await base.OnParametersSetAsync();
-
         if (brands != null)
             brandOptions = new HashSet<string>(brands) { };
 
@@ -193,10 +191,13 @@
             modelOptions = new HashSet<string>(models) { };
 
         (cars, filteredCarsCount) = await rentalService.GetCars(brandOptions.ToList(), modelOptions.ToList(), lastId, pageSize);
+
+        await base.OnParametersSetAsync();
     }
 
     private void ApplyFiltersButtonClick()
     {
+        lastId = -1;
         UpdateUrl();
     }
 
@@ -222,6 +223,7 @@
 
     private void OnPageChanged()
     {
+        lastId = cars.Last().ID;
         UpdateUrl();
     }
 
@@ -252,8 +254,6 @@
         query.Remove("model");
         query.Remove("pageSize");
         query.Remove("lastId");
-
-        lastId = cars.Last().ID;
 
         query.Add("pageSize",pageSize.ToString());
 

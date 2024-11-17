@@ -128,7 +128,7 @@
     {
         await base.OnInitializedAsync();
 
-        _models = await rentalService.GetCarBrandsAndModels();
+        _models = await rentalService.GetBrandsModelsNamesAsyc();
         if (_models is not null)
             _brands = _models.Keys.ToArray();
     }
