@@ -16,7 +16,7 @@
 
 
     .centered-top {
-        position: fixed;
+        position: absolute;
         left: 50%;
         transform: translate(-50%, 0);
     }
@@ -42,56 +42,59 @@
     }
 </style>
 
-<MudCard Class="centered rounded-xl" Style="padding-top:20px;
-    padding-left:50px; padding-right:50px; padding-bottom:20px">
-    <MudStack Row="true">
-        <MudStack Style="width: 300px; height:300px; margin-top:50px; margin-right:20px"
-                  Justify="Justify.Center">
-            <MudSelect @bind-Value="_brand"
-                       TextChanged="BrandChanged"
-                       Label="Brand"
-                       Clearable="true"
-                       Variant=Variant.Outlined
-                       Style="margin-top:15px"
-                       Class="purple-accents">
-                @foreach (var state in _brands ?? new List<string>())
-                {
-                    <MudSelectItem Value="state">@state</MudSelectItem>
-                }
-            </MudSelect>
+<MudContainer Style="justify-content: center">
+    <MudCard Class="rounded-xl centered-top" Style="padding-top:20px;
+    padding-left:50px; padding-right:50px; padding-bottom:20px;">
+            <MudStack Row="true">
+                <MudStack Style="width: 300px; height:300px; margin-top:50px; margin-right:20px"
+                          Justify="Justify.Center">
+                    <MudSelect @bind-Value="_brand"
+                               TextChanged="BrandChanged"
+                               Label="Brand"
+                               Clearable="true"
+                               Variant=Variant.Outlined
+                               Style="margin-top:15px"
+                               Class="purple-accents">
+                        @foreach (var state in _brands ?? new List<string>())
+                        {
+                            <MudSelectItem Value="state">@state</MudSelectItem>
+                        }
+                    </MudSelect>
 
-            @if (String.IsNullOrEmpty(_brand))
-            {
-
-                <MudSelect @bind-Value="_brand"
-                        Label="Model"
-                        Disabled="true"
-                        Variant=Variant.Outlined
-                        Style="margin-bottom:15px"
-                        Class="gray-accents">
-                </MudSelect>
-            }
-            else
-            {
-                <MudSelect @bind-Value="_model"
-                        Label="Model"
-                        Clearable="true"
-                        Variant=Variant.Outlined
-                        Style="margin-bottom:15px"
-                        Class="purple-accents">
-                    @foreach (var state in _models[_brand])
+                    @if (String.IsNullOrEmpty(_brand))
                     {
-                        <MudSelectItem Value="state">@state</MudSelectItem>
+
+                        <MudSelect @bind-Value="_brand"
+                                   Label="Model"
+                                   Disabled="true"
+                                   Variant=Variant.Outlined
+                                   Style="margin-bottom:15px"
+                                   Class="gray-accents">
+                        </MudSelect>
                     }
-                </MudSelect>
-            }
+                    else
+                    {
+                        <MudSelect @bind-Value="_model"
+                                   Label="Model"
+                                   Clearable="true"
+                                   Variant=Variant.Outlined
+                                   Style="margin-bottom:15px"
+                                   Class="purple-accents">
+                            @foreach (var state in _models[_brand])
+                            {
+                                <MudSelectItem Value="state">@state</MudSelectItem>
+                            }
+                        </MudSelect>
+                    }
 
-            <button @onclick=SearchCar class="button home_btn">Search</button>
-        </MudStack>
+                    <button @onclick=SearchCar class="button home_btn">Search</button>
+                </MudStack>
 
-        <img class="home " src="landing_page_car.jpg" height="400" />
-    </MudStack>
-</MudCard>
+                <img class="home d-none d-md-block" src="landing_page_car.jpg" height="400" />
+            </MudStack>
+        </MudCard>
+
+</MudContainer>
 
 @if (_showBrandAlert)
 {
@@ -143,7 +146,7 @@
         if (String.IsNullOrEmpty(_brand))
         {
             _showBrandAlert = true;
-            await CloseAlertAfterDelay(10*1000);
+            await CloseAlertAfterDelay(10 * 1000);
         }
         else
         {
