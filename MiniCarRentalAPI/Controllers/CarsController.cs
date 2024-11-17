@@ -66,6 +66,22 @@ namespace MiniCarRentalAPI.Controllers
             return Ok(models);
         }
 
+        // GET: api/Cars/brandsModels
+        [HttpGet("brandsModels")]
+        public async Task<IActionResult> GetBrandsModels()
+        {
+            var models = await _context.Brands
+                .Include(b => b.Models)
+                .Select(b => new
+                {
+                    b.Name,
+                    Models = b.Models.Select(m => m.Name)
+                })
+                .ToListAsync();
+
+            return Ok(models);
+        }
+
         // GET: api/Cars
         [HttpGet]
         public async Task<IActionResult> GetFilteredCars(

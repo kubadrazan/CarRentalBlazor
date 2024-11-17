@@ -42,7 +42,23 @@ namespace Browser_FrontEnd.Services
                 Console.WriteLine($"Error fetching car data: {ex.Message}");
                 return new List<string>();
             }
-        }   
+        }
+
+        public async Task<Dictionary<string, string[]>> GetBrandsModelsNamesAsyc()
+        {
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<Dictionary<string, string[]>>(
+                    $"{_apiA}/api/Cars/brandsModels"
+                    );
+                return response ?? new Dictionary<string, string[]>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching car data: {ex.Message}");
+                return new Dictionary<string, string[]>();
+            }
+        }
 
         public async Task<Car> GetCarDetailsAsync(int carId)
 		{
