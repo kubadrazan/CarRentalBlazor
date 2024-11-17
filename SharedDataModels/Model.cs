@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace SharedDataModels
 {
@@ -14,6 +15,7 @@ namespace SharedDataModels
 
         public Brand Brand { get; set; }
 
+        [JsonIgnore]
         public ICollection<Car> Cars { get; set; }
     }
 }

@@ -1,6 +1,9 @@
 
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using MiniCarRentalAPI.Data;
+using Newtonsoft.Json.Converters;
+using System.Text.Json.Serialization;
 
 namespace MiniCarRentalAPI
 {
@@ -20,9 +23,11 @@ namespace MiniCarRentalAPI
             // TODO Change to AddDbContextFactory??
             builder.Services.AddDbContext<CarRentalContext>(options =>
 				options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-				);
+            );
+			builder.Services.Configure<JsonOptions>(options => 
+			options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-			var app = builder.Build();
+            var app = builder.Build();
 
 			// Configure the HTTP request pipeline.
 			if (app.Environment.IsDevelopment())
