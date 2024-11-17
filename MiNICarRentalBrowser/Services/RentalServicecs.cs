@@ -78,7 +78,7 @@ namespace Browser_FrontEnd.Services
 		{
 			try
 			{
-				var response = await _httpClient.GetFromJsonAsync<List<Offer>>($"{_apiA}/offers/{carId}");
+				var response = await _httpClient.GetFromJsonAsync<List<Offer>>($"{_apiA}/cars/offers/{carId}");
 				return response;
 			}
 			catch (Exception ex)

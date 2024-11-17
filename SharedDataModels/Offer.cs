@@ -8,5 +8,12 @@ namespace SharedDataModels
 {
 	public class Offer
 	{
+		public int ID {  get; set; }
+
+		public bool IsInsurance { get; set; }
+
+		public int CarId { get; set; }
+
+		public float Price { get; set; }
 	}
 }
