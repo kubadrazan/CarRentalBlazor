@@ -103,12 +103,13 @@ namespace MiniCarRentalAPI.Controllers
             if (models != null && models.Any())
                 query = query.Where(car => models.Contains(car.Model.Name));
 
+            int allCount = query.Count();
+
             if (lastId.HasValue)
                 query = query.Where(car => car.ID > lastId.Value);
 
-            int allCount = query.Count();
-
-            var cars = await query.OrderBy(car => car.ID).Take(pageSize).ToListAsync();
+            var cars = await query.OrderBy(car => car.ID).Include(c => c.Model)
+                .ThenInclude(m => m.Brand).Take(pageSize).ToListAsync();
 
             var result = new PagedCarsResponse() { Cars = cars, TotalCount = allCount };
 

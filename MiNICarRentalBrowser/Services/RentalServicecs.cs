@@ -107,7 +107,7 @@ namespace Browser_FrontEnd.Services
             var queryParams = new List<string>();
 
             if (brands != null && brands.Any())
-                queryParams.Add($"makes={string.Join(",", brands)}");
+                queryParams.Add($"brands={string.Join(",", brands)}");
 
             if (models != null && models.Any())
                 queryParams.Add($"models={string.Join(",", models)}");
