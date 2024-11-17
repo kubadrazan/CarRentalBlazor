@@ -44,19 +44,19 @@ namespace Browser_FrontEnd.Services
             }
         }
 
-        public async Task<Dictionary<string, string[]>> GetBrandsModelsNamesAsyc()
+        public async Task<List<Model>> GetBrandsModelsNamesAsyc()
         {
             try
             {
-                var response = await _httpClient.GetFromJsonAsync<Dictionary<string, string[]>>(
+                var response = await _httpClient.GetFromJsonAsync<List<Model>>(
                     $"{_apiA}/api/Cars/brandsModels"
                     );
-                return response ?? new Dictionary<string, string[]>();
+                return response ?? new List<Model>();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error fetching car data: {ex.Message}");
-                return new Dictionary<string, string[]>();
+                return new List<Model>();
             }
         }
 

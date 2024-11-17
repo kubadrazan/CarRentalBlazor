@@ -3,6 +3,7 @@
 @using System.Threading
 @inject NavigationManager Navigation
 @using Browser_FrontEnd.Services
+@using SharedDataModels
 @inject RentalServicecs rentalService
 
 <style>
@@ -53,7 +54,7 @@
                        Variant=Variant.Outlined
                        Style="margin-top:15px"
                        Class="purple-accents">
-                @foreach (var state in _states)
+                @foreach (var state in _brands ?? new List<string>())
                 {
                     <MudSelectItem Value="state">@state</MudSelectItem>
                 }
@@ -78,7 +79,7 @@
                         Variant=Variant.Outlined
                         Style="margin-bottom:15px"
                         Class="purple-accents">
-                    @foreach (var state in _states)
+                    @foreach (var state in _models[_brand])
                     {
                         <MudSelectItem Value="state">@state</MudSelectItem>
                     }
@@ -106,31 +107,30 @@
     private bool _showBrandAlert = false;
 
     // todo add for smaller screens
-    // todo delete this and update rest
-    private string[] _states =
-    {
-        "Alabama", "Alaska", "Arizona", "Arkansas", "California",
-        "Colorado", "Connecticut", "Delaware", "Florida", "Georgia",
-        "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas",
-        "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts",
-        "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana",
-        "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico",
-        "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma",
-        "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
-        "Tennessee", "Texas", "Utah", "Vermont", "Virginia",
-        "Washington", "West Virginia", "Wisconsin", "Wyoming"
-    };
 
-    private string[] _brands;
-    private Dictionary<string, string[]> _models;
+    private List<string> _brands;
+    private Dictionary<string, List<string>> _models;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
-        _models = await rentalService.GetBrandsModelsNamesAsyc();
-        if (_models is not null)
-            _brands = _models.Keys.ToArray();
+        List<Model> models = await rentalService.GetBrandsModelsNamesAsyc();
+        _models = new();
+        _brands = new();
+        if (models is not null)
+        {
+            foreach (var m in models)
+            {
+                if (_models.ContainsKey(m.Brand.Name))
+                    _models[m.Brand.Name].Add(m.Name);
+                else
+                {
+                    _brands.Add(m.Brand.Name);
+                    _models[m.Brand.Name] = new() { m.Name };
+                }
+            }
+        }
     }
 
     protected async Task BrandChanged(string newValue)
