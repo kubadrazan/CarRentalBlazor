@@ -93,7 +93,7 @@ namespace MiniCarRentalAPI.Controllers
             [FromQuery] List<string> brands,
             [FromQuery] List<string> models,
             [FromQuery] int? lastId = null,
-            [FromQuery] int pageSize = 5)
+            [FromQuery] int pageSize = -1)
         {
             var query = _context.Cars.AsQueryable();
 
@@ -108,7 +108,13 @@ namespace MiniCarRentalAPI.Controllers
             if (lastId.HasValue)
                 query = query.Where(car => car.ID > lastId.Value);
 
-            var cars = await query.OrderBy(car => car.ID).Include(c => c.Model)
+            List<Car>? cars;
+
+            if (pageSize <= 0)
+                cars = await query.OrderBy(car => car.ID).Include(c => c.Model)
+                .ThenInclude(m => m.Brand).ToListAsync();
+            else
+                cars = await query.OrderBy(car => car.ID).Include(c => c.Model)
                 .ThenInclude(m => m.Brand).Take(pageSize).ToListAsync();
 
             var result = new PagedCarsResponse() { Cars = cars, TotalCount = allCount };

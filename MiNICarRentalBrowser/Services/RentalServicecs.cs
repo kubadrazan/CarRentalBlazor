@@ -108,10 +108,12 @@ namespace Browser_FrontEnd.Services
             var queryParams = new List<string>();
 
             if (brands != null && brands.Any())
-                queryParams.Add($"brands={string.Join(",", brands)}");
-
+                foreach (var brand in brands)
+                    queryParams.Add($"brands={brand}");
+            
             if (models != null && models.Any())
-                queryParams.Add($"models={string.Join(",", models)}");
+                foreach (var model in models)
+                    queryParams.Add($"models={model}");
 
             if (lastId.HasValue)
                 queryParams.Add($"lastId={lastId}");
