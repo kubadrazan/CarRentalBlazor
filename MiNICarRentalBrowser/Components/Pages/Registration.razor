@@ -1,0 +1,108 @@
+﻿@page "/registration"
+@using MudBlazor
+@using System.Threading
+@inject NavigationManager Navigation
+@using Browser_FrontEnd.Services
+@using SharedDataModels
+@inject RentalServicecs rentalService
+
+<style>
+    .centered-top {
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%, 0);
+    }
+
+    .reg_btn {
+        margin-left: 40px;
+        margin-right: 40px;
+        margin-top: 40px;
+    }
+
+    .purple-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
+        border-color: #A64DB6;
+        border-width: 3px
+    }
+
+    .gray-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
+        border-color: #808080;
+        border-width: 3px
+    }
+</style>
+
+<MudThemeProvider Theme="MyCustomTheme" />
+<MudContainer Style="justify-content: center">
+    <MudCard Class="rounded-xl centered-top" Style="padding-top:20px;
+    padding-left:50px; padding-right:50px; padding-bottom:20px;">
+        <MudStack Style="width: 300px;" Justify="Justify.Center">
+            <MudTextField @bind-Value="_email" Label="Email" ReadOnly="true" Variant="Variant.Outlined" Class="purple-accents"/>
+
+            <MudTextField @bind-Value="_firstName" Label="First Name" Variant="Variant.Outlined" Class="purple-accents"/>
+
+            <MudTextField @bind-Value="_lastName" Label="Last Name" Variant="Variant.Outlined" Class="purple-accents"/>
+
+            <MudDatePicker Label="Birth date" @bind-Date="_birthDate" Placeholder="Select Date"
+                           PickerVariant="PickerVariant.Dialog" Color="Color.Secondary" Rounded="true" 
+                           Style="margin-top: 20px;" />
+
+            <MudDatePicker Label="Driving license obtain date" @bind-Date="_drivingLicenseDate" Placeholder="Select Date"
+                           PickerVariant="PickerVariant.Dialog" Color="Color.Secondary" Rounded="true"
+                           Style="margin-top: 20px;" />
+
+
+            <button @onclick=Register class="button reg_btn">Register</button>
+        </MudStack>
+    </MudCard>
+
+</MudContainer>
+
+@if (_showAlert)
+{
+    <MudCard Class="centered-top rounded-xl">
+        <MudAlert @bind-Value="_alertText" Class="rounded-xl" Severity="Severity.Error" ShowCloseIcon="true"
+                  CloseIconClicked="(() => CloseAlert(true))"></MudAlert>
+    </MudCard>
+}
+
+@code {
+    MudTheme MyCustomTheme = new MudTheme()
+    {
+        PaletteLight = new PaletteLight()
+        {
+            Secondary = Colors.Purple.Lighten1
+        }
+    };
+
+    private string _email = "";
+    private string _firstName = "";
+    private string _lastName = "";
+    private DateTime? _birthDate = DateTime.Today;
+    private DateTime? _drivingLicenseDate = DateTime.Today;
+
+    private bool _showAlert = false;
+    private string _alertText = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+    }
+
+    private async Task Register()
+    {
+    }
+
+    public async Task ShowAlert(string text, int delay)
+    {
+        _alertText = text;
+        _showAlert = true;
+        await Task.Delay(delay);
+        CloseAlert(true);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void CloseAlert(bool value)
+    {
+        _showAlert = !value;
+    }
+}

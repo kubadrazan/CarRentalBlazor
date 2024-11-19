@@ -29,8 +29,6 @@ namespace SharedDataModels
         [DataType(DataType.Date)]
         public DateTime BirthDate { get; set; }
 
-        // todo add password or some auth
-
         public int LocalizationID { get; set; }
 
         public LocalizationBrowser Localization { get; set; }
