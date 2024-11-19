@@ -10,14 +10,14 @@
 @inject NavigationManager navigation
 <div class="container">
 	<div class="card">
-		@if (isCarLoaded)
+		@if (_isCarLoaded)
 		{
+			string address = $"{_car.Localization.Country} {_car.Localization.City} {_car.Localization.Street} {_car.Localization.HouseNumber}";
 			<h3>Szczegóły samochodu</h3>
-			<p><strong>Marka:</strong>@car.Model.Brand.Name</p>
-			<p><strong>Model:</strong> @car.Model.Name</p>
-			<p><strong>Rok produkcji:</strong> @car.ProductionYear</p>
-			<p><strong>Lokalizacja:</strong> @car.Localization</p>
-			<p><strong>Silnik:</strong> 3.0L V6</p>
+			<p><strong>Marka:</strong>@_car.Model.Brand.Name</p>
+			<p><strong>Model:</strong> @_car.Model.Name</p>
+			<p><strong>Rok produkcji:</strong> @_car.ProductionYear</p>
+			<p><strong>Lokalizacja:</strong> @address</p>
 		}
 		else
 		{
@@ -27,9 +27,9 @@
 
 	<div class="card">
 		<h3>Oferty</h3>
-		@if (areOffersLoaded)
+		@if (_areOffersLoaded)
 		{
-			@foreach (Offer offer in offers)
+			@foreach (Offer offer in _offers)
 			{
 				<div class="offer-row">
 					<p><strong>@offer </strong>@offer</p>
@@ -48,27 +48,27 @@
 @code {
 	[Parameter]
 	public int carID { get; set; }
-	private Car car;
+	private Car _car;
 
-	private bool areOffersLoaded = false;
-	private bool isCarLoaded = false;
+	private bool _areOffersLoaded = false;
+	private bool _isCarLoaded = false;
 
-	private List<Offer> offers;
+	private List<Offer> _offers;
 
 	protected override async Task OnInitializedAsync()
 	{
 		await base.OnInitializedAsync();
-		car = await renatalService.GetCarDetailsAsync(carID);
-		if (car != null)
+		_car = await renatalService.GetCarDetailsAsync(carID);
+		if (_car != null)
 		{
-			isCarLoaded = true;
+			_isCarLoaded = true;
 		}
-		offers = await renatalService.GetOffersAsync(carID);
-		if (offers == null)
+		_offers = await renatalService.GetOffersAsync(carID);
+		if (_offers == null)
 		{
-			offers = new List<Offer>();
+			_offers = new List<Offer>();
 		}
-		areOffersLoaded = true;
+		_areOffersLoaded = true;
 		await InvokeAsync(StateHasChanged);
 	}
 	public async Task CheckAndLogin()
