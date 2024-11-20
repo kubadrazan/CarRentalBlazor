@@ -19,6 +19,6 @@ namespace SharedDataModels
         public Car Car { get; set; }
 
         // for navigation?
-        public Return? Return { get; set; }
+        //public Return? Return { get; set; }
     }
 }
