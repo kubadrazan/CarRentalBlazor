@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MiniCarRentalAPI.Data;
 
@@ -11,9 +12,11 @@ using MiniCarRentalAPI.Data;
 namespace MiniCarRentalAPI.Migrations
 {
     [DbContext(typeof(CarRentalContext))]
-    partial class CarRentalContextModelSnapshot : ModelSnapshot
+    [Migration("20241120213516_AddNewColumnToOffers")]
+    partial class AddNewColumnToOffers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -167,12 +170,6 @@ namespace MiniCarRentalAPI.Migrations
 
                     b.Property<int>("CarID")
                         .HasColumnType("int");
-
-                    b.Property<bool>("IsInsurance")
-                        .HasColumnType("bit");
-
-                    b.Property<decimal>("PricePerDay")
-                        .HasColumnType("money");
 
                     b.Property<DateTime>("RentDate")
                         .HasColumnType("datetime2");
