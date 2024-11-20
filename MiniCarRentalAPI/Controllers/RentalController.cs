@@ -36,5 +36,35 @@ namespace MiniCarRentalAPI.Controllers
 
             return Ok(offer);
         }
+
+        [HttpGet("offers/{carId}")]
+        public async Task<IActionResult> GetCarOffers(int carId)
+        {
+            var offers = await _context.Cars
+                .Select(c => new List<Offer> {
+                    new Offer()
+                    {
+                        ID = new Random().Next(1_000_000),
+                        CarId = carId,
+                        IsInsurance = true,
+                        Price = c.InsurancePricePerDay
+                    },
+                    new Offer()
+                    {
+                        ID = new Random().Next(1_000_000),
+                        CarId = carId,
+                        IsInsurance = false,
+                        Price = c.PricePerDay
+                    }
+                })
+                .FirstOrDefaultAsync(c => c[0].CarId == carId);
+
+            if (offers == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(offers);
+        }
     }
 }
