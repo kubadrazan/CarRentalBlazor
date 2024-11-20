@@ -56,6 +56,7 @@ namespace MiNICarRentalBrowser
 
             builder.Services.AddHttpClient();
 			builder.Services.AddScoped<RentalServicecs>();
+            builder.Services.AddScoped<IUserService, UserServices>();
 
             var app = builder.Build();
 

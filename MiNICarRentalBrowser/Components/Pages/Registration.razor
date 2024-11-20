@@ -9,7 +9,7 @@
 @inject NavigationManager Navigation
 @inject RentalServicecs rentalService
 @inject AuthenticationStateProvider authenticationStateProvider
-@inject IDbContextFactory<UsersContext> DbFactory
+@inject Services.IUserService UserService
 
 <style>
     .centered-top {
@@ -113,11 +113,18 @@
     {
 
 
-        User user = new User();
-        user.FirstName = _firstName;
-        user.LastName = _lastName;
-        user.BirthDate = (DateTime)_birthDate;
-        user.DrivingLicenseObtainDate = (DateTime)_drivingLicenseDate;
+        User user = new User
+        {
+                FirstName = _firstName,
+                LastName = _lastName,
+                BirthDate = (DateTime)_birthDate,
+                DrivingLicenseObtainDate = (DateTime)_drivingLicenseDate
+        };
+
+        await UserService.AddUser(user);
+
+        Navigation.NavigateTo("/");
+        StateHasChanged();
     }
 
     public async Task ShowAlert(string text, int delay)
