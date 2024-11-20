@@ -2,12 +2,25 @@
 @page "/login"
 @using Browser_FrontEnd.Services
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @rendermode InteractiveServer
 @inject NavigationManager navigation
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject IAuthorizationService AuthorizationService
+
 @code {
 	protected override async Task OnInitializedAsync()
 	{
 		await base.OnInitializedAsync();
-		navigation.NavigateTo("/");
+		var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+		var user = authState.User;
+		if ((await AuthorizationService.AuthorizeAsync(user, "RegisteredPolicy")).Succeeded)
+		{
+			navigation.NavigateTo("/", true);
+		}
+		else
+		{
+			navigation.NavigateTo("/registration", true);
+		}
 	}
 }
