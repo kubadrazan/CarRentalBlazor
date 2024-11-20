@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MiniCarRentalAPI.Data;
 
@@ -11,9 +12,11 @@ using MiniCarRentalAPI.Data;
 namespace MiniCarRentalAPI.Migrations
 {
     [DbContext(typeof(CarRentalContext))]
-    partial class CarRentalContextModelSnapshot : ModelSnapshot
+    [Migration("20241120171012_addedNewOfferTable")]
+    partial class addedNewOfferTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -143,9 +146,6 @@ namespace MiniCarRentalAPI.Migrations
                     b.Property<bool>("IsInsurance")
                         .HasColumnType("bit");
 
-                    b.Property<int>("OfferRadnomID")
-                        .HasColumnType("int");
-
                     b.Property<float>("Price")
                         .HasColumnType("real");
 
@@ -167,12 +167,6 @@ namespace MiniCarRentalAPI.Migrations
 
                     b.Property<int>("CarID")
                         .HasColumnType("int");
-
-                    b.Property<bool>("IsInsurance")
-                        .HasColumnType("bit");
-
-                    b.Property<decimal>("PricePerDay")
-                        .HasColumnType("money");
 
                     b.Property<DateTime>("RentDate")
                         .HasColumnType("datetime2");

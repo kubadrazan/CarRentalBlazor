@@ -19,7 +19,7 @@ namespace SharedDataModels
         [JsonIgnore]
         public ICollection<Car> Cars { get; set; }
 
-        [JsonIgnore]
-        public ICollection<Return> Returns { get; set; }
+        //[JsonIgnore]
+        //public ICollection<Return> Returns { get; set; }
     }
 }

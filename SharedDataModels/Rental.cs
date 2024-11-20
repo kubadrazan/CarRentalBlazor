@@ -16,9 +16,15 @@ namespace SharedDataModels
         public int UserID { get; set; } // TODO zaktualizowac email?, id tokenu?
         public int SourceAPI {  get; set; } // TODO don't know what here, ENUM????
 
+        [DataType(DataType.Currency)]
+        [Column(TypeName = "money")]
+        public float PricePerDay { get; set; }
+
+        public bool IsInsurance { get; set; }
+
         public Car Car { get; set; }
 
         // for navigation?
-        public Return? Return { get; set; }
+        //public Return? Return { get; set; }
     }
 }

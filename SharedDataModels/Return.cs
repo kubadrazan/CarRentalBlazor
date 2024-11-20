@@ -16,13 +16,13 @@ namespace SharedDataModels
         [DataType(DataType.Date)]
         public DateTime ReturnDate { get; set; }
 
-        public int RentalID { get; set; }
+        //public int RentalID { get; set; }
 
-        public int LocalizationID { get; set; }
+        //public int LocalizationID { get; set; }
 
-        public Localization Localization { get; set; }
+        //public Localization Localization { get; set; }
 
-        public Rental Rental { get; set; }
+        //public Rental Rental { get; set; }
 
         public Acceptation? Acceptation { get; set; }
     }
