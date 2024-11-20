@@ -23,7 +23,7 @@ namespace MiNICarRentalBrowser
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
                 );
 
-			builder.Services.AddScoped<UserValidationService>();
+            builder.Services.AddScoped<UserValidationService>();
 
 			// Google Authentication
 			builder.Services.AddAuthentication(options =>

@@ -1,10 +1,15 @@
 ﻿@page "/registration"
 @using MudBlazor
 @using System.Threading
-@inject NavigationManager Navigation
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
 @using Browser_FrontEnd.Services
 @using SharedDataModels
+@inject NavigationManager Navigation
 @inject RentalServicecs rentalService
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject IDbContextFactory<UsersContext> DbFactory
 
 <style>
     .centered-top {
@@ -35,14 +40,16 @@
     <MudCard Class="rounded-xl centered-top" Style="padding-top:20px;
     padding-left:50px; padding-right:50px; padding-bottom:20px;">
         <MudStack Style="width: 300px;" Justify="Justify.Center">
-            <MudTextField @bind-Value="_email" Label="Email" ReadOnly="true" Variant="Variant.Outlined" Class="purple-accents"/>
+            <MudTextField @bind-Value="_email" Label="Email" ReadOnly="true" Variant="Variant.Outlined" Class="purple-accents" />
 
-            <MudTextField @bind-Value="_firstName" Label="First Name" Variant="Variant.Outlined" Class="purple-accents"/>
+            <MudTextField @bind-Value="_firstName" Label="First Name" Variant="Variant.Outlined" Class="purple-accents"
+                          MaxLength="50" InputMode="InputMode.text" InputType="InputType.Text" />
 
-            <MudTextField @bind-Value="_lastName" Label="Last Name" Variant="Variant.Outlined" Class="purple-accents"/>
+            <MudTextField @bind-Value="_lastName" Label="Last Name" Variant="Variant.Outlined" Class="purple-accents"
+                          MaxLength="50" InputMode="InputMode.text" InputType="InputType.Text" />
 
             <MudDatePicker Label="Birth date" @bind-Date="_birthDate" Placeholder="Select Date"
-                           PickerVariant="PickerVariant.Dialog" Color="Color.Secondary" Rounded="true" 
+                           PickerVariant="PickerVariant.Dialog" Color="Color.Secondary" Rounded="true"
                            Style="margin-top: 20px;" />
 
             <MudDatePicker Label="Driving license obtain date" @bind-Date="_drivingLicenseDate" Placeholder="Select Date"
@@ -66,12 +73,12 @@
 
 @code {
     MudTheme MyCustomTheme = new MudTheme()
-    {
-        PaletteLight = new PaletteLight()
         {
-            Secondary = Colors.Purple.Lighten1
-        }
-    };
+            PaletteLight = new PaletteLight()
+            {
+                Secondary = Colors.Purple.Lighten1
+            }
+        };
 
     private string _email = "";
     private string _firstName = "";
@@ -86,10 +93,31 @@
     {
         await base.OnInitializedAsync();
 
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var email = user.FindFirstValue(ClaimTypes.Email);
+        if (email is null)
+        {
+            // todo cos
+        }
+
+        if (user.Identity != null && user.Identity.IsAuthenticated)
+        {
+            // todo pozniej pomyslimy
+        }
+
+        _email = email ?? "";
     }
 
     private async Task Register()
     {
+
+
+        User user = new User();
+        user.FirstName = _firstName;
+        user.LastName = _lastName;
+        user.BirthDate = (DateTime)_birthDate;
+        user.DrivingLicenseObtainDate = (DateTime)_drivingLicenseDate;
     }
 
     public async Task ShowAlert(string text, int delay)
