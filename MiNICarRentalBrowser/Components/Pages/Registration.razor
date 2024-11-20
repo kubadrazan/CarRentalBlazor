@@ -111,6 +111,35 @@
 
     private async Task Register()
     {
+        if (String.IsNullOrEmpty(_firstName))
+        {
+            await ShowAlert("Enter first name", 5000);
+            return;
+        }
+
+        if (String.IsNullOrEmpty(_lastName))
+        {
+            await ShowAlert("Enter last name", 5000);
+            return;
+        }
+
+        if (_birthDate is null)
+        {
+            await ShowAlert("Choose birth date", 5000);
+            return;
+        }
+
+        if (_drivingLicenseDate is null)
+        {
+            await ShowAlert("Choose driving license obtain date", 5000);
+            return;
+        }
+
+        if (((DateTime)_birthDate).AddYears(18) > DateTime.Now)
+        {
+            await ShowAlert("You must be at least 18 years old", 5000);
+            return;
+        }
 
 
         User user = new User
