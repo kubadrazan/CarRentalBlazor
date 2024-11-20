@@ -1,12 +1,14 @@
 using Browser_FrontEnd.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.EntityFrameworkCore;
 using MiNICarRentalBrowser.Components;
 using MiNICarRentalBrowser.Data;
+using MiNICarRentalBrowser.Services;
 using MudBlazor.Services;
 
 namespace MiNICarRentalBrowser
@@ -21,8 +23,10 @@ namespace MiNICarRentalBrowser
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
                 );
 
-            // Google Authentication
-            builder.Services.AddAuthentication(options =>
+			builder.Services.AddScoped<UserValidationService>();
+
+			// Google Authentication
+			builder.Services.AddAuthentication(options =>
 			{
 				options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 				options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -34,7 +38,13 @@ namespace MiNICarRentalBrowser
 				googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
 				googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
 			});
-			builder.Services.AddAuthorization();
+			builder.Services.AddAuthorization(options =>
+			{
+				options.AddPolicy("RegisteredPolicy", policy =>
+					policy.Requirements.Add(new RegisteredUserRequirement()));
+			});
+
+			builder.Services.AddScoped<IAuthorizationHandler, RegistrationHandler>();
 			builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
             builder.Services.AddHttpContextAccessor();
 

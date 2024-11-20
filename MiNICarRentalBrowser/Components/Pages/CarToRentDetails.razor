@@ -77,7 +77,7 @@
 		var user = authState.User;
 		if (user.Identity != null && user.Identity.IsAuthenticated)
 		{
-			var email = user.FindFirst(c => c.Type == ClaimTypes.Email)?.Value;
+			var email = user.FindFirstValue(ClaimTypes.Email);
 			// TODO SendMail
 			navigation.NavigateTo("/confirmation");
 		}
