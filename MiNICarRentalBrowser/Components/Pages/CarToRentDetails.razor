@@ -33,7 +33,7 @@
 			{
 				<div class="offer-row">
 					<p><strong>@offer </strong>@offer</p>
-					<button onclick="@CheckAndLogin()" class="button">Rent Me</button>
+					<button @onclick="() => RentMeAction(offer.ID)" class="button">Rent Me</button>
 				</div>
 			}
 		}
@@ -71,14 +71,14 @@
 		_areOffersLoaded = true;
 		await InvokeAsync(StateHasChanged);
 	}
-	public async Task CheckAndLogin()
+	public async Task RentMeAction(int offerID)
 	{
 		var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
 		var user = authState.User;
 		if (user.Identity != null && user.Identity.IsAuthenticated)
 		{
 			var email = user.FindFirstValue(ClaimTypes.Email);
-			// TODO SendMail
+			await renatalService.SendMail(offerID, email);
 			navigation.NavigateTo("/confirmation");
 		}
 		else

@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using MiniCarRentalAPI.Data;
+using MiniCarRentalAPI.Services;
 using Newtonsoft.Json.Converters;
+using SharedDataModels;
 using System.Text.Json.Serialization;
 
 namespace MiniCarRentalAPI
@@ -20,14 +22,16 @@ namespace MiniCarRentalAPI
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Services.AddSwaggerGen();
 
-            // TODO Change to AddDbContextFactory??
-            builder.Services.AddDbContext<CarRentalContext>(options =>
+			// TODO Change to AddDbContextFactory??
+			builder.Services.AddDbContext<CarRentalContext>(options =>
 				options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-            );
-			builder.Services.Configure<JsonOptions>(options => 
+			);
+			builder.Services.Configure<JsonOptions>(options =>
 				options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+			builder.Services.Configure<EmailServiceOptions>(options => options.APIKey = builder.Configuration["EmailService:SendGrid:ApiKey"]);
+			builder.Services.AddTransient<EmailService>();
 
-            var app = builder.Build();
+			var app = builder.Build();
 
 			// Configure the HTTP request pipeline.
 			if (app.Environment.IsDevelopment())
