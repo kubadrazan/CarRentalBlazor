@@ -66,8 +66,8 @@
 @if (_showAlert)
 {
     <MudCard Class="centered-top rounded-xl">
-        <MudAlert @bind-Value="_alertText" Class="rounded-xl" Severity="Severity.Error" ShowCloseIcon="true"
-                  CloseIconClicked="(() => CloseAlert(true))"></MudAlert>
+        <MudAlert Class="rounded-xl" Severity="Severity.Error" ShowCloseIcon="true"
+                  CloseIconClicked="(() => CloseAlert(true))">@_alertText</MudAlert>
     </MudCard>
 }
 
@@ -143,12 +143,14 @@
 
 
         User user = new User
-        {
+            {
+                Email = _email,
                 FirstName = _firstName,
                 LastName = _lastName,
                 BirthDate = (DateTime)_birthDate,
-                DrivingLicenseObtainDate = (DateTime)_drivingLicenseDate
-        };
+                DrivingLicenseObtainDate = (DateTime)_drivingLicenseDate,
+                LocalizationID = 0
+            };
 
         await UserService.AddUser(user);
 
@@ -160,6 +162,7 @@
     {
         _alertText = text;
         _showAlert = true;
+        StateHasChanged();
         await Task.Delay(delay);
         CloseAlert(true);
         await InvokeAsync(StateHasChanged);
