@@ -83,7 +83,7 @@ namespace Browser_FrontEnd.Services
 		{
 			try
 			{
-				var response = await _httpClient.GetFromJsonAsync<List<Offer>>($"{_apiA}/api/offers/{carId}");
+				var response = await _httpClient.GetFromJsonAsync<List<Offer>>($"{_apiA}/api/Rental/offers/{carId}");
 				return response;
 			}
 			catch (Exception ex)
@@ -99,7 +99,7 @@ namespace Browser_FrontEnd.Services
 			try
 			{
 				var content = new StringContent(JsonSerializer.Serialize(emailAddress), Encoding.UTF8, "application/json");
-				var response = await _httpClient.PostAsync($"{_apiA}/offers/chooseOffer/{offerid}", content);
+				var response = await _httpClient.PutAsync($"{_apiA}/api/Rental/offers/chooseOffer/{offerid}", content);
 				return await response.Content.ReadAsStringAsync();
 			}
 			catch (Exception ex)
