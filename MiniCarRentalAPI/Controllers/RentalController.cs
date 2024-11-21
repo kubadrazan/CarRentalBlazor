@@ -19,42 +19,36 @@ namespace MiniCarRentalAPI.Controllers
 		}
 
 		// GET: api/Cars/offers/5
-		[HttpGet("offer/")]
-		public async Task<IActionResult> GetCarOffer(
-			[FromQuery] int carId,
-			[FromQuery] bool isInsurance,
-			[FromQuery] int userId)
-		{
-			var offer = await _context.Cars
-				.Select(c => new Offer()
-				{
-                    OfferHashID = new Random().Next(1_000_000),
-					CarId = carId,
-					IsInsurance = isInsurance,
-					Price = isInsurance ? c.InsurancePricePerDay : c.PricePerDay,
-					ExpirationDate = DateTime.UtcNow.AddMinutes(10),
-					UserID = userId
-				})
-				.FirstOrDefaultAsync(c => c.CarId == carId);
+		//[HttpGet("offer/")]
+		//public async Task<IActionResult> GetCarOffer(
+		//	[FromQuery] int carId,
+		//	[FromQuery] bool isInsurance,
+		//	[FromQuery] int userId)
+		//{
+		//	var offer = await _context.Cars
+		//		.Select(c => new Offer()
+		//		{
+  //                  OfferHashID = new Random().Next(1_000_000),
+		//			CarId = carId,
+		//			IsInsurance = isInsurance,
+		//			Price = isInsurance ? c.InsurancePricePerDay : c.PricePerDay,
+		//			ExpirationDate = DateTime.UtcNow.AddMinutes(10),
+		//			UserID = userId
+		//		})
+		//		.FirstOrDefaultAsync(c => c.CarId == carId);
 
-			if (offer == null)
-			{
-				return NotFound();
-			}
+		//	if (offer == null)
+		//	{
+		//		return NotFound();
+		//	}
 
-			return Ok(offer);
-		}
-		[HttpPost("offers/{offerId}/send-email")]
-		public IActionResult SendEmail([FromRoute] int offerId, [FromBody] String emailAddress)
-		{
-			_emailService.SendConfirmationEmail(offerId, emailAddress);
-			return Ok($"Sent offer {offerId} to  '{emailAddress}'.");
-		}
+		//	return Ok(offer);
+		//}
+
 
 		[HttpGet("offers/")]
 		public async Task<IActionResult> GetCarOffers(
-			[FromQuery] int carId,
-			[FromQuery] int userId
+			[FromQuery] int carId
 			)
 		{
 			var offers = await _context.Cars
@@ -66,7 +60,7 @@ namespace MiniCarRentalAPI.Controllers
 						IsInsurance = true,
 						Price = c.InsurancePricePerDay,
 						ExpirationDate = DateTime.UtcNow.AddMinutes(10),
-						UserID = userId
+						UserEmail = null
 					},
 					new Offer()
 					{
@@ -75,8 +69,8 @@ namespace MiniCarRentalAPI.Controllers
 						IsInsurance = false,
 						Price = c.PricePerDay,
 						ExpirationDate = DateTime.UtcNow.AddMinutes(10),
-						UserID = userId
-					}
+                        UserEmail = null
+                    }
 				})
 				.FirstOrDefaultAsync(c => c[0].CarId == carId);
 
@@ -93,8 +87,18 @@ namespace MiniCarRentalAPI.Controllers
 			return Ok(offers);
 		}
 
-		[HttpPut("acceptOffer/{offerId}")]
-		public async Task<IActionResult> AcceptOffer(int offerId)
+        [HttpPost("offers/chooseOffer")]
+        public IActionResult SendEmail(
+			[FromRoute] int offerId,
+			[FromBody] String emailAddress)
+        {
+            _emailService.SendConfirmationEmail(offerId, emailAddress);
+            return Ok($"Sent offer {offerId} to  '{emailAddress}'.");
+        }
+
+        [HttpPut("acceptOffer/")]
+		public async Task<IActionResult> AcceptOffer(
+            [FromQuery] int offerId)
 		{
 			var offer = await _context.Offers.FirstOrDefaultAsync(f => f.OfferHashID == offerId);
 
@@ -107,7 +111,7 @@ namespace MiniCarRentalAPI.Controllers
 			{
 				RentDate = DateTime.UtcNow,
 				CarID = offer.CarId,
-				UserID = (int)offer.UserID,
+				//UserID = (int)offer.UserID,
 				SourceAPI = 0,
 				PricePerDay = offer.Price,
 				IsInsurance = offer.IsInsurance
@@ -118,7 +122,6 @@ namespace MiniCarRentalAPI.Controllers
 
 			return Ok(rental);
 		}
-
 	}
 
 }

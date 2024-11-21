@@ -21,7 +21,8 @@ namespace SharedDataModels
         [DataType(DataType.Date)]
 		public DateTime ExpirationDate { get; set; }
 
-        public int? UserID { get; set; }
+        [EmailAddress(ErrorMessage = "Invalid email address format.")]
+        public string? UserEmail { get; set; }
 
     }
 }
