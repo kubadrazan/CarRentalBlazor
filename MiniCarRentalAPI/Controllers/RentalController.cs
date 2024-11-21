@@ -53,12 +53,10 @@ namespace MiniCarRentalAPI.Controllers
         public async Task<IActionResult> GetCarOffers(int carId
             )
         {
-            Console.WriteLine($"--- Fetched offers for {carId} ---------------------------------");
             var car = await _context.Cars.FirstOrDefaultAsync(c => c.ID == carId);
 
             if (car == null)
             {
-                Console.WriteLine($"--- NOT FOUND ---------------------------------");
                 return NotFound();
             }
 
