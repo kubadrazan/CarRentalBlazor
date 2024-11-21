@@ -6,6 +6,8 @@ using SharedDataModels;
 
 namespace MiniCarRentalAPI.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class RentalController : ControllerBase
     {
         private readonly CarRentalContext _context;
