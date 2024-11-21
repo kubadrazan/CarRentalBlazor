@@ -17,12 +17,13 @@ namespace MiniCarRentalAPI.Services
 			{
 				From = new EmailAddress("minicarrental@hotmail.com"),
 				Subject = "Confirm Your Rental",
-				PlainTextContent = "LINK",
+				PlainTextContent = "LINK:",
 			};
 		}
 		public async void SendConfirmationEmail(int offerID, string email)
 		{
 			_message.AddTo(email);
+			_message.PlainTextContent += $" https://localhost:7156/rentalconfirmation?offer_id={offerID}";
 			var response = await _client.SendEmailAsync(_message).ConfigureAwait(false);
 		}
 	}

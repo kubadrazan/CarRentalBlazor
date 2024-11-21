@@ -110,8 +110,8 @@ namespace MiniCarRentalAPI.Controllers
             return Ok($"Sent offer {offer.OfferHashID} to  '{emailAddress}'.");
         }
 
-        [HttpPut("acceptOffer/{offerId}")]
-        public async Task<IActionResult> AcceptOffer(int offerId)
+        [HttpPut("acceptOffer")]
+        public async Task<IActionResult> AcceptOffer([FromBody] int offerId)
         {
             var offer = await _context.Offers.FirstOrDefaultAsync(f => f.OfferHashID == offerId);
 
