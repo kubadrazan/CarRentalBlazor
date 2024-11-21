@@ -10,7 +10,7 @@ namespace SharedDataModels
 	public class Offer
 	{
 		public int ID {  get; set; }
-        public int OfferRadnomID { get; set; }
+        public int OfferHashID { get; set; }
 
         public bool IsInsurance { get; set; }
 
@@ -21,7 +21,8 @@ namespace SharedDataModels
         [DataType(DataType.Date)]
 		public DateTime ExpirationDate { get; set; }
 
-        public int UserID { get; set; }
+        [EmailAddress(ErrorMessage = "Invalid email address format.")]
+        public string? UserEmail { get; set; }
 
     }
 }

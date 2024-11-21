@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using MiniCarRentalAPI.Data;
+using NuGet.Versioning;
 using SharedDataModels;
 using SharedDataModels.DTO;
 
@@ -83,6 +84,24 @@ namespace MiniCarRentalAPI.Controllers
                 .Include(m => m.Brand)
                 .ToListAsync();
 
+            // More appropiate return according to docs
+            //var query = _context.Cars
+            //    .Include(c => c.Model)
+            //    .Include(c => c.Model.Brand)
+            //    .GroupBy(c => new
+            //    {
+            //        BrandName = c.Model.Brand.Name,
+            //        ModelName = c.Model.Name,
+            //        c.Localization
+            //    })
+            //    .Select(g => new
+            //    {
+            //        g.Key.BrandName,
+            //        g.Key.ModelName,
+            //        g.Key.Localization,
+            //        Availability = g. PROBLEM HERE CHECK AVAILABILITY
+            //    });
+            //var alt = await query.ToListAsync();
 
             return Ok(models);
         }

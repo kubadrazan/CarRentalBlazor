@@ -13,7 +13,9 @@ namespace SharedDataModels
         public DateTime RentDate { get; set; }
 
         public int CarID { get; set; }
-        public int UserID { get; set; } // TODO zaktualizowac email?, id tokenu?
+
+        [EmailAddress(ErrorMessage = "Invalid email address format.")]
+        public string UserEmail { get; set; } // TODO zaktualizowac email?, id tokenu?
         public int SourceAPI {  get; set; } // TODO don't know what here, ENUM????
 
         [DataType(DataType.Currency)]
