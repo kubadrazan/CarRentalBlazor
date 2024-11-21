@@ -1,11 +1,16 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using SharedDataModels;
 using SharedDataModels.DTO;
+using System.Net.Mail;
+using System.Text.Json;
+using System.Text;
+using Azure;
 
 namespace Browser_FrontEnd.Services
 {
-    public class RentalServicecs
+	public class RentalServicecs
 	{
 		private readonly HttpClient _httpClient;
 		private readonly string _apiA; // Our CarRentalApi
@@ -14,53 +19,53 @@ namespace Browser_FrontEnd.Services
 		{
 			_httpClient = httpClient;
 			_apiA = configuration.GetValue<string>("ApiUrls:ApiRentalA");
-        }
+		}
 
-        public async Task<List<string>> GetUniqueBrandNamesAsyc()
-        {
-            try
-            {
-                var response = await _httpClient.GetFromJsonAsync<List<string>>($"{_apiA}/api/Cars/brands");
-                return response ?? new List<string>();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching car data: {ex.Message}");
-                return new List<string>();
-            }
-        }
+		public async Task<List<string>> GetUniqueBrandNamesAsyc()
+		{
+			try
+			{
+				var response = await _httpClient.GetFromJsonAsync<List<string>>($"{_apiA}/api/Cars/brands");
+				return response ?? new List<string>();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error fetching car data: {ex.Message}");
+				return new List<string>();
+			}
+		}
 
-        public async Task<List<string>> GetUniqueModelNamesAsyc()
-        {
-            try
-            {
-                var response = await _httpClient.GetFromJsonAsync<List<string>>($"{_apiA}/api/Cars/models");
-                return response ?? new List<string>();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching car data: {ex.Message}");
-                return new List<string>();
-            }
-        }
+		public async Task<List<string>> GetUniqueModelNamesAsyc()
+		{
+			try
+			{
+				var response = await _httpClient.GetFromJsonAsync<List<string>>($"{_apiA}/api/Cars/models");
+				return response ?? new List<string>();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error fetching car data: {ex.Message}");
+				return new List<string>();
+			}
+		}
 
-        public async Task<List<Model>> GetBrandsModelsNamesAsyc()
-        {
-            try
-            {
-                var response = await _httpClient.GetFromJsonAsync<List<Model>>(
-                    $"{_apiA}/api/Cars/brandsModels"
-                    );
-                return response ?? new List<Model>();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching car data: {ex.Message}");
-                return new List<Model>();
-            }
-        }
+		public async Task<List<Model>> GetBrandsModelsNamesAsyc()
+		{
+			try
+			{
+				var response = await _httpClient.GetFromJsonAsync<List<Model>>(
+					$"{_apiA}/api/Cars/brandsModels"
+					);
+				return response ?? new List<Model>();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error fetching car data: {ex.Message}");
+				return new List<Model>();
+			}
+		}
 
-        public async Task<Car> GetCarDetailsAsync(int carId)
+		public async Task<Car> GetCarDetailsAsync(int carId)
 		{
 			try
 			{
@@ -89,38 +94,54 @@ namespace Browser_FrontEnd.Services
 			}
 		}
 
-        public async Task<(List<Car>,int filteredCarsCount)> GetCars(List<string>? brands, List<string>? models, int? lastId, int pageSize)
-        {
-            var queryParams = CreateQuery( brands, models, lastId, pageSize);
 
-            var urlA = $"{_apiA}/api/Cars?{queryParams}";
+		public async Task<string> SendMail(int offerid, string emailAddress)
+		{
+			try
+			{
+				var content = new StringContent(JsonSerializer.Serialize(emailAddress), Encoding.UTF8, "application/json");
+				var response = await _httpClient.PostAsync($"{_apiA}/offers/{offerid.ToString()}/send-email", content);
+				return await response.Content.ReadAsStringAsync();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error sending email");
+				throw;
+			}
+		}
 
-            var response = await _httpClient.GetFromJsonAsync<PagedCarsResponse>(urlA);
+		public async Task<(List<Car>, int filteredCarsCount)> GetCars(List<string>? brands, List<string>? models, int? lastId, int pageSize)
+		{
+			var queryParams = CreateQuery(brands, models, lastId, pageSize);
 
-            if ( response != null && response.Cars != null && response.Cars.Any())
-                return (response.Cars, response.TotalCount);
+			var urlA = $"{_apiA}/api/Cars?{queryParams}";
 
-            return (new List<Car>(),0);
-        }
+			var response = await _httpClient.GetFromJsonAsync<PagedCarsResponse>(urlA);
 
-        private string CreateQuery( List<string>? brands, List<string>? models, int? lastId, int pageSize)
-        {
-            var queryParams = new List<string>();
+			if (response != null && response.Cars != null && response.Cars.Any())
+				return (response.Cars, response.TotalCount);
 
-            if (brands != null && brands.Any())
-                foreach (var brand in brands)
-                    queryParams.Add($"brands={brand}");
-            
-            if (models != null && models.Any())
-                foreach (var model in models)
-                    queryParams.Add($"models={model}");
+			return (new List<Car>(), 0);
+		}
 
-            if (lastId.HasValue)
-                queryParams.Add($"lastId={lastId}");
+		private string CreateQuery(List<string>? brands, List<string>? models, int? lastId, int pageSize)
+		{
+			var queryParams = new List<string>();
 
-            queryParams.Add($"pageSize={pageSize}");
+			if (brands != null && brands.Any())
+				foreach (var brand in brands)
+					queryParams.Add($"brands={brand}");
 
-            return string.Join("&", queryParams); ;
-        }
-    }
+			if (models != null && models.Any())
+				foreach (var model in models)
+					queryParams.Add($"models={model}");
+
+			if (lastId.HasValue)
+				queryParams.Add($"lastId={lastId}");
+
+			queryParams.Add($"pageSize={pageSize}");
+
+			return string.Join("&", queryParams); ;
+		}
+	}
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MiniCarRentalAPI.Data;
+using MiniCarRentalAPI.Services;
 using SharedDataModels;
 
 namespace MiniCarRentalAPI.Controllers
@@ -8,11 +9,14 @@ namespace MiniCarRentalAPI.Controllers
     public class RentalController : ControllerBase
     {
         private readonly CarRentalContext _context;
+		private readonly EmailService _emailService;
 
-        public RentalController(CarRentalContext context)
+
+		public RentalController(CarRentalContext context, EmailService emailService)
         {
             _context = context;
-        }
+			_emailService = emailService;
+		}
 
         // GET: api/Cars/offers/5
         [HttpGet("offer/")]
@@ -40,6 +44,12 @@ namespace MiniCarRentalAPI.Controllers
 
             return Ok(offer);
         }
+        [HttpPost("offers/{offerId}/send-email")]
+		public IActionResult SendEmail([FromRoute] int offerId, [FromBody] String emailAddress)
+        {
+            _emailService.SendConfirmationEmail(offerId, emailAddress);
+			return Ok($"Sent offer {offerId} to  '{emailAddress}'.");
+		}
 
         [HttpGet("offers/")]
         public async Task<IActionResult> GetCarOffers(
@@ -110,4 +120,6 @@ namespace MiniCarRentalAPI.Controllers
         }
 
     }
+
+	}
 }
