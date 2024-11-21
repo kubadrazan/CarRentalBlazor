@@ -93,6 +93,20 @@ namespace Browser_FrontEnd.Services
 			}
 		}
 
+		public async Task<string> ConfirmOffer(int offerId)
+		{
+			try
+			{
+				var response = await _httpClient.PutAsJsonAsync<int>($"{_apiA}/api/Rental/offers/acceptOffer", offerId);
+				return await response.Content.ReadAsStringAsync();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error confirming data: {ex.Message}");
+				return null;
+			}
+		}
+
 		// todo change name to choose offer
 		public async Task<string> SendMail(int offerid, string emailAddress)
 		{

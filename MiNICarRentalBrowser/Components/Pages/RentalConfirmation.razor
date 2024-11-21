@@ -1,0 +1,19 @@
+﻿@page "/rentalconfirmation"
+@using Browser_FrontEnd.Services
+@inject RentalServicecs renatalService
+<h3>RentalConfirmation</h3>
+
+@code {
+	[Parameter]
+	[SupplyParameterFromQuery(Name = "offer_id")]
+	public int offerId { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		base.OnInitialized();
+		if (offerId != null)
+		{
+			await renatalService.ConfirmOffer(offerId);
+		}
+	}
+}
