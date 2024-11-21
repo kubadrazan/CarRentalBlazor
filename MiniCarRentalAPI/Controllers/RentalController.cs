@@ -6,123 +6,136 @@ using SharedDataModels;
 
 namespace MiniCarRentalAPI.Controllers
 {
-	public class RentalController : ControllerBase
-	{
-		private readonly CarRentalContext _context;
-		private readonly EmailService _emailService;
+    public class RentalController : ControllerBase
+    {
+        private readonly CarRentalContext _context;
+        private readonly EmailService _emailService;
 
 
-		public RentalController(CarRentalContext context, EmailService emailService)
-		{
-			_context = context;
-			_emailService = emailService;
-		}
-
-		// GET: api/Cars/offers/5
-		//[HttpGet("offer/")]
-		//public async Task<IActionResult> GetCarOffer(
-		//	[FromQuery] int carId,
-		//	[FromQuery] bool isInsurance,
-		//	[FromQuery] int userId)
-		//{
-		//	var offer = await _context.Cars
-		//		.Select(c => new Offer()
-		//		{
-  //                  OfferHashID = new Random().Next(1_000_000),
-		//			CarId = carId,
-		//			IsInsurance = isInsurance,
-		//			Price = isInsurance ? c.InsurancePricePerDay : c.PricePerDay,
-		//			ExpirationDate = DateTime.UtcNow.AddMinutes(10),
-		//			UserID = userId
-		//		})
-		//		.FirstOrDefaultAsync(c => c.CarId == carId);
-
-		//	if (offer == null)
-		//	{
-		//		return NotFound();
-		//	}
-
-		//	return Ok(offer);
-		//}
-
-
-		[HttpGet("offers/")]
-		public async Task<IActionResult> GetCarOffers(
-			[FromQuery] int carId
-			)
-		{
-			var offers = await _context.Cars
-				.Select(c => new List<Offer> {
-					new Offer()
-					{
-                        OfferHashID = new Random().Next(1_000_000),
-						CarId = carId,
-						IsInsurance = true,
-						Price = c.InsurancePricePerDay,
-						ExpirationDate = DateTime.UtcNow.AddMinutes(10),
-						UserEmail = null
-					},
-					new Offer()
-					{
-                        OfferHashID = new Random().Next(1_000_000),
-						CarId = carId,
-						IsInsurance = false,
-						Price = c.PricePerDay,
-						ExpirationDate = DateTime.UtcNow.AddMinutes(10),
-                        UserEmail = null
-                    }
-				})
-				.FirstOrDefaultAsync(c => c[0].CarId == carId);
-
-			if (offers == null)
-			{
-				return NotFound();
-			}
-
-			_context.Offers.Add(offers[0]);
-			_context.Offers.Add(offers[1]);
-
-			await _context.SaveChangesAsync();
-
-			return Ok(offers);
-		}
-
-        [HttpPost("offers/chooseOffer")]
-        public IActionResult SendEmail(
-			[FromRoute] int offerId,
-			[FromBody] String emailAddress)
+        public RentalController(CarRentalContext context, EmailService emailService)
         {
-            _emailService.SendConfirmationEmail(offerId, emailAddress);
-            return Ok($"Sent offer {offerId} to  '{emailAddress}'.");
+            _context = context;
+            _emailService = emailService;
         }
 
-        [HttpPut("acceptOffer/")]
-		public async Task<IActionResult> AcceptOffer(
-            [FromQuery] int offerId)
-		{
-			var offer = await _context.Offers.FirstOrDefaultAsync(f => f.OfferHashID == offerId);
+        // generate one offer based on metadata
+        // GET: api/Cars/offers/5
+        //[HttpGet("offer/")]
+        //public async Task<IActionResult> GetCarOffer(
+        //	[FromQuery] int carId,
+        //	[FromQuery] bool isInsurance,
+        //	[FromQuery] int userId)
+        //{
+        //	var offer = await _context.Cars
+        //		.Select(c => new Offer()
+        //		{
+        //                  OfferHashID = new Random().Next(1_000_000),
+        //			CarId = carId,
+        //			IsInsurance = isInsurance,
+        //			Price = isInsurance ? c.InsurancePricePerDay : c.PricePerDay,
+        //			ExpirationDate = DateTime.UtcNow.AddMinutes(10),
+        //			UserID = userId
+        //		})
+        //		.FirstOrDefaultAsync(c => c.CarId == carId);
 
-			if (offer == null)
-			{
-				return NotFound();
-			}
+        //	if (offer == null)
+        //	{
+        //		return NotFound();
+        //	}
 
-			var rental = new Rental
-			{
-				RentDate = DateTime.UtcNow,
-				CarID = offer.CarId,
-				//UserID = (int)offer.UserID,
-				SourceAPI = 0,
-				PricePerDay = offer.Price,
-				IsInsurance = offer.IsInsurance
-			};
+        //	return Ok(offer);
+        //}
 
-			_context.Rentals.Add(rental);
-			await _context.SaveChangesAsync();
 
-			return Ok(rental);
-		}
-	}
+        [HttpGet("offers/{carId}")]
+        public async Task<IActionResult> GetCarOffers(int carId
+            )
+        {
+            Console.WriteLine($"--- Fetched offers for {carId} ---------------------------------");
+            var car = await _context.Cars.FirstOrDefaultAsync(c => c.ID == carId);
+
+            if (car == null)
+            {
+                Console.WriteLine($"--- NOT FOUND ---------------------------------");
+                return NotFound();
+            }
+
+
+            var offers = new List<Offer> {
+                    new Offer()
+                    {
+                        OfferHashID = new Random().Next(1_000_000),
+                        CarId = carId,
+                        IsInsurance = true,
+                        Price = car.InsurancePricePerDay,
+                        ExpirationDate = DateTime.UtcNow.AddMinutes(10),
+                        UserEmail = null
+                    },
+                    new Offer()
+                    {
+                        OfferHashID = new Random().Next(1_000_000),
+                        CarId = carId,
+                        IsInsurance = false,
+                        Price = car.PricePerDay,
+                        ExpirationDate = DateTime.UtcNow.AddMinutes(10),
+                        UserEmail = null
+                    }
+            };
+
+
+            _context.Offers.Add(offers[0]);
+            _context.Offers.Add(offers[1]);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(offers);
+        }
+
+        [HttpPut("offers/chooseOffer/{offerId}")]
+        public async Task<IActionResult> ChooseOffer(
+             int offerId,
+            [FromBody] String emailAddress)
+        {
+            var offer = await _context.Offers.FirstOrDefaultAsync(f => f.ID == offerId);
+            if (offer == null)
+            {
+                return NotFound();
+            }
+            offer.UserEmail = emailAddress;
+
+            _context.Offers.Update(offer);
+            await _context.SaveChangesAsync();
+
+            _emailService.SendConfirmationEmail(offer.OfferHashID, emailAddress);
+            return Ok($"Sent offer {offer.OfferHashID} to  '{emailAddress}'.");
+        }
+
+        [HttpPut("acceptOffer/{offerId}")]
+        public async Task<IActionResult> AcceptOffer(int offerId)
+        {
+            var offer = await _context.Offers.FirstOrDefaultAsync(f => f.OfferHashID == offerId);
+
+            if (offer == null || offer.UserEmail is null)
+            {
+                return NotFound();
+            }
+
+            var rental = new Rental
+            {
+                RentDate = DateTime.UtcNow,
+                CarID = offer.CarId,
+                UserEmail = offer.UserEmail,
+                SourceAPI = 0,
+                PricePerDay = offer.Price,
+                IsInsurance = offer.IsInsurance
+            };
+
+            _context.Rentals.Add(rental);
+            await _context.SaveChangesAsync();
+
+            return Ok(rental);
+        }
+    }
 
 }
 

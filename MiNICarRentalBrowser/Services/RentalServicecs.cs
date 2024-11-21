@@ -93,13 +93,13 @@ namespace Browser_FrontEnd.Services
 			}
 		}
 
-
+		// todo change name to choose offer
 		public async Task<string> SendMail(int offerid, string emailAddress)
 		{
 			try
 			{
 				var content = new StringContent(JsonSerializer.Serialize(emailAddress), Encoding.UTF8, "application/json");
-				var response = await _httpClient.PostAsync($"{_apiA}/offers/{offerid.ToString()}/send-email", content);
+				var response = await _httpClient.PostAsync($"{_apiA}/offers/chooseOffer/{offerid}", content);
 				return await response.Content.ReadAsStringAsync();
 			}
 			catch (Exception ex)
