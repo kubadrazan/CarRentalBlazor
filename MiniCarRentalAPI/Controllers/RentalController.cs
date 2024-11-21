@@ -28,7 +28,7 @@ namespace MiniCarRentalAPI.Controllers
 			var offer = await _context.Cars
 				.Select(c => new Offer()
 				{
-					OfferRadnomID = new Random().Next(1_000_000),
+                    OfferHashID = new Random().Next(1_000_000),
 					CarId = carId,
 					IsInsurance = isInsurance,
 					Price = isInsurance ? c.InsurancePricePerDay : c.PricePerDay,
@@ -61,7 +61,7 @@ namespace MiniCarRentalAPI.Controllers
 				.Select(c => new List<Offer> {
 					new Offer()
 					{
-						OfferRadnomID = new Random().Next(1_000_000),
+                        OfferHashID = new Random().Next(1_000_000),
 						CarId = carId,
 						IsInsurance = true,
 						Price = c.InsurancePricePerDay,
@@ -70,7 +70,7 @@ namespace MiniCarRentalAPI.Controllers
 					},
 					new Offer()
 					{
-						OfferRadnomID = new Random().Next(1_000_000),
+                        OfferHashID = new Random().Next(1_000_000),
 						CarId = carId,
 						IsInsurance = false,
 						Price = c.PricePerDay,
@@ -96,7 +96,7 @@ namespace MiniCarRentalAPI.Controllers
 		[HttpPut("acceptOffer/{offerId}")]
 		public async Task<IActionResult> AcceptOffer(int offerId)
 		{
-			var offer = await _context.Offers.FirstOrDefaultAsync(f => f.OfferRadnomID == offerId);
+			var offer = await _context.Offers.FirstOrDefaultAsync(f => f.OfferHashID == offerId);
 
 			if (offer == null)
 			{
@@ -107,7 +107,7 @@ namespace MiniCarRentalAPI.Controllers
 			{
 				RentDate = DateTime.UtcNow,
 				CarID = offer.CarId,
-				UserID = offer.UserID,
+				UserID = (int)offer.UserID,
 				SourceAPI = 0,
 				PricePerDay = offer.Price,
 				IsInsurance = offer.IsInsurance
