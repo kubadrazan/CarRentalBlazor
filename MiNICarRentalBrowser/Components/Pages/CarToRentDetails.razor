@@ -79,7 +79,7 @@
 		{
 			var email = user.FindFirstValue(ClaimTypes.Email);
 			await renatalService.SendMail(offerID, email);
-			navigation.NavigateTo("/confirmation");
+			navigation.NavigateTo("/check-mail");
 		}
 		else
 		{
