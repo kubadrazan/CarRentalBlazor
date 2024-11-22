@@ -14,7 +14,7 @@
 		{
 			string address = $"{_car.Localization.Country} {_car.Localization.City} {_car.Localization.Street} {_car.Localization.HouseNumber}";
 			<h3>Szczegóły samochodu</h3>
-			<p><strong>Marka:</strong>@_car.Model.Brand.Name</p>
+			<p><strong>Marka:</strong> @_car.Model.Brand.Name</p>
 			<p><strong>Model:</strong> @_car.Model.Name</p>
 			<p><strong>Rok produkcji:</strong> @_car.ProductionYear</p>
 			<p><strong>Lokalizacja:</strong> @address</p>
@@ -32,7 +32,7 @@
 			@foreach (Offer offer in _offers)
 			{
 				<div class="offer-row">
-					<p><strong>@offer </strong>@offer</p>
+					<p><strong>Cena: @offer.Price zł</strong> Ubezpieczenie: @offer.IsInsurance</p>
 					<button @onclick="() => RentMeAction(offer.ID)" class="button">Rent Me</button>
 				</div>
 			}
@@ -79,7 +79,7 @@
 		{
 			var email = user.FindFirstValue(ClaimTypes.Email);
 			await renatalService.SendMail(offerID, email);
-			navigation.NavigateTo("/check-mail");
+			navigation.NavigateTo("/confirmation");
 		}
 		else
 		{
