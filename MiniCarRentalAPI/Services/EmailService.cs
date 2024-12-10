@@ -1,6 +1,10 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Humanizer;
+using Microsoft.Extensions.Options;
+using MiniCarRentalAPI.Controllers;
 using SendGrid;
 using SendGrid.Helpers.Mail;
+using SharedDataModels;
+using System.Drawing.Drawing2D;
 
 namespace MiniCarRentalAPI.Services
 {
@@ -13,18 +17,21 @@ namespace MiniCarRentalAPI.Services
 		{
 			_client = new SendGridClient(options.Value.APIKey);
 			_address = new EmailAddress("minicarrental@hotmail.com");
-			_message = new SendGridMessage()
-			{
-				From = new EmailAddress("minicarrental@hotmail.com"),
-				Subject = "Confirm Your Rental",
-				PlainTextContent = "LINK:",
-			};
 		}
-		public async void SendConfirmationEmail(int offerID, string email)
+		public async void SendConfirmationEmail(Offer offer, Car car)
 		{
-			_message.AddTo(email);
-			_message.PlainTextContent += $" https://localhost:7156/rentalconfirmation?offer_id={offerID}";
-			var response = await _client.SendEmailAsync(_message).ConfigureAwait(false);
+			string templateId = "d-e2f6c8f4dd7247c2bdd18d8cb3ee973f";
+			var to = new EmailAddress(offer.UserEmail);
+			var message = MailHelper.CreateSingleTemplateEmail(_address, to, templateId, new
+			{
+				userName = offer.UserEmail,
+				prodYear = car.ProductionYear.ToString(),
+				brand = car.Model.Brand.Name,
+				model = car.Model.Name,
+				price = offer.Price.ToString(),
+				callbackUrl = $"https://localhost:7156/rentalconfirmation?offer_id={offer.ID}"
+			});
+			var response = await _client.SendEmailAsync(message);
 		}
 	}
 	public class EmailServiceOptions
