@@ -24,6 +24,7 @@ namespace MiNICarRentalBrowser
                 );
 
             builder.Services.AddScoped<UserValidationService>();
+            builder.Services.AddScoped<EmployeeValidationService>();
 
 			// Google Authentication
 			builder.Services.AddAuthentication(options =>
@@ -42,9 +43,12 @@ namespace MiNICarRentalBrowser
 			{
 				options.AddPolicy("RegisteredPolicy", policy =>
 					policy.Requirements.Add(new RegisteredUserRequirement()));
+				options.AddPolicy("EmployeePolicy", policy =>
+					policy.Requirements.Add(new EmployeeRoleRequirement()));
 			});
 
 			builder.Services.AddScoped<IAuthorizationHandler, RegistrationHandler>();
+			builder.Services.AddScoped<IAuthorizationHandler, EmployeeRoleHandler>();
 			builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
             builder.Services.AddHttpContextAccessor();
 
