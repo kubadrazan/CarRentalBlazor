@@ -1,0 +1,94 @@
+﻿@page "/acceptReturn"
+@using MudBlazor
+@using System.Threading
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@using Browser_FrontEnd.Services
+@using SharedDataModels
+@inject NavigationManager Navigation
+@inject RentalServicecs rentalService
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject Services.IUserService UserService
+
+<style>
+    .centered-top {
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%, 0);
+    }
+
+    .accept_btn {
+        margin-left: 40px;
+        margin-right: 40px;
+        margin-top: 20px;
+    }
+
+    .purple-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
+        border-color: #A64DB6;
+        border-width: 3px
+    }
+</style>
+
+<MudThemeProvider Theme="MyCustomTheme" />
+<MudContainer Style="justify-content: center">
+    <MudCard Class="rounded-xl centered-top" Style="padding-top:20px;
+    padding-left:50px; padding-right:50px; padding-bottom:20px;">
+        <MudStack Style="width: 300px;" Justify="Justify.Center">
+            <MudText Style="width: 300px; text-align: center;" Typo="Typo.h4">Input data</MudText>
+
+            <MudTextField T="string" Label="Description" Variant="Variant.Outlined" Text="@descriptionText"
+                          Class="purple-accents" Lines="5" MaxLength="500" />
+
+            <MudStack Style="width: 300px;" Row="true" AlignItems="AlignItems.Center">
+                <MudFileUpload T="IBrowserFile" Context="fileInput" Accept=".png, .jpg" FilesChanged="UploadFiles" MaximumFileCount="1"
+                               Style="position: absolute; margin-top: 220px;
+                            left: 50%; transform: translate(-50%, 0);">
+                    <ActivatorContent>
+                        @* <ButtonTemplate>
+                            <MudButton HtmlTag="label" for="@carImage">Upload</MudButton>
+                        </ButtonTemplate>a *@
+                        <MudFab Color="Color.Secondary"
+                                StartIcon="@Icons.Material.Filled.Image"
+                                Label="Load picture" />
+                    </ActivatorContent>
+                </MudFileUpload> 
+
+                <MudImage Src="@imageSrc" Width="300" Height="300" Alt="Image of car" Elevation="25" Class="rounded-lg" />
+            </MudStack>
+
+            <button @onclick=AcceptReturn class="button accept_btn">Accept return</button>
+        </MudStack>
+    </MudCard>
+
+</MudContainer>
+
+@code {
+    MudTheme MyCustomTheme = new MudTheme()
+        {
+            PaletteLight = new PaletteLight()
+            {
+                Secondary = Colors.Purple.Lighten1
+            }
+        };
+
+    string descriptionText = "";
+    string imageSrc = "landing_page_car.jpg";
+    IBrowserFile carImage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
+    private void UploadFiles(IBrowserFile file)
+    {
+        carImage = file;
+        //_files.Add(file);
+        //TODO upload the files to the server
+    }
+
+    private async Task AcceptReturn()
+    {
+    }
+}

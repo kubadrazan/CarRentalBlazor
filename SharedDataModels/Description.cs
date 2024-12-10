@@ -12,7 +12,7 @@ namespace SharedDataModels
     {
         public int ID { get; set; }
 
-        [MaxLength]
+        [MaxLength] // todo
         public string Content { get; set; }
 
         [JsonIgnore]
