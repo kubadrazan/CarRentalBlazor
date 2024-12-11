@@ -1,0 +1,119 @@
+﻿@page "/RentalDetailsEmployee/{rentalId:int}"
+@using Browser_FrontEnd.Services
+@using MiNICarRentalBrowser.Services
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using SharedDataModels
+@using System.Security.Claims
+@rendermode InteractiveServer
+@inject RentalServicecs rentalService
+@inject UserServices userService
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject IAuthorizationService AuthorizationService
+@inject NavigationManager navigation
+
+<div class="container">
+	<div class="card">
+		@if (_isCarLoaded)
+		{
+			string address = $"{_car.Localization.Country} {_car.Localization.City} {_car.Localization.Street} {_car.Localization.HouseNumber}";
+			<h3>Szczegóły samochodu</h3>
+			<p><strong>Marka:</strong> @_car.Model.Brand.Name</p>
+			<p><strong>Model:</strong> @_car.Model.Name</p>
+			<p><strong>Rok produkcji:</strong> @_car.ProductionYear</p>
+			<p><strong>Lokalizacja:</strong> @address</p>
+		}
+		else
+		{
+			<p>Wczytywanie danych samochodu...</p>
+		}
+	</div>
+
+	<div class="card">
+		@if (_isCarLoaded)
+		{
+			<p><strong>Ubezpieczenie: </strong>@_rental.IsInsurance</p>
+			<p><strong>Cena za dzień: </strong>@_rental.PricePerDay</p>
+			<p><strong>Data wypożyczenia: </strong>@_rental.RentDate</p>
+			<p><strong>Klient: </strong>@_rental.UserEmail</p>
+			<p><strong>Status: </strong>@_rental.RentalStatus</p>
+		}
+		else
+		{
+			<p>Wczytywanie danych wypożyczenia...</p>
+		}
+	</div>
+</div>
+
+
+@code {
+	[Parameter]
+	public int rentalId { get; set; }
+	private Rental _rental { get; set; }
+	private Car _car;
+
+	private bool _isCarLoaded = false;
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+		var user = authState.User;
+		if (!(await AuthorizationService.AuthorizeAsync(user, "EmployeePolicy")).Succeeded)
+		{
+			navigation.NavigateTo("/", true);
+		}
+		await base.OnInitializedAsync();
+
+		_rental = await rentalService.GetRentalAsync(rentalId);
+		_car = await rentalService.GetCarDetailsAsync(_rental.CarID);
+		if (_car != null)
+		{
+			_isCarLoaded = true;
+		}
+		await InvokeAsync(StateHasChanged);
+	}
+}
+
+<style>
+	.container {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 20px;
+		padding: 20px;
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		justify-content: center;
+		align-items: flex-start;
+		max-width: 1200px;
+		margin: 0 auto;
+	}
+
+	.card {
+		border-radius: 12px;
+		padding: 20px;
+		width: 100%;
+		max-width: 450px;
+		box-shadow: 0 10px 20px rgba(186, 104, 200, 0.3), 0 6px 6px rgba(0, 0, 0, 0.1);
+		align-self: center
+	}
+
+		.card h3 {
+			border-bottom: 2px solid #AB47BC;
+			padding-bottom: 8px;
+			margin-bottom: 15px;
+			font-size: 1.3rem;
+		}
+
+		.card p {
+			font-size: 1rem;
+			line-height: 1.6;
+			margin-bottom: 10px;
+		}
+
+	.offer-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 10px;
+	}
+</style>

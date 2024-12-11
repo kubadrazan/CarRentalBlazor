@@ -11,10 +11,15 @@ namespace MiNICarRentalBrowser.Services
         {
             _context = context;
         }
-        public async Task AddUser(User user)
+        public async Task AddUserAsync(User user)
         {
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<RentalBrowser> GetRentalBrowserAsync(int rentalBrowserId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

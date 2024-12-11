@@ -156,5 +156,13 @@ namespace Browser_FrontEnd.Services
 
 			return string.Join("&", queryParams); ;
 		}
+		public async Task<Rental> GetRentalAsync(RentalBrowser rentalBrowser)
+		{
+			throw new NotImplementedException();
+		}
+		public async Task<Rental> GetRentalAsync(int Id)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }
