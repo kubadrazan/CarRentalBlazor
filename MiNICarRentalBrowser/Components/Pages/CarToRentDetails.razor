@@ -12,12 +12,13 @@
 	<div class="card">
 		@if (_isCarLoaded)
 		{
-			string address = $"{_car.Localization.Country} {_car.Localization.City} {_car.Localization.Street} {_car.Localization.HouseNumber}";
+
+			@* string address = $"{_car.Localization.Country} {_car.Localization.City} {_car.Localization.Street} {_car.Localization.HouseNumber}"; todo zmienic xd*@
 			<h3>Szczegóły samochodu</h3>
 			<p><strong>Marka:</strong> @_car.Model.Brand.Name</p>
 			<p><strong>Model:</strong> @_car.Model.Name</p>
 			<p><strong>Rok produkcji:</strong> @_car.ProductionYear</p>
-			<p><strong>Lokalizacja:</strong> @address</p>
+			@* <p><strong>Lokalizacja:</strong> @address</p> todo zmienic*@
 		}
 		else
 		{
