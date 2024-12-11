@@ -4,10 +4,16 @@ using System.Reflection.Metadata;
 
 namespace SharedDataModels
 {
-	public class Rental
+    public enum RentalStatus
+    {
+        ACTIVE, RETURNED, CLOSED
+    }
+    public class Rental
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // change to none and replace with your own or smth
         public int ID { get; set; }
+
+        public RentalStatus RentalStatus { get; set; }
 
         [DataType(DataType.Date)]
         public DateTime RentDate { get; set; }
@@ -26,7 +32,6 @@ namespace SharedDataModels
 
         public Car Car { get; set; }
 
-        // for navigation?
-        //public Return? Return { get; set; }
+        public Return? Return { get; set; }
     }
 }
