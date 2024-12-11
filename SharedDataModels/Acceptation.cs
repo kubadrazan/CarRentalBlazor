@@ -27,8 +27,8 @@ namespace SharedDataModels
 
         public Description Description { get; set; }
 
-        [JsonIgnore]
-        public ICollection<Image> Images { get; set; }
+        //[JsonIgnore]
+        //public ICollection<Image> Images { get; set; }
 
 
         //[FromForm]

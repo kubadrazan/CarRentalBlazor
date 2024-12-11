@@ -12,8 +12,8 @@ using MiniCarRentalAPI.Data;
 namespace MiniCarRentalAPI.Migrations
 {
     [DbContext(typeof(CarRentalContext))]
-    [Migration("20241120215044_AddNewRentalColumnIsInsurance")]
-    partial class AddNewRentalColumnIsInsurance
+    [Migration("20241211201117_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,36 @@ namespace MiniCarRentalAPI.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("SharedDataModels.Acceptation", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<DateTime>("AcceptationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DescriptionID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EmployeeID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReturnID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("DescriptionID");
+
+                    b.HasIndex("ReturnID")
+                        .IsUnique();
+
+                    b.ToTable("Acceptations");
+                });
 
             modelBuilder.Entity("SharedDataModels.Brand", b =>
                 {
@@ -54,11 +84,32 @@ namespace MiniCarRentalAPI.Migrations
                     b.Property<int>("Availability")
                         .HasColumnType("int");
 
+                    b.Property<string>("Colour")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DoorsNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Drive")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FuelType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("HorsePower")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("InsurancePricePerDay")
                         .HasColumnType("money");
 
-                    b.Property<int>("LocalizationID")
-                        .HasColumnType("int");
+                    b.Property<float>("Latitude")
+                        .HasColumnType("real");
+
+                    b.Property<float>("Longitude")
+                        .HasColumnType("real");
 
                     b.Property<int>("ModelID")
                         .HasColumnType("int");
@@ -69,16 +120,18 @@ namespace MiniCarRentalAPI.Migrations
                     b.Property<int>("ProductionYear")
                         .HasColumnType("int");
 
-                    b.HasKey("ID");
+                    b.Property<string>("Transmission")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasIndex("LocalizationID");
+                    b.HasKey("ID");
 
                     b.HasIndex("ModelID");
 
                     b.ToTable("Cars");
                 });
 
-            modelBuilder.Entity("SharedDataModels.Localization", b =>
+            modelBuilder.Entity("SharedDataModels.Description", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
@@ -86,24 +139,14 @@ namespace MiniCarRentalAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
-                    b.Property<string>("City")
+                    b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("HouseNumber")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Street")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.HasKey("ID");
 
-                    b.ToTable("Localizations");
+                    b.ToTable("Descriptions");
                 });
 
             modelBuilder.Entity("SharedDataModels.Model", b =>
@@ -146,14 +189,14 @@ namespace MiniCarRentalAPI.Migrations
                     b.Property<bool>("IsInsurance")
                         .HasColumnType("bit");
 
-                    b.Property<int>("OfferRadnomID")
+                    b.Property<int>("OfferHashID")
                         .HasColumnType("int");
 
                     b.Property<float>("Price")
                         .HasColumnType("real");
 
-                    b.Property<int>("UserID")
-                        .HasColumnType("int");
+                    b.Property<string>("UserEmail")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ID");
 
@@ -180,11 +223,15 @@ namespace MiniCarRentalAPI.Migrations
                     b.Property<DateTime>("RentDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("RentalStatus")
+                        .HasColumnType("int");
+
                     b.Property<int>("SourceAPI")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserID")
-                        .HasColumnType("int");
+                    b.Property<string>("UserEmail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ID");
 
@@ -193,21 +240,60 @@ namespace MiniCarRentalAPI.Migrations
                     b.ToTable("Rentals");
                 });
 
-            modelBuilder.Entity("SharedDataModels.Car", b =>
+            modelBuilder.Entity("SharedDataModels.Return", b =>
                 {
-                    b.HasOne("SharedDataModels.Localization", "Localization")
-                        .WithMany("Cars")
-                        .HasForeignKey("LocalizationID")
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<float>("Latitude")
+                        .HasColumnType("real");
+
+                    b.Property<float>("Longitude")
+                        .HasColumnType("real");
+
+                    b.Property<int>("RentalID")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ReturnDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("RentalID")
+                        .IsUnique();
+
+                    b.ToTable("Returns");
+                });
+
+            modelBuilder.Entity("SharedDataModels.Acceptation", b =>
+                {
+                    b.HasOne("SharedDataModels.Description", "Description")
+                        .WithMany("Acceptations")
+                        .HasForeignKey("DescriptionID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("SharedDataModels.Return", "Return")
+                        .WithOne("Acceptation")
+                        .HasForeignKey("SharedDataModels.Acceptation", "ReturnID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Description");
+
+                    b.Navigation("Return");
+                });
+
+            modelBuilder.Entity("SharedDataModels.Car", b =>
+                {
                     b.HasOne("SharedDataModels.Model", "Model")
                         .WithMany("Cars")
                         .HasForeignKey("ModelID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Localization");
 
                     b.Navigation("Model");
                 });
@@ -234,6 +320,17 @@ namespace MiniCarRentalAPI.Migrations
                     b.Navigation("Car");
                 });
 
+            modelBuilder.Entity("SharedDataModels.Return", b =>
+                {
+                    b.HasOne("SharedDataModels.Rental", "Rental")
+                        .WithOne("Return")
+                        .HasForeignKey("SharedDataModels.Return", "RentalID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Rental");
+                });
+
             modelBuilder.Entity("SharedDataModels.Brand", b =>
                 {
                     b.Navigation("Models");
@@ -244,14 +341,24 @@ namespace MiniCarRentalAPI.Migrations
                     b.Navigation("Rentals");
                 });
 
-            modelBuilder.Entity("SharedDataModels.Localization", b =>
+            modelBuilder.Entity("SharedDataModels.Description", b =>
                 {
-                    b.Navigation("Cars");
+                    b.Navigation("Acceptations");
                 });
 
             modelBuilder.Entity("SharedDataModels.Model", b =>
                 {
                     b.Navigation("Cars");
+                });
+
+            modelBuilder.Entity("SharedDataModels.Rental", b =>
+                {
+                    b.Navigation("Return");
+                });
+
+            modelBuilder.Entity("SharedDataModels.Return", b =>
+                {
+                    b.Navigation("Acceptation");
                 });
 #pragma warning restore 612, 618
         }
