@@ -7,7 +7,7 @@
 @using System.Security.Claims
 @rendermode InteractiveServer
 @inject RentalServicecs rentalService
-@inject UserServices userService
+@inject IUserService userService
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject IAuthorizationService AuthorizationService
 @inject NavigationManager navigation
@@ -16,12 +16,19 @@
 	<div class="card">
 		@if (_isCarLoaded)
 		{
-			string address = $"{_car.Localization.Country} {_car.Localization.City} {_car.Localization.Street} {_car.Localization.HouseNumber}";
+			string address = $"{_car.Latitude}, {_car.Longitude}";
+			string searchAddress = "https://www.google.com/maps/search/?api=1&query=" + $"{_car.Latitude.ToString().Replace(',', '.')},{_car.Longitude.ToString().Replace(',', '.')}";
 			<h3>Szczegóły samochodu</h3>
 			<p><strong>Marka:</strong> @_car.Model.Brand.Name</p>
 			<p><strong>Model:</strong> @_car.Model.Name</p>
 			<p><strong>Rok produkcji:</strong> @_car.ProductionYear</p>
-			<p><strong>Lokalizacja:</strong> @address</p>
+			<p><strong>Ilość drzwi:</strong> @_car.DoorsNumber</p>
+			<p><strong>Skrzynia biegów:</strong> @_car.Transmission</p>
+			<p><strong>Kolor:</strong> @_car.Colour</p>
+			<p><strong>Drive:</strong> @_car.Drive</p>
+			<p><strong>Paliwo:</strong> @_car.FuelType</p>
+			<p><strong>Moc:</strong> @_car.HorsePower</p>
+			<p><strong>Lokalizacja: </strong><a href=@searchAddress>@address</a></p>
 		}
 		else
 		{
@@ -36,7 +43,12 @@
 			<p><strong>Cena za dzień: </strong>@_rental.PricePerDay</p>
 			<p><strong>Data wypożyczenia: </strong>@_rental.RentDate</p>
 			<p><strong>Klient: </strong>@_rental.UserEmail</p>
+			<p><strong>Cena za dzień: </strong>@_rental.PricePerDay</p>
 			<p><strong>Status: </strong>@_rental.RentalStatus</p>
+			if (_rental.RentalStatus == RentalStatus.RETURNED)
+			{
+				<button @onclick="() => AcceptReturnAction()" class="button">Akceptuj Zwrot</button>
+			}
 		}
 		else
 		{
@@ -72,6 +84,10 @@
 			_isCarLoaded = true;
 		}
 		await InvokeAsync(StateHasChanged);
+	}
+	public void AcceptReturnAction()
+	{
+		navigation.NavigateTo($"/acceptReturn", true);//?returnUrl={Uri.EscapeDataString(returnUrl)}");
 	}
 }
 
@@ -116,4 +132,14 @@
 		justify-content: space-between;
 		margin-bottom: 10px;
 	}
+
+	a {
+		color: #1E90FF;
+		text-decoration: underline;
+		cursor: pointer;
+	}
+
+		a:hover {
+			color: #FF4500;
+		}
 </style>

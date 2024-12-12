@@ -12,13 +12,19 @@
 	<div class="card">
 		@if (_isCarLoaded)
 		{
-
-			@* string address = $"{_car.Localization.Country} {_car.Localization.City} {_car.Localization.Street} {_car.Localization.HouseNumber}"; todo zmienic xd*@
+			string address = $"{_car.Latitude}, {_car.Longitude}";
+			string searchAddress = "https://www.google.com/maps/search/?api=1&query=" + $"{_car.Latitude.ToString().Replace(',', '.')},{_car.Longitude.ToString().Replace(',', '.')}";
 			<h3>Szczegóły samochodu</h3>
 			<p><strong>Marka:</strong> @_car.Model.Brand.Name</p>
 			<p><strong>Model:</strong> @_car.Model.Name</p>
 			<p><strong>Rok produkcji:</strong> @_car.ProductionYear</p>
-			@* <p><strong>Lokalizacja:</strong> @address</p> todo zmienic*@
+			<p><strong>Ilość drzwi:</strong> @_car.DoorsNumber</p>
+			<p><strong>Skrzynia biegów:</strong> @_car.Transmission</p>
+			<p><strong>Kolor:</strong> @_car.Colour</p>
+			<p><strong>Drive:</strong> @_car.Drive</p>
+			<p><strong>Paliwo:</strong> @_car.FuelType</p>
+			<p><strong>Moc:</strong> @_car.HorsePower</p>
+			<p><strong>Lokalizacja: </strong><a href=@searchAddress>@address</a></p>
 		}
 		else
 		{
@@ -131,4 +137,13 @@
 		justify-content: space-between;
 		margin-bottom: 10px;
 	}
+
+	a {
+		color: #1E90FF;
+		text-decoration: underline;
+		cursor: pointer;
+	}
+		a:hover {
+			color: #FF4500;
+		}
 </style>

@@ -29,11 +29,9 @@ namespace MiniCarRentalAPI.Controllers
         public async Task<ActionResult<Car>> GetCar(int id)
         {
             var car = await _context.Cars
-                //.Include(c => c.Localization) todo niepotrzebne usunac
                 .Include(c => c.Model)
                 .ThenInclude(m => m.Brand)
                 .FirstOrDefaultAsync(c => c.ID == id);
-            //.FindAsync(id);
 
             if (car == null)
             {

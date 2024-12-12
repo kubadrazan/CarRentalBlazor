@@ -158,11 +158,29 @@ namespace Browser_FrontEnd.Services
 		}
 		public async Task<Rental> GetRentalAsync(RentalBrowser rentalBrowser)
 		{
-			throw new NotImplementedException();
+			try
+			{
+				var response = await _httpClient.GetFromJsonAsync<Rental>($"{_apiA}/api/rentals/{rentalBrowser.ID}");
+				return response;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error fetching car data: {ex.Message}");
+				return null;
+			}
 		}
 		public async Task<Rental> GetRentalAsync(int Id)
 		{
-			throw new NotImplementedException();
+			try
+			{
+				var response = await _httpClient.GetFromJsonAsync<Rental>($"{_apiA}/api/rental/rentals/{Id}");
+				return response;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error fetching car data: {ex.Message}");
+				return null;
+			}
 		}
 	}
 }
