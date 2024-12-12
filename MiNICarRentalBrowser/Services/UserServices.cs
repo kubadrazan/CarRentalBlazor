@@ -20,9 +20,14 @@ namespace MiNICarRentalBrowser.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<RentalBrowser>> GetUsersRentals(User user, int? lastRentalId = null, int pageSize = 15)
+        public async Task<List<RentalBrowser>> GetUsersRentals(string email, int? lastRentalId = null, int pageSize = 15)
         {
             if (pageSize <= 0)
+                return new List<RentalBrowser>();
+
+            User? user = _context.Users.Where(user => user.Email == email).FirstOrDefault();
+
+            if (user == null)
                 return new List<RentalBrowser>();
 
             var query = _context.Rentals.AsQueryable();

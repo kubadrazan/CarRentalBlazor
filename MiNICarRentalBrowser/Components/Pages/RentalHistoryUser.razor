@@ -3,11 +3,13 @@
 @using SharedDataModels
 @using Browser_FrontEnd.Services
 @using System.Security.Claims
+@using MiNICarRentalBrowser.Services
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @rendermode RenderMode.InteractiveServer
 @inject NavigationManager Navigation
 @inject RentalServicecs rentalService
+@inject IUserService userService
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject IAuthorizationService AuthorizationService
 
@@ -21,7 +23,7 @@
     [SupplyParameterFromQuery(Name = "lastId")]
     public int? lastId { get; set; }
 
-    private List<Rental>? rentals;
+    private List<RentalBrowser>? rentals;
 
     private int pageSize = 15;
 
@@ -29,15 +31,15 @@
     {
         base.OnParametersSetAsync();
 
-        if (lastId == null)
-            lastId = -1;
-
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         if (user.Identity != null && user.Identity.IsAuthenticated)
         {
-            var name = user.FindFirstValue(ClaimTypes.Name);
+            var email = user.FindFirstValue(ClaimTypes.Email);
+            rentals = await userService.GetUsersRentals(email, lastId, pageSize);
         }
+        else
+            Navigation.NavigateTo($"/login", true);
         
     }
 }
