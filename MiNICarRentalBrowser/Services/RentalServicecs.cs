@@ -156,6 +156,7 @@ namespace Browser_FrontEnd.Services
 
 			return string.Join("&", queryParams); ;
 		}
+
 		public async Task<Rental> GetRentalAsync(RentalBrowser rentalBrowser)
 		{
 			try
@@ -165,10 +166,11 @@ namespace Browser_FrontEnd.Services
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine($"Error fetching car data: {ex.Message}");
+				Console.WriteLine($"Error fetching rental data: {ex.Message}");
 				return null;
 			}
 		}
+
 		public async Task<Rental> GetRentalAsync(int Id)
 		{
 			try
@@ -178,7 +180,7 @@ namespace Browser_FrontEnd.Services
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine($"Error fetching car data: {ex.Message}");
+				Console.WriteLine($"Error fetching rental data: {ex.Message}");
 				return null;
 			}
 		}

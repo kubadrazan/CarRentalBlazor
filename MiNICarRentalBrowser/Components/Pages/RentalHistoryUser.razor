@@ -1,7 +1,43 @@
 ﻿@page "/rentalhistory"
 
+@using SharedDataModels
+@using Browser_FrontEnd.Services
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@rendermode RenderMode.InteractiveServer
 @inject NavigationManager Navigation
+@inject RentalServicecs rentalService
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject IAuthorizationService AuthorizationService
+
+<div class="mt-5 mb-5 d-flex flex-column align-center">
+    <MudPagination ShowPageButtons="false" PageSize="15"/>
+</div>
 
 @code {
 
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "lastId")]
+    public int? lastId { get; set; }
+
+    private List<Rental>? rentals;
+
+    private int pageSize = 15;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        base.OnParametersSetAsync();
+
+        if (lastId == null)
+            lastId = -1;
+
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity != null && user.Identity.IsAuthenticated)
+        {
+            var name = user.FindFirstValue(ClaimTypes.Name);
+        }
+        
+    }
 }
