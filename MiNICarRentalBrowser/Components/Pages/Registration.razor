@@ -50,11 +50,13 @@
 
             <MudDatePicker Label="Birth date" @bind-Date="_birthDate" Placeholder="Select Date"
                            PickerVariant="PickerVariant.Dialog" Color="Color.Secondary" Rounded="true"
-                           Style="margin-top: 20px;" />
+                           Style="margin-top: 20px;" Editable=true ImmediateText=true
+                           TextChanged="BirthDatePickerTextChanged" />
 
             <MudDatePicker Label="Driving license obtain date" @bind-Date="_drivingLicenseDate" Placeholder="Select Date"
                            PickerVariant="PickerVariant.Dialog" Color="Color.Secondary" Rounded="true"
-                           Style="margin-top: 20px;" />
+                           Style="margin-top: 20px;" Editable=true ImmediateText=true
+                           MinDate="_minDrivingLicenseDate" />
 
 
             <button @onclick=Register class="button reg_btn">Register</button>
@@ -79,12 +81,14 @@
                 Secondary = Colors.Purple.Lighten1
             }
         };
+    private const int MIN_YEARS_OBTAIN_DRIVING_LICNESE = 16;
 
     private string _email = "";
     private string _firstName = "";
     private string _lastName = "";
     private DateTime? _birthDate = DateTime.Today;
     private DateTime? _drivingLicenseDate = DateTime.Today;
+    private DateTime _minDrivingLicenseDate = DateTime.Today;
 
     private bool _showAlert = false;
     private string _alertText = "";
@@ -107,6 +111,13 @@
         }
 
         _email = email ?? "";
+        _firstName = user.FindFirstValue(ClaimTypes.GivenName) ?? "";
+        _lastName = user.FindFirstValue(ClaimTypes.Surname) ?? "";
+        if (user.FindFirstValue(ClaimTypes.DateOfBirth) is not null)
+        {
+            _birthDate = DateTime.Parse(user.FindFirstValue(ClaimTypes.DateOfBirth)!);
+            _minDrivingLicenseDate = _birthDate.Value.AddYears(MIN_YEARS_OBTAIN_DRIVING_LICNESE);
+        }
     }
 
     private async Task Register()
@@ -156,6 +167,15 @@
 
         Navigation.NavigateTo("/");
         StateHasChanged();
+    }
+
+    private void BirthDatePickerTextChanged(string value)
+    {
+        if (!String.IsNullOrEmpty(value))
+        {
+            _birthDate = DateTime.Parse(value);
+            _minDrivingLicenseDate = _birthDate!.Value.AddYears(MIN_YEARS_OBTAIN_DRIVING_LICNESE);
+        }
     }
 
     public async Task ShowAlert(string text, int delay)
