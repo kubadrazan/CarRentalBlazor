@@ -24,5 +24,21 @@ namespace MiNICarRentalBrowser.Services
             return await _context.Rentals.FirstOrDefaultAsync(r => r.ID == rentalBrowserId);
 
 		}
+
+		public async Task AcceptOfferAsync(Rental rental)
+		{
+            var rentalBrowser = new RentalBrowser() // TODO do poprawek przy ogarnięciu rentalBrowser
+            {
+                ID = rental.ID,
+                RentDate = rental.RentDate,
+                //UserID = rental.UserEmail,
+                CarID = rental.CarID,
+
+            };
+			_context.Rentals.Add(rentalBrowser);
+			await _context.SaveChangesAsync();
+
+		}
+
 	}
 }

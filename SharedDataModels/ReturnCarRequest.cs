@@ -8,6 +8,11 @@ namespace SharedDataModels
 {
 	public class ReturnCarRequest
 	{
+		public ReturnCarRequest(Rental rental, float latitude, float longitude) { 
+			EmailAddress = rental.UserEmail;
+			Latitude = latitude;
+			Longitude = longitude;
+		}
 		public string EmailAddress { get; set; }
 		public float Latitude { get; set; }
 		public float Longitude { get; set; }
