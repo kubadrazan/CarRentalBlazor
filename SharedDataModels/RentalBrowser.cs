@@ -10,14 +10,13 @@ namespace SharedDataModels
 {
     public class RentalBrowser
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // change to none and replace with your own or smth
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
 
-        [DataType(DataType.Date)]
-        public DateTime RentDate { get; set; }
-
-        public int CarID { get; set; }
         public int UserID { get; set; } 
+
+        public int ApiID { get; set; }
+
         public int SourceAPI { get; set; }
 
         public User User { get; set; }
