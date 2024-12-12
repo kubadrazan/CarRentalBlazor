@@ -71,37 +71,21 @@ namespace MiniCarRentalAPI.Controllers
         [HttpGet("brandsModels")]
         public async Task<IActionResult> GetBrandsModels()
         {
-            //var models = await _context.Brands
-            //    .Include(b => b.Models)
-            //    .Select(b => new
+
+            //var models = await _context.Cars
+            //    .Select(c => c.Model)
+            //    .Distinct()
+            //    .Include(b => b.Brand)
+            //    .Select(b => new BrandModelDTO
             //    {
-            //        b.Name,
-            //        Models = b.Models.Select(m => m.Name)
+            //        BrandName = b.Brand.Name,
+            //        ModelName = b.Name
             //    })
             //    .ToListAsync();
 
             var models = await _context.Models
                 .Include(m => m.Brand)
                 .ToListAsync();
-
-            // More appropiate return according to docs
-            //var query = _context.Cars
-            //    .Include(c => c.Model)
-            //    .Include(c => c.Model.Brand)
-            //    .GroupBy(c => new
-            //    {
-            //        BrandName = c.Model.Brand.Name,
-            //        ModelName = c.Model.Name,
-            //        c.Localization
-            //    })
-            //    .Select(g => new
-            //    {
-            //        g.Key.BrandName,
-            //        g.Key.ModelName,
-            //        g.Key.Localization,
-            //        Availability = g. PROBLEM HERE CHECK AVAILABILITY
-            //    });
-            //var alt = await query.ToListAsync();
 
             return Ok(models);
         }
