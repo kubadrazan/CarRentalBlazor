@@ -106,7 +106,7 @@ namespace MiniCarRentalAPI.Controllers
 			_context.Offers.Update(offer);
 			await _context.SaveChangesAsync();
 			var car = await _context.Cars
-				.Include(c => c.Localization)
+				//.Include(c => c.Localization)
 				.Include(c => c.Model)
 				.ThenInclude(m => m.Brand)
 				.FirstOrDefaultAsync(c => c.ID == offer.CarId);

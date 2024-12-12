@@ -107,6 +107,10 @@
         }
 
         _email = email ?? "";
+        _firstName = user.FindFirstValue(ClaimTypes.GivenName) ?? "";
+        _lastName = user.FindFirstValue(ClaimTypes.Surname) ?? "";
+        if (user.FindFirstValue(ClaimTypes.DateOfBirth) is not null)
+            _birthDate = DateTime.Parse(user.FindFirstValue(ClaimTypes.DateOfBirth)!);
     }
 
     private async Task Register()
