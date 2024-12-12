@@ -14,7 +14,7 @@
         <MudSpacer />
         <MudMenu Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" AriaLabel="Open menu">
             <MudMenuItem Icon="@Icons.Material.Filled.AccountCircle" IconSize="Size.Large">Account</MudMenuItem>
-            <MudMenuItem Icon="@Icons.Material.Filled.History" IconSize="Size.Large">Rental history</MudMenuItem>
+            <MudMenuItem OnClick="historyButtonOnClick" Icon="@Icons.Material.Filled.History" IconSize="Size.Large">Rental history</MudMenuItem>
             <MudMenuItem OnClick="logOutButtonOnClick" Icon="@Icons.Material.Filled.Logout" IconSize="Size.Large">Logout</MudMenuItem>
         </MudMenu>
     </MudAppBar>
@@ -28,5 +28,10 @@
     private void logOutButtonOnClick()
     {
         Navigation.NavigateTo("/logout", forceLoad: true);
+    }
+
+    private void historyButtonOnClick()
+    {
+        Navigation.NavigateTo("/rentalhistory", forceLoad: true);
     }
 }
