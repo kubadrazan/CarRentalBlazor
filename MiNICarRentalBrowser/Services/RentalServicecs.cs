@@ -17,7 +17,7 @@ namespace Browser_FrontEnd.Services
 		private readonly string _apiA; // Our CarRentalApi
 		private readonly IUserService _userService;
 
-		public RentalServicecs(HttpClient httpClient, IUserService userService , IConfiguration configuration)
+		public RentalServicecs(HttpClient httpClient, IUserService userService, IConfiguration configuration)
 		{
 			_httpClient = httpClient;
 			_userService = userService;
@@ -101,7 +101,6 @@ namespace Browser_FrontEnd.Services
 			try
 			{
 				var response = await _httpClient.PutAsJsonAsync<int>($"{_apiA}/api/Rental/offers/acceptOffer", offerId);
-
 				await _userService.AcceptOfferAsync(await response.Content.ReadFromJsonAsync<Rental>());
 
 				return await response.Content.ReadAsStringAsync();
@@ -191,7 +190,7 @@ namespace Browser_FrontEnd.Services
 		public async Task ReturnCarAsync(Rental rental)
 		{
 			var returnRequest = new ReturnCarRequest(rental, 0, 0);
-			var response = await _httpClient.PutAsJsonAsync<ReturnCarRequest>($"{_apiA}/api/Rental/rentals/returncar/{rental.ID}", returnRequest);
+			var response = await _httpClient.PutAsJsonAsync<ReturnCarRequest>($"{_apiA}/api/Rental/rentals/returnCar/{rental.ID}", returnRequest);
 		}
 	}
 }

@@ -13,6 +13,7 @@ namespace SharedDataModels
 			Latitude = latitude;
 			Longitude = longitude;
 		}
+		public ReturnCarRequest() { }
 		public string EmailAddress { get; set; }
 		public float Latitude { get; set; }
 		public float Longitude { get; set; }

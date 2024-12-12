@@ -46,7 +46,7 @@
 			<p><strong>Status: </strong>@_rental.RentalStatus</p>
 			if (_rental.RentalStatus == RentalStatus.ACTIVE)
 			{
-				<button @onclick="() => ReturnAction()" class="button">Akceptuj Zwrot</button>
+				<button @onclick="() => ReturnAction()" class="button">Zamów zwrot</button>
 			}
 		}
 		else
@@ -92,7 +92,7 @@
 	public async void ReturnAction()
 	{
 		await rentalService.ReturnCarAsync(_rental);
-		await InvokeAsync(StateHasChanged);
+		navigation.NavigateTo(navigation.Uri, forceLoad: true);
 
 	}
 }
