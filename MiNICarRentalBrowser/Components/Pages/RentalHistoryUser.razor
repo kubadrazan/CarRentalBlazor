@@ -13,8 +13,58 @@
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject IAuthorizationService AuthorizationService
 
+<MudContainer>
+    <MudGrid>
+        <!-- Lista wypożyczeń -->
+        <MudItem xs="12" sm="12" md="8">
+            <MudGrid Class="mt-4" Spacing="12">
+                @if (rentals.Any())
+                {
+                    <MudItem xs="12" Style="margin: 5px; margin: auto">
+                        <MudText Typo="Typo.h5">Twoje wypożyczenia: @userRentalsCount</MudText>
+                    </MudItem>
+
+                    @foreach (var rental in rentals)
+                    {
+                        <MudItem xs="12" Style="margin: 5px">
+                            <MudPaper Class="p-4" Style="max-width: 800px; height: 200px; margin: auto" Elevation="4">
+                                <MudGrid>
+                                    <MudItem xs="7" sm="7">
+                                        <div style="display: flex; flex-direction: column; align-items: flex-start; padding-left: 16px">
+                                            <MudText Typo="Typo.h5">@rental.Car.Model.Brand.Name @rental.Car.Model.Name</MudText>
+                                            <MudText Typo="Typo.body2" Class="my-1">Bez limitu kilometrów</MudText>
+                                        </div>
+                                    </MudItem>
+                                    <MudItem xs="5" sm="5">
+                                        <div style="display: flex; flex-direction: column; align-items: flex-end; padding-right: 16px">
+                                            <MudImage Src="car.jpg" Style="width: 100px; height: 100px; object-fit: cover;" />
+                                            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="() => NavigateToRentalDetails(rental.ID)">Zobacz wypożyczenie</MudButton>
+                                        </div>
+                                    </MudItem>
+                                </MudGrid>
+                            </MudPaper>
+                        </MudItem>
+                    }
+                }
+                else if(isLoading)
+                {
+                    <MudItem xs="12" Style="margin: 5px">
+                        <MudText Typo="Typo.h4" Color="Color.Primary" Class="text-center">Loading...</MudText>
+                    </MudItem>
+                }
+                else
+                {
+                    <MudItem xs="12" Style="margin: 5px">
+                        <MudText Typo="Typo.h4" Color="Color.Secondary" Class="text-center">Brak wypożyczeń.</MudText>
+                    </MudItem>
+                }
+            </MudGrid>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
 <div class="mt-5 mb-5 d-flex flex-column align-center">
-    <MudPagination ShowPageButtons="false" PageSize="15"/>
+    <MudPagination ShowPageButtons="false" PageSize="15" Count="@userRentalsCount"/>
 </div>
 
 @code {
@@ -23,23 +73,58 @@
     [SupplyParameterFromQuery(Name = "lastId")]
     public int? lastId { get; set; }
 
-    private List<RentalBrowser>? rentals;
+    private List<Rental> rentals = new List<Rental>();
+
+    bool isLoading = false;
 
     private int pageSize = 15;
 
-    protected override async Task OnParametersSetAsync()
+    private int userRentalsCount = 0;
+
+    private void NavigateToRentalDetails(int rentalID)
     {
-        base.OnParametersSetAsync();
+        Navigation.NavigateTo($"/RentalDetailsUser/{rentalID}", true);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
 
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         if (user.Identity != null && user.Identity.IsAuthenticated)
         {
             var email = user.FindFirstValue(ClaimTypes.Email);
-            rentals = await userService.GetUsersRentals(email, lastId, pageSize);
+            userRentalsCount = userService.GetUsersRentalsCount(email);
         }
         else
             Navigation.NavigateTo($"/login", true);
-        
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        isLoading = true;
+        await base.OnParametersSetAsync();
+
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity != null && user.Identity.IsAuthenticated)
+        {
+            var email = user.FindFirstValue(ClaimTypes.Email);
+            List<RentalBrowser> rentalsBrowser = await userService.GetUsersRentals(email, lastId, pageSize);
+            if (rentalsBrowser.Count != 0)
+            {
+                Rental rental;
+                foreach (var rent in rentalsBrowser)
+                {
+                    rental = await rentalService.GetRentalAsync(rent.ID);
+                    if (rental != null)
+                        rentals.Add(rental);
+                }
+            }
+        }
+        else
+            Navigation.NavigateTo($"/login", true);
+        isLoading = false;
     }
 }

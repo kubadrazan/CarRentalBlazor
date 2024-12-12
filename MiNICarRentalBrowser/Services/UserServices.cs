@@ -43,5 +43,21 @@ namespace MiNICarRentalBrowser.Services
         {
             return await _context.Rentals.FirstOrDefaultAsync(r => r.ID == rentalBrowserId);
 		}
-	}
+
+        public int GetUsersRentalsCount(string email)
+        {
+            int count = 0;
+
+            User? user = _context.Users.Where(user => user.Email == email).FirstOrDefault();
+
+            if (user == null)
+                return count;
+
+            var query = _context.Rentals.AsQueryable();
+
+            query = query.Where(rental => user.ID == rental.UserID);
+
+            return query.Count();
+        }
+    }
 }

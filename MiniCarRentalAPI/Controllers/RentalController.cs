@@ -205,7 +205,7 @@ namespace MiniCarRentalAPI.Controllers
 		[HttpGet("rentals/{rentalId}")]
 		public async Task<IActionResult> GetRental(int rentalId)
 		{
-			var rental = await _context.Rentals.FirstOrDefaultAsync(r => r.ID == rentalId);
+			var rental = await _context.Rentals.Include(r => r.Car).FirstOrDefaultAsync(r => r.ID == rentalId);
 
 			if (rental == null)
 			{

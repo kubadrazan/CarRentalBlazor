@@ -7,5 +7,7 @@ namespace MiNICarRentalBrowser.Services
         Task AddUserAsync(User user);
 
         Task<List<RentalBrowser>> GetUsersRentals(string email, int? lastRentalId = null, int pageSize = 15);
+
+        int GetUsersRentalsCount(string email);
     }
 }

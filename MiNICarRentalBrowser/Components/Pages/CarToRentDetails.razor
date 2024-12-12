@@ -78,6 +78,7 @@
 		_areOffersLoaded = true;
 		await InvokeAsync(StateHasChanged);
 	}
+
 	public async Task RentMeAction(int offerID)
 	{
 		var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
