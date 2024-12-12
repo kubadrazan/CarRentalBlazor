@@ -142,12 +142,15 @@ namespace MiniCarRentalAPI.Controllers
 		}
 
         [HttpPut("returnCar/{rentalId}")]
+
         public async Task<IActionResult> ReturnCar(int rentalId,
-            [FromBody] String emailAddress,
-            [FromBody] float latitude,
-            [FromBody] float longitude)
+			[FromBody] ReturnCarRequest request)
         {
-            var rental = await _context.Rentals.FirstOrDefaultAsync(r => r.ID == rentalId);
+
+			var email = request.EmailAddress;
+			var latitude = request.Latitude;
+			var longitude = request.Longitude;
+			var rental = await _context.Rentals.FirstOrDefaultAsync(r => r.ID == rentalId);
 
             if (rental == null)
             {
@@ -170,10 +173,11 @@ namespace MiniCarRentalAPI.Controllers
 
         [HttpPut("acceptReturn/{returnId}")]
         public async Task<IActionResult> AcceptReturn(int returnId,
-            [FromBody] int employeeId,
-            [FromBody] string returnDescription)
+			 [FromBody] AcceptReturnRequest request)
         {
-            var carReturn = await _context.Returns.FirstOrDefaultAsync(r => r.ID == returnId);
+			var employeeId = request.EmployeeId;
+			var returnDescription = request.ReturnDescription;
+			var carReturn = await _context.Returns.FirstOrDefaultAsync(r => r.ID == returnId);
 
             if (carReturn == null)
             {
@@ -196,7 +200,6 @@ namespace MiniCarRentalAPI.Controllers
 
             return Ok(acceptation);
         }
-    }
 
 
 		[HttpGet("rentals/{rentalId}")]
