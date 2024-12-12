@@ -156,5 +156,31 @@ namespace Browser_FrontEnd.Services
 
 			return string.Join("&", queryParams); ;
 		}
+		public async Task<Rental> GetRentalAsync(RentalBrowser rentalBrowser)
+		{
+			try
+			{
+				var response = await _httpClient.GetFromJsonAsync<Rental>($"{_apiA}/api/rentals/{rentalBrowser.ID}");
+				return response;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error fetching car data: {ex.Message}");
+				return null;
+			}
+		}
+		public async Task<Rental> GetRentalAsync(int Id)
+		{
+			try
+			{
+				var response = await _httpClient.GetFromJsonAsync<Rental>($"{_apiA}/api/rental/rentals/{Id}");
+				return response;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error fetching car data: {ex.Message}");
+				return null;
+			}
+		}
 	}
 }

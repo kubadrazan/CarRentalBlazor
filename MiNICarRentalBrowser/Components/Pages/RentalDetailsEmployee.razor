@@ -1,13 +1,17 @@
-﻿@page "/CarToRentDetails/{carID:int}"
+﻿@page "/RentalDetailsEmployee/{rentalId:int}"
 @using Browser_FrontEnd.Services
+@using MiNICarRentalBrowser.Services
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using SharedDataModels
 @using System.Security.Claims
 @rendermode InteractiveServer
-@inject RentalServicecs renatalService
+@inject RentalServicecs rentalService
+@inject IUserService userService
 @inject AuthenticationStateProvider authenticationStateProvider
+@inject IAuthorizationService AuthorizationService
 @inject NavigationManager navigation
+
 <div class="container">
 	<div class="card">
 		@if (_isCarLoaded)
@@ -33,20 +37,22 @@
 	</div>
 
 	<div class="card">
-		<h3>Oferty</h3>
-		@if (_areOffersLoaded)
+		@if (_isCarLoaded)
 		{
-			@foreach (Offer offer in _offers)
+			<p><strong>Ubezpieczenie: </strong>@_rental.IsInsurance</p>
+			<p><strong>Cena za dzień: </strong>@_rental.PricePerDay</p>
+			<p><strong>Data wypożyczenia: </strong>@_rental.RentDate</p>
+			<p><strong>Klient: </strong>@_rental.UserEmail</p>
+			<p><strong>Cena za dzień: </strong>@_rental.PricePerDay</p>
+			<p><strong>Status: </strong>@_rental.RentalStatus</p>
+			if (_rental.RentalStatus == RentalStatus.RETURNED)
 			{
-				<div class="offer-row">
-					<p><strong>Cena: @offer.Price zł</strong> Ubezpieczenie: @offer.IsInsurance</p>
-					<button @onclick="() => RentMeAction(offer.ID)" class="button">Rent Me</button>
-				</div>
+				<button @onclick="() => AcceptReturnAction()" class="button">Akceptuj Zwrot</button>
 			}
 		}
 		else
 		{
-			<p>Loading offers...</p>
+			<p>Wczytywanie danych wypożyczenia...</p>
 		}
 	</div>
 </div>
@@ -54,45 +60,34 @@
 
 @code {
 	[Parameter]
-	public int carID { get; set; }
+	public int rentalId { get; set; }
+	private Rental _rental { get; set; }
 	private Car _car;
 
-	private bool _areOffersLoaded = false;
 	private bool _isCarLoaded = false;
 
-	private List<Offer> _offers;
 
 	protected override async Task OnInitializedAsync()
 	{
+		var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+		var user = authState.User;
+		if (!(await AuthorizationService.AuthorizeAsync(user, "EmployeePolicy")).Succeeded)
+		{
+			navigation.NavigateTo("/", true);
+		}
 		await base.OnInitializedAsync();
-		_car = await renatalService.GetCarDetailsAsync(carID);
+
+		_rental = await rentalService.GetRentalAsync(rentalId);
+		_car = await rentalService.GetCarDetailsAsync(_rental.CarID);
 		if (_car != null)
 		{
 			_isCarLoaded = true;
 		}
-		_offers = await renatalService.GetOffersAsync(carID);
-		if (_offers == null)
-		{
-			_offers = new List<Offer>();
-		}
-		_areOffersLoaded = true;
 		await InvokeAsync(StateHasChanged);
 	}
-	public async Task RentMeAction(int offerID)
+	public void AcceptReturnAction()
 	{
-		var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
-		var user = authState.User;
-		if (user.Identity != null && user.Identity.IsAuthenticated)
-		{
-			var email = user.FindFirstValue(ClaimTypes.Email);
-			await renatalService.SendMail(offerID, email);
-			navigation.NavigateTo("/check-mail");
-		}
-		else
-		{
-			var returnUrl = navigation.Uri;
-			navigation.NavigateTo($"/login", true);//?returnUrl={Uri.EscapeDataString(returnUrl)}");
-		}
+		navigation.NavigateTo($"/acceptReturn", true);//?returnUrl={Uri.EscapeDataString(returnUrl)}");
 	}
 }
 
@@ -143,6 +138,7 @@
 		text-decoration: underline;
 		cursor: pointer;
 	}
+
 		a:hover {
 			color: #FF4500;
 		}

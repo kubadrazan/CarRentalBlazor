@@ -163,7 +163,7 @@
                 LocalizationID = 0
             };
 
-        await UserService.AddUser(user);
+        await UserService.AddUserAsync(user);
 
         Navigation.NavigateTo("/");
         StateHasChanged();

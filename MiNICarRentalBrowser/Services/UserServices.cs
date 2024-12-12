@@ -1,5 +1,7 @@
-﻿using MiNICarRentalBrowser.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using MiNICarRentalBrowser.Data;
 using SharedDataModels;
+using System;
 
 namespace MiNICarRentalBrowser.Services
 {
@@ -11,10 +13,16 @@ namespace MiNICarRentalBrowser.Services
         {
             _context = context;
         }
-        public async Task AddUser(User user)
+        public async Task AddUserAsync(User user)
         {
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
         }
-    }
+
+        public async Task<RentalBrowser> GetRentalBrowserAsync(int rentalBrowserId)
+        {
+            return await _context.Rentals.FirstOrDefaultAsync(r => r.ID == rentalBrowserId);
+
+		}
+	}
 }

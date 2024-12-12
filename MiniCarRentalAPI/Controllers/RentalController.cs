@@ -111,10 +111,11 @@ namespace MiniCarRentalAPI.Controllers
 				.ThenInclude(m => m.Brand)
 				.FirstOrDefaultAsync(c => c.ID == offer.CarId);
 			_emailService.SendConfirmationEmail(offer, car);
+
 			return Ok($"Sent offer {offer.OfferHashID} to  '{emailAddress}'.");
 		}
 
-		[HttpPut("acceptOffer")]
+		[HttpPut("offers/acceptOffer")]
 		public async Task<IActionResult> AcceptOffer([FromBody] int offerId)
 		{
 			var offer = await _context.Offers.FirstOrDefaultAsync(f => f.OfferHashID == offerId);
@@ -196,6 +197,22 @@ namespace MiniCarRentalAPI.Controllers
             return Ok(acceptation);
         }
     }
+
+
+		[HttpGet("rentals/{rentalId}")]
+		public async Task<IActionResult> GetRental(int rentalId)
+		{
+			var rental = await _context.Rentals.FirstOrDefaultAsync(r => r.ID == rentalId);
+
+			if (rental == null)
+			{
+				return NotFound();
+			}
+			await _context.SaveChangesAsync();
+
+			return Ok(rental);
+		}
+	}
 
 }
 

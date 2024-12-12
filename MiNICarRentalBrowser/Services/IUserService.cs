@@ -4,6 +4,6 @@ namespace MiNICarRentalBrowser.Services
 {
     public interface IUserService
     {
-        Task AddUser(User user);
+        Task AddUserAsync(User user);
     }
 }
