@@ -139,7 +139,63 @@ namespace MiniCarRentalAPI.Controllers
 
 			return Ok(rental);
 		}
-	}
+
+        [HttpPut("returnCar/{rentalId}")]
+        public async Task<IActionResult> ReturnCar(int rentalId,
+            [FromBody] String emailAddress,
+            [FromBody] float latitude,
+            [FromBody] float longitude)
+        {
+            var rental = await _context.Rentals.FirstOrDefaultAsync(r => r.ID == rentalId);
+
+            if (rental == null)
+            {
+                return NotFound();
+            }
+
+            var carReturn = new Return
+            {
+                ReturnDate = DateTime.UtcNow,
+                RentalID = rentalId,
+				Latitude = latitude,
+				Longitude = longitude
+            };
+
+            _context.Returns.Add(carReturn);
+            await _context.SaveChangesAsync();
+
+            return Ok(carReturn);
+        }
+
+        [HttpPut("acceptReturn/{returnId}")]
+        public async Task<IActionResult> AcceptReturn(int returnId,
+            [FromBody] int employeeId,
+            [FromBody] string returnDescription)
+        {
+            var carReturn = await _context.Returns.FirstOrDefaultAsync(r => r.ID == returnId);
+
+            if (carReturn == null)
+            {
+                return NotFound();
+            }
+
+            var acceptation = new Acceptation
+            {
+				AcceptationDate = DateTime.UtcNow,
+				ReturnID = returnId,
+				EmployeeID = employeeId,
+				Description = new Description
+                {
+                    Content = returnDescription
+                }
+            };
+
+            _context.Acceptations.Add(acceptation);
+            await _context.SaveChangesAsync();
+
+            return Ok(acceptation);
+        }
+    }
 
 }
 
