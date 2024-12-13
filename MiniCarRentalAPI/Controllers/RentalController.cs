@@ -175,7 +175,7 @@ namespace MiniCarRentalAPI.Controllers
         public async Task<IActionResult> AcceptReturn(int returnId,
 			 [FromBody] AcceptReturnRequest request)
         {
-			var employeeId = request.EmployeeId;
+			var employeeEmail = request.EmployeeEmail;
 			var returnDescription = request.ReturnDescription;
 			var carReturn = await _context.Returns.FirstOrDefaultAsync(r => r.ID == returnId);
 
@@ -188,7 +188,7 @@ namespace MiniCarRentalAPI.Controllers
             {
 				AcceptationDate = DateTime.UtcNow,
 				ReturnID = returnId,
-				EmployeeID = employeeId,
+                EmployeeEmail = employeeEmail,
 				Description = new Description
                 {
                     Content = returnDescription

@@ -1,4 +1,6 @@
-﻿@page "/acceptReturn"
+﻿@page "/acceptReturn/{rentalId:int}"
+@attribute [Authorize(Policy = "RegisteredPolicy")]
+
 @using MudBlazor
 @using System.Threading
 @using Microsoft.AspNetCore.Authorization
@@ -72,6 +74,9 @@
             }
         };
 
+    [Parameter]
+    public int rentalId { get; set; }
+
     string descriptionText = "";
     string imageSrc = "landing_page_car.jpg";
     IBrowserFile carImage;
@@ -90,5 +95,13 @@
 
     private async Task AcceptReturn()
     {
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (String.IsNullOrEmpty(user.FindFirstValue(ClaimTypes.Email)))
+            return;
+
+        string email = user.FindFirstValue(ClaimTypes.Email) ?? "";
+        await rentalService.AcceptCarReturn(rentalId, email, descriptionText);
+        Navigation.NavigateTo("/");
     }
 }
