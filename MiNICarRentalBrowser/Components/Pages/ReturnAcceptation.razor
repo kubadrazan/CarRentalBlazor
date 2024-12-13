@@ -39,7 +39,7 @@
         <MudStack Style="width: 300px;" Justify="Justify.Center">
             <MudText Style="width: 300px; text-align: center;" Typo="Typo.h4">Input data</MudText>
 
-            <MudTextField T="string" Label="Description" Variant="Variant.Outlined" Text="@descriptionText"
+            <MudTextField T="string" Label="Description" Variant="Variant.Outlined"  @bind-Value="@descriptionText"
                           Class="purple-accents" Lines="5" MaxLength="500" />
 
             <MudStack Style="width: 300px;" Row="true" AlignItems="AlignItems.Center">
