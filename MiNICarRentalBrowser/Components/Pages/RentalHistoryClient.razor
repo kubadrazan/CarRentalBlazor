@@ -22,7 +22,7 @@
                 @if (rentals.Any())
                 {
                     <MudItem xs="12" Style="margin: 5px; margin: auto">
-                        <MudText Typo="Typo.h5">Twoje wypożyczenia: @userRentalsCount</MudText>
+                        <MudText Typo="Typo.h5">Your rentals: @userRentalsCount</MudText>
                     </MudItem>
 
                     @foreach (var rental in rentals)
@@ -32,23 +32,23 @@
                                 <MudGrid>
                                     <MudItem xs="7" sm="7">
                                         <div style="display: flex; flex-direction: column; align-items: flex-start; padding-left: 16px">
-                                            <MudText Typo="Typo.h5">@rental.Car.Model.Brand.Name @rental.Car.Model.Name</MudText>
-                                            <MudText Typo="Typo.body2" Class="my-1">Wypożyczony: @rental.RentDate.ToShortDateString()</MudText>
-                                            @switch(rental.RentalStatus)
+                                            <MudText Typo="Typo.h5">@rental.Item1.Car.Model.Brand.Name @rental.Item1.Car.Model.Name</MudText>
+                                            <MudText Typo="Typo.body2" Class="my-1">Rented: @rental.Item1.RentDate.ToShortDateString()</MudText>
+                                            @switch (rental.Item1.RentalStatus)
                                             {
                                                 case RentalStatus.ACTIVE:
                                                     {
-                                                        <MudText Typo="Typo.body2" Color="Color.Success" Class="my-1">Status: aktywne</MudText>
+                                                        <MudText Typo="Typo.body2" Color="Color.Success" Class="my-1">Status: ACTIVE</MudText>
                                                         break;
                                                     }
                                                 case RentalStatus.RETURNED:
                                                     {
-                                                        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="my-1">Status: zwrócone</MudText>
+                                                        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="my-1">Status: RETURNED</MudText>
                                                         break;
                                                     }
                                                 case RentalStatus.CLOSED:
                                                     {
-                                                        <MudText Typo="Typo.body2" Color="Color.Primary" Class="my-1">Status: zamknięte</MudText>
+                                                        <MudText Typo="Typo.body2" Color="Color.Primary" Class="my-1">Status: CLOSED</MudText>
                                                         break;
                                                     }
                                             }
@@ -56,7 +56,7 @@
                                     </MudItem>
                                     <MudItem xs="5" sm="5">
                                         <div style="display: flex; flex-direction: column; align-items: flex-end; padding-right: 16px">
-                                            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="() => NavigateToRentalDetails(rental.ID)">Zobacz wypożyczenie</MudButton>
+                                            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="() => NavigateToRentalDetails(rental.Item1.ID)">See rental details</MudButton>
                                         </div>
                                     </MudItem>
                                 </MudGrid>
@@ -73,7 +73,7 @@
                 else
                 {
                     <MudItem xs="12" Style="margin: 5px">
-                        <MudText Typo="Typo.h4" Color="Color.Secondary" Class="text-center">Brak wypożyczeń.</MudText>
+                        <MudText Typo="Typo.h4" Color="Color.Secondary" Class="text-center">No rentals...</MudText>
                     </MudItem>
                 }
             </MudGrid>
@@ -93,7 +93,7 @@
 
     public int newLastId = 0; 
 
-    private List<Rental> rentals = new List<Rental>();
+    private List<(Rental, int browserID)> rentals = new List<(Rental, int)>();
 
     bool isLoading = false;
 
@@ -147,7 +147,7 @@
                 {
                     rental = await rentalService.GetRentalAsync(rent.ApiID);
                     if (rental != null)
-                        rentals.Add(rental);
+                        rentals.Add((rental, rent.ID));
                 }
             }
         }
