@@ -35,8 +35,8 @@ namespace MiNICarRentalBrowser.Services
             query = query.Where(rental => user.ID == rental.UserID);
 
             if (lastRentalId != null && lastRentalId > -1)
-                query = query.Where(rental => rental.ID > lastRentalId);
-            return await query.OrderByDescending(rental => rental.RentDate).Take(pageSize).ToListAsync();
+                query = query.Where(rental => rental.ID < lastRentalId);
+            return await query.OrderByDescending(rental => rental.ID).Take(pageSize).ToListAsync();
         }
 
         public async Task<RentalBrowser> GetRentalBrowserAsync(int rentalBrowserId)
@@ -59,5 +59,24 @@ namespace MiNICarRentalBrowser.Services
 
             return query.Count();
         }
-    }
+
+		public async Task<User> GetUser(string userMail)
+		{
+			return await _context.Users.FirstOrDefaultAsync(u => u.Email == userMail);
+		}
+
+		public async Task AcceptOfferAsync(Rental rental)
+		{
+            
+            var rentalBrowser = new RentalBrowser()
+            {
+                ApiID = rental.ID,
+                UserID = (await GetUser(rental.UserEmail)).ID
+			};
+			_context.Rentals.Add(rentalBrowser);
+			await _context.SaveChangesAsync();
+
+		}
+
+	}
 }

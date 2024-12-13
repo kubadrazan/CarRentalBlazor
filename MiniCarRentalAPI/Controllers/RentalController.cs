@@ -141,7 +141,7 @@ namespace MiniCarRentalAPI.Controllers
 			return Ok(rental);
 		}
 
-        [HttpPut("returnCar/{rentalId}")]
+        [HttpPut("rentals/returnCar/{rentalId}")]
 
         public async Task<IActionResult> ReturnCar(int rentalId,
 			[FromBody] ReturnCarRequest request)
@@ -164,7 +164,7 @@ namespace MiniCarRentalAPI.Controllers
 				Latitude = latitude,
 				Longitude = longitude
             };
-
+			rental.RentalStatus = RentalStatus.RETURNED;
             _context.Returns.Add(carReturn);
             await _context.SaveChangesAsync();
 
@@ -205,7 +205,9 @@ namespace MiniCarRentalAPI.Controllers
 		[HttpGet("rentals/{rentalId}")]
 		public async Task<IActionResult> GetRental(int rentalId)
 		{
-			var rental = await _context.Rentals.Include(r => r.Car).FirstOrDefaultAsync(r => r.ID == rentalId);
+			var rental = await _context.Rentals.Include(r => r.Car).Include(r => r.Car.Model)
+				.Include(r => r.Car.Model.Brand)
+				.FirstOrDefaultAsync(r => r.ID == rentalId);
 
 			if (rental == null)
 			{
