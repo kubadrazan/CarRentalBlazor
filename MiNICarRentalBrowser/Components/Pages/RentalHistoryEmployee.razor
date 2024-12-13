@@ -1,5 +1,6 @@
-﻿@page "/rentalhistory-client"
-@attribute [Authorize(Policy = "RegisteredPolicy")]
+﻿@page "/rentalhistory-employee"
+@attribute [Authorize(Policy = "EmployeePolicy")]
+
 
 @using SharedDataModels
 @using Browser_FrontEnd.Services
@@ -22,7 +23,7 @@
                 @if (rentals.Any())
                 {
                     <MudItem xs="12" Style="margin: 5px; margin: auto">
-                        <MudText Typo="Typo.h5">Twoje wypożyczenia: @userRentalsCount</MudText>
+                        <MudText Typo="Typo.h5">Twoje wypożyczenia: @rentalsCount</MudText>
                     </MudItem>
 
                     @foreach (var rental in rentals)
@@ -34,7 +35,7 @@
                                         <div style="display: flex; flex-direction: column; align-items: flex-start; padding-left: 16px">
                                             <MudText Typo="Typo.h5">@rental.Car.Model.Brand.Name @rental.Car.Model.Name</MudText>
                                             <MudText Typo="Typo.body2" Class="my-1">Wypożyczony: @rental.RentDate.ToShortDateString()</MudText>
-                                            @switch(rental.RentalStatus)
+                                            @switch (rental.RentalStatus)
                                             {
                                                 case RentalStatus.ACTIVE:
                                                     {
@@ -64,7 +65,7 @@
                         </MudItem>
                     }
                 }
-                else if(isLoading)
+                else if (isLoading)
                 {
                     <MudItem xs="12" Style="margin: 5px; ">
                         <MudText Typo="Typo.h4" Color="Color.Primary" Class="text-center">Loading...</MudText>
@@ -82,7 +83,7 @@
 </MudContainer>
 
 <div class="mt-5 mb-5 d-flex flex-column align-center">
-    <MudPagination ShowPageButtons="false" PageSize="@pageSize" Count="@pagesCount" SelectedChanged="OnPageChanged"/>
+    <MudPagination ShowPageButtons="false" PageSize="@pageSize" Count="@pagesCount" SelectedChanged="OnPageChanged" />
 </div>
 
 @code {
@@ -91,7 +92,7 @@
     [SupplyParameterFromQuery(Name = "lastId")]
     public int? lastId { get; set; }
 
-    public int newLastId = 0; 
+    public int newLastId = 0;
 
     private List<Rental> rentals = new List<Rental>();
 
@@ -99,60 +100,31 @@
 
     private int pageSize = 15;
 
-    private int userRentalsCount = 0;
+    private int rentalsCount = 0;
 
     private int pagesCount = 1;
 
     private void NavigateToRentalDetails(int rentalID)
     {
-        Navigation.NavigateTo($"/RentalDetailsClient/{rentalID}", true);
+        Navigation.NavigateTo($"/RentalDetailsEmployee/{rentalID}", true);
     }
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
-        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-        if (user.Identity != null && user.Identity.IsAuthenticated)
-        {
-            var email = user.FindFirstValue(ClaimTypes.Email);
-            userRentalsCount = userService.GetUsersRentalsCount(email);
-            if (userRentalsCount % pageSize == 0 && userRentalsCount != 0)
-                pagesCount = userRentalsCount / pageSize;
-            else
-                pagesCount = userRentalsCount / pageSize + 1;
-
-        }
+        rentalsCount = await rentalService.GetRentalsCountAsync();
+        if (rentalsCount % pageSize == 0 && rentalsCount != 0)
+            pagesCount = rentalsCount / pageSize;
         else
-            Navigation.NavigateTo($"/login", true);
+            pagesCount = rentalsCount / pageSize + 1;
     }
 
     protected override async Task OnParametersSetAsync()
     {
         isLoading = true;
         await base.OnParametersSetAsync();
-
-        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-        if (user.Identity != null && user.Identity.IsAuthenticated)
-        {
-            var email = user.FindFirstValue(ClaimTypes.Email);
-            List<RentalBrowser> rentalsBrowser = await userService.GetUsersRentals(email, lastId, pageSize);
-            if (rentalsBrowser.Count != 0)
-            {
-                newLastId = rentalsBrowser.Last().ID;
-                Rental rental;
-                foreach (var rent in rentalsBrowser)
-                {
-                    rental = await rentalService.GetRentalAsync(rent.ApiID);
-                    if (rental != null)
-                        rentals.Add(rental);
-                }
-            }
-        }
-        else
-            Navigation.NavigateTo($"/login", true);
+        rentals = await rentalService.GetRentalsAsync(lastId, pageSize, false);
         isLoading = false;
     }
 

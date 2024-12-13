@@ -159,7 +159,7 @@ namespace Browser_FrontEnd.Services
 
 			queryParams.Add($"pageSize={pageSize}");
 
-			return string.Join("&", queryParams); ;
+			return string.Join("&", queryParams);
 		}
 
 		public async Task<Rental> GetRentalAsync(RentalBrowser rentalBrowser)
@@ -189,7 +189,47 @@ namespace Browser_FrontEnd.Services
 				return null;
 			}
 		}
-		public async Task ReturnCarAsync(Rental rental)
+
+        public async Task<int> GetRentalsCountAsync()
+        {
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<int>($"{_apiA}/api/rental/rentals/count");
+                return response;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching rental data: {ex.Message}");
+                return -1;
+            }
+        }
+
+        public async Task<List<Rental>> GetRentalsAsync(int? lastId = null, int pageSize = 15, bool lowerThanId = false)
+        {
+            var queryParams = new List<string>();
+
+            if (lastId.HasValue)
+                queryParams.Add($"lastId={lastId}");
+
+            queryParams.Add($"pageSize={pageSize}");
+
+			queryParams.Add($"lowerThanId={lowerThanId.ToString().ToLower()}");
+
+			string url = $"{_apiA}/api/rental/rentals?{string.Join("&", queryParams)}";
+
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<List<Rental>>(url);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching rental data: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task ReturnCarAsync(Rental rental)
 		{
 			var returnRequest = new ReturnCarRequest(rental, 0, 0);
 			var response = await _httpClient.PutAsJsonAsync<ReturnCarRequest>($"{_apiA}/api/Rental/rentals/returnCar/{rental.ID}", returnRequest);
