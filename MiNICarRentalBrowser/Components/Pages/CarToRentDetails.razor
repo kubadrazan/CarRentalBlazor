@@ -52,7 +52,7 @@
 			@foreach (Offer offer in _offers)
 			{
 				<div class="offer-row">
-					<p><strong>Price Per Day: @offer.Price zł</strong> Insurance: @offer.IsInsurance</p>
+					<p><strong>Price Per Day: @Math.Round(offer.Price) zł</strong> Insurance: @offer.IsInsurance</p>
 					<button @onclick="() => RentMeAction(offer.ID)" class="button">Rent Me</button>
 				</div>
 			}

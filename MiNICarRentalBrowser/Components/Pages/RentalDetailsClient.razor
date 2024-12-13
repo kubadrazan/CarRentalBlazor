@@ -51,7 +51,7 @@
 			</iframe>
 			<h3>Rental Details</h3>
 			<p><strong>Insurance: </strong>@_rental.IsInsurance</p>
-			<p><strong>Price Per Day: </strong>@_rental.PricePerDay</p>
+			<p><strong>Price Per Day: </strong>@Math.Round(_rental.PricePerDay)</p>
 			<p><strong>Rent Date: </strong>@_rental.RentDate</p>
 			<p><strong>User: </strong>@_rental.UserEmail</p>
 			<p><strong>Status: </strong>@_rental.RentalStatus</p>
