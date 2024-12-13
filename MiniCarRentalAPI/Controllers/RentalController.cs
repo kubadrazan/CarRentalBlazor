@@ -171,13 +171,13 @@ namespace MiniCarRentalAPI.Controllers
             return Ok(carReturn);
         }
 
-        [HttpPut("acceptReturn/{returnId}")]
-        public async Task<IActionResult> AcceptReturn(int returnId,
+        [HttpPut("rentals/acceptReturn/{rentalId}")]
+        public async Task<IActionResult> AcceptReturn(int rentalId,
 			 [FromBody] AcceptReturnRequest request)
         {
-			var employeeId = request.EmployeeId;
+			var employeeEmail = request.EmployeeEmail;
 			var returnDescription = request.ReturnDescription;
-			var carReturn = await _context.Returns.FirstOrDefaultAsync(r => r.ID == returnId);
+			var carReturn = await _context.Returns.FirstOrDefaultAsync(r => r.RentalID == rentalId);
 
             if (carReturn == null)
             {
@@ -187,13 +187,21 @@ namespace MiniCarRentalAPI.Controllers
             var acceptation = new Acceptation
             {
 				AcceptationDate = DateTime.UtcNow,
-				ReturnID = returnId,
-				EmployeeID = employeeId,
+				ReturnID = carReturn.ID,
+                EmployeeEmail = employeeEmail,
 				Description = new Description
                 {
                     Content = returnDescription
                 }
             };
+
+            var rental = await _context.Rentals.FirstOrDefaultAsync(r => r.ID == rentalId);
+
+            if (rental == null)
+            {
+                return NotFound();
+            }
+            rental.RentalStatus = RentalStatus.CLOSED;
 
             _context.Acceptations.Add(acceptation);
             await _context.SaveChangesAsync();

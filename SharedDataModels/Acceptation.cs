@@ -19,7 +19,7 @@ namespace SharedDataModels
 
         public int ReturnID { get; set; }
 
-        public int EmployeeID { get; set; }
+        public string EmployeeEmail { get; set; }
 
         public int DescriptionID { get; set; }
 

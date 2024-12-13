@@ -234,5 +234,11 @@ namespace Browser_FrontEnd.Services
 			var returnRequest = new ReturnCarRequest(rental, 0, 0);
 			var response = await _httpClient.PutAsJsonAsync<ReturnCarRequest>($"{_apiA}/api/Rental/rentals/returnCar/{rental.ID}", returnRequest);
 		}
+
+		public async Task AcceptCarReturn(int rentalId, string employeeEmail, string acceptationDescription)
+        {
+            var acceptReturnRequest = new AcceptReturnRequest(employeeEmail, acceptationDescription);
+            var response = await _httpClient.PutAsJsonAsync<AcceptReturnRequest>($"{_apiA}/api/Rental/rentals/acceptReturn/{rentalId}", acceptReturnRequest);
+        }
 	}
 }

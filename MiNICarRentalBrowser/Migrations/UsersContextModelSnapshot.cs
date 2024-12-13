@@ -46,7 +46,7 @@ namespace MiNICarRentalBrowser.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Employees");
+                    b.ToTable("Employees", (string)null);
                 });
 
             modelBuilder.Entity("SharedDataModels.LocalizationBrowser", b =>
@@ -74,7 +74,7 @@ namespace MiNICarRentalBrowser.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Localizations");
+                    b.ToTable("Localizations", (string)null);
                 });
 
             modelBuilder.Entity("SharedDataModels.RentalBrowser", b =>
@@ -98,7 +98,7 @@ namespace MiNICarRentalBrowser.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("Rentals");
+                    b.ToTable("Rentals", (string)null);
                 });
 
             modelBuilder.Entity("SharedDataModels.User", b =>
@@ -136,7 +136,7 @@ namespace MiNICarRentalBrowser.Migrations
 
                     b.HasIndex("LocalizationID");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("SharedDataModels.RentalBrowser", b =>
