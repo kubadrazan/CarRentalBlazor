@@ -81,7 +81,7 @@
 </MudContainer>
 
 <div class="mt-5 mb-5 d-flex flex-column align-center">
-    <MudPagination ShowPageButtons="false" PageSize="@pageSize" Count="@userRentalsCount" SelectedChanged="OnPageChanged"/>
+    <MudPagination ShowPageButtons="false" PageSize="@pageSize" Count="@pagesCount" SelectedChanged="OnPageChanged"/>
 </div>
 
 @code {
@@ -100,6 +100,8 @@
 
     private int userRentalsCount = 0;
 
+    private int pagesCount = 1;
+
     private void NavigateToRentalDetails(int rentalID)
     {
         Navigation.NavigateTo($"/RentalDetailsClient/{rentalID}", true);
@@ -115,6 +117,11 @@
         {
             var email = user.FindFirstValue(ClaimTypes.Email);
             userRentalsCount = userService.GetUsersRentalsCount(email);
+            if (userRentalsCount % pageSize == 0 && userRentalsCount != 0)
+                pagesCount = userRentalsCount / pageSize;
+            else
+                pagesCount = userRentalsCount / pageSize + 1;
+
         }
         else
             Navigation.NavigateTo($"/login", true);
