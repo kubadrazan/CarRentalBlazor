@@ -1,4 +1,4 @@
-﻿@page "/rentalhistory"
+﻿@page "/rentalhistory-client"
 
 @using SharedDataModels
 @using Browser_FrontEnd.Services
@@ -65,7 +65,7 @@
                 }
                 else if(isLoading)
                 {
-                    <MudItem xs="12" Style="margin: 5px">
+                    <MudItem xs="12" Style="margin: 5px; ">
                         <MudText Typo="Typo.h4" Color="Color.Primary" Class="text-center">Loading...</MudText>
                     </MudItem>
                 }
@@ -81,7 +81,7 @@
 </MudContainer>
 
 <div class="mt-5 mb-5 d-flex flex-column align-center">
-    <MudPagination ShowPageButtons="false" PageSize="15" Count="@userRentalsCount"/>
+    <MudPagination ShowPageButtons="false" PageSize="@pageSize" Count="@userRentalsCount" SelectedChanged="OnPageChanged"/>
 </div>
 
 @code {
@@ -89,6 +89,8 @@
     [Parameter]
     [SupplyParameterFromQuery(Name = "lastId")]
     public int? lastId { get; set; }
+
+    public int newLastId = 0; 
 
     private List<Rental> rentals = new List<Rental>();
 
@@ -131,6 +133,7 @@
             List<RentalBrowser> rentalsBrowser = await userService.GetUsersRentals(email, lastId, pageSize);
             if (rentalsBrowser.Count != 0)
             {
+                newLastId = rentalsBrowser.Last().ID;
                 Rental rental;
                 foreach (var rent in rentalsBrowser)
                 {
@@ -143,5 +146,28 @@
         else
             Navigation.NavigateTo($"/login", true);
         isLoading = false;
+    }
+
+    private void OnPageChanged()
+    {
+        lastId = newLastId;
+        UpdateUrl();
+    }
+
+    private void UpdateUrl()
+    {
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+
+        query.Remove("pageSize");
+        query.Remove("lastId");
+
+        query.Add("pageSize", pageSize.ToString());
+
+        if (lastId.HasValue)
+            query.Add("lastId", lastId.ToString());
+
+        var newUri = $"{uri.GetLeftPart(UriPartial.Path)}?{query}";
+        Navigation.NavigateTo(newUri, forceLoad: false);
     }
 }

@@ -1,5 +1,11 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+
+@inherits LayoutComponentBase
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IAuthorizationService AuthorizationService
 
 <MudThemeProvider @rendermode="InteractiveServer" />
 <MudPopoverProvider @rendermode="InteractiveServer" />
@@ -30,8 +36,16 @@
         Navigation.NavigateTo("/logout", forceLoad: true);
     }
 
-    private void historyButtonOnClick()
+    private async Task historyButtonOnClick()
     {
-        Navigation.NavigateTo("/rentalhistory", forceLoad: true);
+        bool IsEmployee;
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        IsEmployee = (await AuthorizationService.AuthorizeAsync(user, "EmployeePolicy")).Succeeded;
+
+        if (IsEmployee)
+            Navigation.NavigateTo("/rentalhistory-employee", forceLoad: true);
+        else
+            Navigation.NavigateTo("/rentalhistory-client", forceLoad: true);
     }
 }
