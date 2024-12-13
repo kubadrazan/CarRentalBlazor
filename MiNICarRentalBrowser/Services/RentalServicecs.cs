@@ -215,7 +215,7 @@ namespace Browser_FrontEnd.Services
 
 			queryParams.Add($"lowerThanId={lowerThanId.ToString().ToLower()}");
 
-			string url = $"{_apiA}/api/rental/rentals?{string.Join("&", queryParams)}";
+			string url = $"{_apiA}/api/Rental/rentals?{string.Join("&", queryParams)}";
 
             try
             {

@@ -226,7 +226,7 @@ namespace MiniCarRentalAPI.Controllers
             return Ok(query.Count());
         }
 
-        [HttpGet]
+        [HttpGet("rentals")]
         public async Task<IActionResult> GetRentals(
 			[FromQuery] int? lastId = null,
             [FromQuery] int pageSize = -1,
