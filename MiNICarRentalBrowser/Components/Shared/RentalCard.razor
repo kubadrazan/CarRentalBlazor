@@ -1,0 +1,44 @@
+﻿@using SharedDataModels
+
+<MudPaper Class="p-4" Style="max-width: 600px; height: 125px; margin: auto" Elevation="4">
+    <MudGrid>
+        <MudItem xs="7">
+            <div style="display: flex; flex-direction: column; align-items: flex-start; padding-left: 16px">
+                <MudText Typo="Typo.h5">@rental.Car.Model.Brand.Name @rental.Car.Model.Name</MudText>
+                <MudText Typo="Typo.body2" Class="my-1">Rented: @rental.RentDate.ToShortDateString()</MudText>
+                @switch (rental.RentalStatus)
+                {
+                    case RentalStatus.ACTIVE:
+                        {
+                            <MudText Typo="Typo.body2" Color="Color.Tertiary" Class="my-1">Status: ACTIVE</MudText>
+                            break;
+                        }
+                    case RentalStatus.RETURNED:
+                        {
+                            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="my-1">Status: RETURNED</MudText>
+                            break;
+                        }
+                    case RentalStatus.CLOSED:
+                        {
+                            <MudText Typo="Typo.body2" Color="Color.Primary" Class="my-1">Status: CLOSED</MudText>
+                            break;
+                        }
+                }
+            </div>
+        </MudItem>
+        <MudItem xs="5" Style="display: flex; flex-direction: column; justify-content: flex-end; padding-right: 16px">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="() => OnButtonClicked(rentalID)">See rental details</MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@code {
+    [Parameter]
+    public required Rental rental { get; set; }
+
+    [Parameter]
+    public required int rentalID { get; set; }
+
+    [Parameter]
+    public required Action<int> OnButtonClicked { get; set; }
+}
