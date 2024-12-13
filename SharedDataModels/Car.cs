@@ -39,11 +39,12 @@ namespace SharedDataModels
 
         public int ModelID { get; set; }
 
-        public float Latitude { get; set; }
+		//public Location Location { get; set; } // TODO
+		public float Latitude { get; set; }
 
-        public float Longitude { get; set; }
+		public float Longitude { get; set; }
 
-        public Model Model { get; set; }
+		public Model Model { get; set; }
 
         [JsonIgnore]
         public ICollection<Rental> Rentals { get; set; }

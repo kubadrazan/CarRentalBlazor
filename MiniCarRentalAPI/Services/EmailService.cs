@@ -29,7 +29,7 @@ namespace MiniCarRentalAPI.Services
 				brand = car.Model.Brand.Name,
 				model = car.Model.Name,
 				price = offer.Price.ToString(),
-				callbackUrl = $"https://localhost:7156/rentalconfirmation?offer_id={offer.OfferHashID}"
+				callbackUrl = $"https://localhost:7156/rentalconfirmation?offer_id={offer.OfferHashID}" // TODO
 			});
 			var response = await _client.SendEmailAsync(message);
 		}

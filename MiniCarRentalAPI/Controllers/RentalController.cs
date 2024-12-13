@@ -193,7 +193,7 @@ namespace MiniCarRentalAPI.Controllers
                 {
                     Content = returnDescription
                 }
-            };
+            }; // TODO add mapper
 
             var rental = await _context.Rentals.FirstOrDefaultAsync(r => r.ID == rentalId);
 
