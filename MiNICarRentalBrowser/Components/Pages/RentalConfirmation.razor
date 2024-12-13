@@ -8,10 +8,11 @@
 	[SupplyParameterFromQuery(Name = "offer_id")]
 	public int offerId { get; set; }
 
-	protected override async Task OnInitializedAsync()
+	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		base.OnInitialized();
-		if (offerId != null)
+		await base.OnAfterRenderAsync(firstRender);
+
+		if (firstRender)
 		{
 			await renatalService.ConfirmOffer(offerId);
 		}
