@@ -13,6 +13,8 @@ namespace SharedDataModels
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // change to none and replace with your own or smth
         public int ID { get; set; }
 
+        public int OfferHashID {  get; set; }
+
         public RentalStatus RentalStatus { get; set; }
 
         [DataType(DataType.Date)]
