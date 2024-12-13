@@ -19,31 +19,43 @@
 			string address = $"{_car.Latitude}, {_car.Longitude}";
 			string searchAddress = "https://www.google.com/maps/search/?api=1&query=" + $"{_car.Latitude.ToString().Replace(',', '.')},{_car.Longitude.ToString().Replace(',', '.')}";
 			<h3>Szczegóły samochodu</h3>
-			<p><strong>Marka:</strong> @_car.Model.Brand.Name</p>
+			<p><strong>Brand:</strong> @_car.Model.Brand.Name</p>
 			<p><strong>Model:</strong> @_car.Model.Name</p>
-			<p><strong>Rok produkcji:</strong> @_car.ProductionYear</p>
-			<p><strong>Ilość drzwi:</strong> @_car.DoorsNumber</p>
-			<p><strong>Skrzynia biegów:</strong> @_car.Transmission</p>
-			<p><strong>Kolor:</strong> @_car.Colour</p>
+			<p><strong>Production Year:</strong> @_car.ProductionYear</p>
+			<p><strong>Doors:</strong> @_car.DoorsNumber</p>
+			<p><strong>Transmission:</strong> @_car.Transmission</p>
+			<p><strong>Colour:</strong> @char.ToUpper(_car.Colour[0])@_car.Colour.Substring(1)</p>
 			<p><strong>Drive:</strong> @_car.Drive</p>
-			<p><strong>Paliwo:</strong> @_car.FuelType</p>
-			<p><strong>Moc:</strong> @_car.HorsePower</p>
-			<p><strong>Lokalizacja: </strong><a href=@searchAddress>@address</a></p>
+			<p><strong>FuelType:</strong> @_car.FuelType</p>
+			<p><strong>HorsePower:</strong> @_car.HorsePower HP</p>
+			<p><strong>Location: </strong><a href=@searchAddress>@address</a></p>
 		}
 		else
 		{
-			<p>Wczytywanie danych samochodu...</p>
+			<p>Loading Car Details...</p>
 		}
 	</div>
 
 	<div class="card">
 		@if (_isCarLoaded)
 		{
-			<p><strong>Ubezpieczenie: </strong>@_rental.IsInsurance</p>
-			<p><strong>Cena za dzień: </strong>@_rental.PricePerDay</p>
-			<p><strong>Data wypożyczenia: </strong>@_rental.RentDate</p>
-			<p><strong>Cena za dzień: </strong>@_rental.PricePerDay</p>
+			<h3>Location</h3>
+			string source = $"https://www.google.com/maps?q={@_car.Latitude.ToString().Replace(',', '.')},{@_car.Longitude.ToString().Replace(',', '.')}&z=15&output=embed";
+			<iframe width="100%"
+					height="300"
+					style="border:0"
+					loading="lazy"
+					allowfullscreen
+					referrerpolicy="no-referrer-when-downgrade"
+					src=@source>
+			</iframe>
+			<h3>Rental Details</h3>
+			<p><strong>Insurance: </strong>@_rental.IsInsurance</p>
+			<p><strong>Price Per Day: </strong>@_rental.PricePerDay</p>
+			<p><strong>Rent Date: </strong>@_rental.RentDate</p>
+			<p><strong>User: </strong>@_rental.UserEmail</p>
 			<p><strong>Status: </strong>@_rental.RentalStatus</p>
+
 			if (_rental.RentalStatus == RentalStatus.ACTIVE)
 			{
 				<button @onclick="() => ReturnAction()" class="button">Zamów zwrot</button>
@@ -51,7 +63,7 @@
 		}
 		else
 		{
-			<p>Wczytywanie danych wypożyczenia...</p>
+			<p>Loading Rental Details...</p>
 		}
 	</div>
 </div>
