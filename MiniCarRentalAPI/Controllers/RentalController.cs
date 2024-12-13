@@ -141,7 +141,7 @@ namespace MiniCarRentalAPI.Controllers
 			return Ok(rental);
 		}
 
-        [HttpPut("returnCar/{rentalId}")]
+        [HttpPut("rentals/returnCar/{rentalId}")]
 
         public async Task<IActionResult> ReturnCar(int rentalId,
 			[FromBody] ReturnCarRequest request)
@@ -164,7 +164,7 @@ namespace MiniCarRentalAPI.Controllers
 				Latitude = latitude,
 				Longitude = longitude
             };
-
+			rental.RentalStatus = RentalStatus.RETURNED;
             _context.Returns.Add(carReturn);
             await _context.SaveChangesAsync();
 

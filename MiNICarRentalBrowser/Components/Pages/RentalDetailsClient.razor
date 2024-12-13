@@ -1,0 +1,151 @@
+﻿@page "/RentalDetailsClient/{rentalId:int}"
+@using Browser_FrontEnd.Services
+@using MiNICarRentalBrowser.Services
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using SharedDataModels
+@using System.Security.Claims
+@rendermode InteractiveServer
+@inject RentalServicecs rentalService
+@inject IUserService userService
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject IAuthorizationService AuthorizationService
+@inject NavigationManager navigation
+
+<div class="container">
+	<div class="card">
+		@if (_isCarLoaded)
+		{
+			string address = $"{_car.Latitude}, {_car.Longitude}";
+			string searchAddress = "https://www.google.com/maps/search/?api=1&query=" + $"{_car.Latitude.ToString().Replace(',', '.')},{_car.Longitude.ToString().Replace(',', '.')}";
+			<h3>Szczegóły samochodu</h3>
+			<p><strong>Marka:</strong> @_car.Model.Brand.Name</p>
+			<p><strong>Model:</strong> @_car.Model.Name</p>
+			<p><strong>Rok produkcji:</strong> @_car.ProductionYear</p>
+			<p><strong>Ilość drzwi:</strong> @_car.DoorsNumber</p>
+			<p><strong>Skrzynia biegów:</strong> @_car.Transmission</p>
+			<p><strong>Kolor:</strong> @_car.Colour</p>
+			<p><strong>Drive:</strong> @_car.Drive</p>
+			<p><strong>Paliwo:</strong> @_car.FuelType</p>
+			<p><strong>Moc:</strong> @_car.HorsePower</p>
+			<p><strong>Lokalizacja: </strong><a href=@searchAddress>@address</a></p>
+		}
+		else
+		{
+			<p>Wczytywanie danych samochodu...</p>
+		}
+	</div>
+
+	<div class="card">
+		@if (_isCarLoaded)
+		{
+			<p><strong>Ubezpieczenie: </strong>@_rental.IsInsurance</p>
+			<p><strong>Cena za dzień: </strong>@_rental.PricePerDay</p>
+			<p><strong>Data wypożyczenia: </strong>@_rental.RentDate</p>
+			<p><strong>Cena za dzień: </strong>@_rental.PricePerDay</p>
+			<p><strong>Status: </strong>@_rental.RentalStatus</p>
+			if (_rental.RentalStatus == RentalStatus.ACTIVE)
+			{
+				<button @onclick="() => ReturnAction()" class="button">Zamów zwrot</button>
+			}
+		}
+		else
+		{
+			<p>Wczytywanie danych wypożyczenia...</p>
+		}
+	</div>
+</div>
+
+
+@code {
+	[Parameter]
+	public int rentalId { get; set; }
+	private Rental _rental { get; set; }
+	private Car _car;
+
+	private bool _isCarLoaded = false;
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+		var user = authState.User;
+		if (!(await AuthorizationService.AuthorizeAsync(user, "RegisteredPolicy")).Succeeded)
+		{
+			navigation.NavigateTo("/", true);
+		}
+		await base.OnInitializedAsync();
+
+		_rental = await rentalService.GetRentalAsync(rentalId);
+		var email = user.FindFirstValue(ClaimTypes.Email);
+		if (email != _rental.UserEmail)
+		{
+			navigation.NavigateTo("/home", true);
+		}
+		_car = await rentalService.GetCarDetailsAsync(_rental.CarID);
+		if (_car != null)
+		{
+			_isCarLoaded = true;
+		}
+		await InvokeAsync(StateHasChanged);
+	}
+	public async void ReturnAction()
+	{
+		await rentalService.ReturnCarAsync(_rental);
+		navigation.NavigateTo(navigation.Uri, forceLoad: true);
+
+	}
+}
+
+<style>
+	.container {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 20px;
+		padding: 20px;
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		justify-content: center;
+		align-items: flex-start;
+		max-width: 1200px;
+		margin: 0 auto;
+	}
+
+	.card {
+		border-radius: 12px;
+		padding: 20px;
+		width: 100%;
+		max-width: 450px;
+		box-shadow: 0 10px 20px rgba(186, 104, 200, 0.3), 0 6px 6px rgba(0, 0, 0, 0.1);
+		align-self: center
+	}
+
+		.card h3 {
+			border-bottom: 2px solid #AB47BC;
+			padding-bottom: 8px;
+			margin-bottom: 15px;
+			font-size: 1.3rem;
+		}
+
+		.card p {
+			font-size: 1rem;
+			line-height: 1.6;
+			margin-bottom: 10px;
+		}
+
+	.offer-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 10px;
+	}
+
+	a {
+		color: #1E90FF;
+		text-decoration: underline;
+		cursor: pointer;
+	}
+
+		a:hover {
+			color: #FF4500;
+		}
+</style>

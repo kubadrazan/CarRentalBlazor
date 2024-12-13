@@ -59,5 +59,25 @@ namespace MiNICarRentalBrowser.Services
 
             return query.Count();
         }
-    }
+
+		}
+		public async Task<User> GetUser(string userMail)
+		{
+			return await _context.Users.FirstOrDefaultAsync(u => u.Email == userMail);
+		}
+
+		public async Task AcceptOfferAsync(Rental rental)
+		{
+            
+            var rentalBrowser = new RentalBrowser()
+            {
+                ApiID = rental.ID,
+                UserID = (await GetUser(rental.UserEmail)).ID
+			};
+			_context.Rentals.Add(rentalBrowser);
+			await _context.SaveChangesAsync();
+
+		}
+
+	}
 }
