@@ -102,6 +102,6 @@
 
         string email = user.FindFirstValue(ClaimTypes.Email) ?? "";
         await rentalService.AcceptCarReturn(rentalId, email, descriptionText);
-        Navigation.NavigateTo("/");
+        Navigation.NavigateTo($"/RentalDetailsEmployee/{rentalId}");
     }
 }
