@@ -14,7 +14,7 @@
 @inject IAuthorizationService AuthorizationService
 
 <MudContainer>
-    <MudGrid>
+    <MudGrid Style="align-content: center">
         <!-- Lista wypożyczeń -->
         <MudItem xs="12" sm="12" md="8">
             <MudGrid Class="mt-4" Spacing="12">
@@ -27,17 +27,34 @@
                     @foreach (var rental in rentals)
                     {
                         <MudItem xs="12" Style="margin: 5px">
-                            <MudPaper Class="p-4" Style="max-width: 800px; height: 200px; margin: auto" Elevation="4">
+                            <MudPaper Class="p-4" Style="max-width: 600px; height: 125px; margin: auto" Elevation="4">
                                 <MudGrid>
                                     <MudItem xs="7" sm="7">
                                         <div style="display: flex; flex-direction: column; align-items: flex-start; padding-left: 16px">
                                             <MudText Typo="Typo.h5">@rental.Car.Model.Brand.Name @rental.Car.Model.Name</MudText>
-                                            <MudText Typo="Typo.body2" Class="my-1">Bez limitu kilometrów</MudText>
+                                            <MudText Typo="Typo.body2" Class="my-1">Wypożyczony: @rental.RentDate.ToShortDateString()</MudText>
+                                            @switch(rental.RentalStatus)
+                                            {
+                                                case RentalStatus.ACTIVE:
+                                                    {
+                                                        <MudText Typo="Typo.body2" Color="Color.Success" Class="my-1">Status: aktywne</MudText>
+                                                        break;
+                                                    }
+                                                case RentalStatus.RETURNED:
+                                                    {
+                                                        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="my-1">Status: zwrócone</MudText>
+                                                        break;
+                                                    }
+                                                case RentalStatus.CLOSED:
+                                                    {
+                                                        <MudText Typo="Typo.body2" Color="Color.Primary" Class="my-1">Status: zamknięte</MudText>
+                                                        break;
+                                                    }
+                                            }
                                         </div>
                                     </MudItem>
                                     <MudItem xs="5" sm="5">
                                         <div style="display: flex; flex-direction: column; align-items: flex-end; padding-right: 16px">
-                                            <MudImage Src="car.jpg" Style="width: 100px; height: 100px; object-fit: cover;" />
                                             <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="() => NavigateToRentalDetails(rental.ID)">Zobacz wypożyczenie</MudButton>
                                         </div>
                                     </MudItem>
