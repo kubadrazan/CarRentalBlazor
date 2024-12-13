@@ -14,9 +14,9 @@
 @inject IAuthorizationService AuthorizationService
 
 <MudContainer>
-    <MudGrid Style="align-content: center">
+    <MudGrid>
         <!-- Lista wypożyczeń -->
-        <MudItem xs="12" sm="12" md="8">
+        <MudItem xs="12" sm="12" md="12">
             <MudGrid Class="mt-4" Spacing="12">
                 @if (rentals.Any())
                 {
@@ -100,7 +100,7 @@
 
     private void NavigateToRentalDetails(int rentalID)
     {
-        Navigation.NavigateTo($"/RentalDetailsUser/{rentalID}", true);
+        Navigation.NavigateTo($"/RentalDetailsClient/{rentalID}", true);
     }
 
     protected override async Task OnInitializedAsync()
@@ -134,7 +134,7 @@
                 Rental rental;
                 foreach (var rent in rentalsBrowser)
                 {
-                    rental = await rentalService.GetRentalAsync(rent.ID);
+                    rental = await rentalService.GetRentalAsync(rent.ApiID);
                     if (rental != null)
                         rentals.Add(rental);
                 }
