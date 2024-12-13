@@ -217,7 +217,43 @@ namespace MiniCarRentalAPI.Controllers
 
 			return Ok(rental);
 		}
-	}
+
+        [HttpGet("rentals/count")]
+        public async Task<IActionResult> GetRentalsCount()
+        {
+			var query = _context.Rentals.AsQueryable();
+
+            return Ok(query.Count());
+        }
+
+        [HttpGet("rentals")]
+        public async Task<IActionResult> GetRentals(
+			[FromQuery] int? lastId = null,
+            [FromQuery] int pageSize = -1,
+			[FromQuery] bool lowerThanId = false)
+        {
+			var query = _context.Rentals.AsQueryable();
+            List<Rental>? rentals;
+
+            if (lastId.HasValue)
+			{
+				if (lowerThanId)
+					query = query.Where(r  => r.ID < lastId.Value);
+				else
+                    query = query.Where(r => r.ID > lastId.Value);
+            }
+
+            if (pageSize <= 0)
+				rentals = await query.OrderByDescending(r => r.ID).Include(r => r.Car)
+					.Include(r => r.Car.Model).Include(r => r.Car.Model.Brand).ToListAsync();
+			else
+                rentals = await query.OrderByDescending(r => r.ID).Include(r => r.Car)
+                    .Include(r => r.Car.Model).Include(r => r.Car.Model.Brand).
+					Take(pageSize).ToListAsync();
+
+            return Ok(rentals);
+        }
+    }
 
 }
 

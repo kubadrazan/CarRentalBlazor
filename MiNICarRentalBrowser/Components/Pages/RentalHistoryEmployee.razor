@@ -1,5 +1,6 @@
-﻿@page "/rentalhistory-client"
-@attribute [Authorize(Policy = "RegisteredPolicy")]
+﻿@page "/rentalhistory-employee"
+@attribute [Authorize(Policy = "EmployeePolicy")]
+
 
 @using SharedDataModels
 @using Browser_FrontEnd.Services
@@ -19,10 +20,10 @@
         <!-- Lista wypożyczeń -->
         <MudItem xs="12" sm="12" md="12">
             <MudGrid Class="mt-4" Spacing="12">
-                @if (rentals.Any())
+                @if (rentals != null && rentals.Any())
                 {
                     <MudItem xs="12" Style="margin: 5px; margin: auto">
-                        <MudText Typo="Typo.h5">Twoje wypożyczenia: @userRentalsCount</MudText>
+                        <MudText Typo="Typo.h5">Your renatls: @rentalsCount</MudText>
                     </MudItem>
 
                     @foreach (var rental in rentals)
@@ -33,22 +34,22 @@
                                     <MudItem xs="7" sm="7">
                                         <div style="display: flex; flex-direction: column; align-items: flex-start; padding-left: 16px">
                                             <MudText Typo="Typo.h5">@rental.Car.Model.Brand.Name @rental.Car.Model.Name</MudText>
-                                            <MudText Typo="Typo.body2" Class="my-1">Wypożyczony: @rental.RentDate.ToShortDateString()</MudText>
-                                            @switch(rental.RentalStatus)
+                                            <MudText Typo="Typo.body2" Class="my-1">Rented: @rental.RentDate.ToShortDateString()</MudText>
+                                            @switch (rental.RentalStatus)
                                             {
                                                 case RentalStatus.ACTIVE:
                                                     {
-                                                        <MudText Typo="Typo.body2" Color="Color.Success" Class="my-1">Status: aktywne</MudText>
+                                                        <MudText Typo="Typo.body2" Color="Color.Success" Class="my-1">Status: ACTIVE</MudText>
                                                         break;
                                                     }
                                                 case RentalStatus.RETURNED:
                                                     {
-                                                        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="my-1">Status: zwrócone</MudText>
+                                                        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="my-1">Status: RETURNED</MudText>
                                                         break;
                                                     }
                                                 case RentalStatus.CLOSED:
                                                     {
-                                                        <MudText Typo="Typo.body2" Color="Color.Primary" Class="my-1">Status: zamknięte</MudText>
+                                                        <MudText Typo="Typo.body2" Color="Color.Primary" Class="my-1">Status: CLOSED</MudText>
                                                         break;
                                                     }
                                             }
@@ -56,7 +57,7 @@
                                     </MudItem>
                                     <MudItem xs="5" sm="5">
                                         <div style="display: flex; flex-direction: column; align-items: flex-end; padding-right: 16px">
-                                            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="() => NavigateToRentalDetails(rental.ID)">Zobacz wypożyczenie</MudButton>
+                                            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="() => NavigateToRentalDetails(rental.ID)">See rental</MudButton>
                                         </div>
                                     </MudItem>
                                 </MudGrid>
@@ -64,7 +65,7 @@
                         </MudItem>
                     }
                 }
-                else if(isLoading)
+                else if (isLoading)
                 {
                     <MudItem xs="12" Style="margin: 5px; ">
                         <MudText Typo="Typo.h4" Color="Color.Primary" Class="text-center">Loading...</MudText>
@@ -73,7 +74,7 @@
                 else
                 {
                     <MudItem xs="12" Style="margin: 5px">
-                        <MudText Typo="Typo.h4" Color="Color.Secondary" Class="text-center">Brak wypożyczeń.</MudText>
+                        <MudText Typo="Typo.h4" Color="Color.Secondary" Class="text-center">No rentals...</MudText>
                     </MudItem>
                 }
             </MudGrid>
@@ -82,7 +83,7 @@
 </MudContainer>
 
 <div class="mt-5 mb-5 d-flex flex-column align-center">
-    <MudPagination ShowPageButtons="false" PageSize="@pageSize" Count="@pagesCount" SelectedChanged="OnPageChanged"/>
+    <MudPagination ShowPageButtons="false" PageSize="@pageSize" Count="@pagesCount" SelectedChanged="OnPageChanged" />
 </div>
 
 @code {
@@ -91,7 +92,7 @@
     [SupplyParameterFromQuery(Name = "lastId")]
     public int? lastId { get; set; }
 
-    public int newLastId = 0; 
+    public int newLastId = 0;
 
     private List<Rental> rentals = new List<Rental>();
 
@@ -99,60 +100,31 @@
 
     private int pageSize = 15;
 
-    private int userRentalsCount = 0;
+    private int rentalsCount = 0;
 
     private int pagesCount = 1;
 
-    private void NavigateToRentalDetails(int rentalID)
+    private void NavigateToRentalDetails(int rentalId)
     {
-        Navigation.NavigateTo($"/RentalDetailsClient/{rentalID}", true);
+        Navigation.NavigateTo($"/RentalDetailsEmployee/{rentalId}", true);
     }
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
-        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-        if (user.Identity != null && user.Identity.IsAuthenticated)
-        {
-            var email = user.FindFirstValue(ClaimTypes.Email);
-            userRentalsCount = userService.GetUsersRentalsCount(email);
-            if (userRentalsCount % pageSize == 0 && userRentalsCount != 0)
-                pagesCount = userRentalsCount / pageSize;
-            else
-                pagesCount = userRentalsCount / pageSize + 1;
-
-        }
+        rentalsCount = await rentalService.GetRentalsCountAsync();
+        if (rentalsCount % pageSize == 0 && rentalsCount != 0)
+            pagesCount = rentalsCount / pageSize;
         else
-            Navigation.NavigateTo($"/login", true);
+            pagesCount = rentalsCount / pageSize + 1;
     }
 
     protected override async Task OnParametersSetAsync()
     {
         isLoading = true;
         await base.OnParametersSetAsync();
-
-        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-        if (user.Identity != null && user.Identity.IsAuthenticated)
-        {
-            var email = user.FindFirstValue(ClaimTypes.Email);
-            List<RentalBrowser> rentalsBrowser = await userService.GetUsersRentals(email, lastId, pageSize);
-            if (rentalsBrowser.Count != 0)
-            {
-                newLastId = rentalsBrowser.Last().ID;
-                Rental rental;
-                foreach (var rent in rentalsBrowser)
-                {
-                    rental = await rentalService.GetRentalAsync(rent.ApiID);
-                    if (rental != null)
-                        rentals.Add(rental);
-                }
-            }
-        }
-        else
-            Navigation.NavigateTo($"/login", true);
+        rentals = await rentalService.GetRentalsAsync(lastId, pageSize, false);
         isLoading = false;
     }
 
