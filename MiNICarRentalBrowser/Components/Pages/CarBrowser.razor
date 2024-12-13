@@ -14,7 +14,7 @@
                 <MudStack Row="true" Wrap="Wrap.NoWrap" Spacing="1">
                     <MudItem>
                         <MudSelect Style="width: 230px" MultiSelectionTextFunc="@(new Func<List<string>, string>(GetBrandsMultiSelectionText))" MultiSelection="true" @bind-SelectedValues="brandOptions" T="string" AdornmentIcon="@Icons.Material.Filled.Search"
-                                   AnchorOrigin="Origin.BottomCenter" Label="Brands" Variant="Variant.Outlined">
+                        AnchorOrigin="Origin.BottomCenter" Label="Brands" Variant="Variant.Outlined">
                             @if (uniqueBrands != null)
                             {
                                 @foreach (var brand in uniqueBrands)
@@ -30,7 +30,7 @@
                     </MudItem>
                     <MudItem>
                         <MudSelect Style="width: 230px" MultiSelectionTextFunc="@(new Func<List<string>, string>(GetModelsMultiSelectionText))" MultiSelection="true" @bind-SelectedValues="modelOptions" T="string"
-                                   AdornmentIcon="@Icons.Material.Filled.Search" AnchorOrigin="Origin.BottomCenter" Label="Models" Variant="Variant.Outlined">
+                        AdornmentIcon="@Icons.Material.Filled.Search" AnchorOrigin="Origin.BottomCenter" Label="Models" Variant="Variant.Outlined">
                             @if (uniqueModels != null)
                             {
                                 @foreach (var model in uniqueModels)
@@ -54,7 +54,7 @@
         <!-- Filtry dla dużych ekranów -->
         <MudItem xs="0" sm="0" md="4" Class="d-none d-md-block">
             <MudPaper Elevation="1" Class="pa-4" Width="310px">
-                <MudText Typo="Typo.h6">Filtry</MudText>
+                <MudText Typo="Typo.h6">Filters</MudText>
                 <MudDivider Class="my-2" />
                 <MudExpansionPanels MultiExpansion="true" Outlined="false" Elevation="0">
                     <MudExpansionPanel Text="Brands" Expanded="true">
@@ -73,7 +73,7 @@
                     <MudExpansionPanel Text="Models">
                         <MudStack Justify="Justify.Center" Class="mud-width-full">
                             <MudSelect MultiSelectionTextFunc="@(new Func<List<string>, string>(GetModelsMultiSelectionText))" MultiSelection="true" @bind-SelectedValues="modelOptions" T="string"
-                                       AdornmentIcon="@Icons.Material.Filled.Search" AnchorOrigin="Origin.BottomCenter" Label="Models" Variant="Variant.Outlined">
+                            AdornmentIcon="@Icons.Material.Filled.Search" AnchorOrigin="Origin.BottomCenter" Label="Models" Variant="Variant.Outlined">
                                 @if (uniqueModels != null)
                                 {
                                     @foreach (var model in uniqueModels)
@@ -110,7 +110,7 @@
                 @if (cars.Any())
                 {
                     <MudItem xs="12" Style="margin: 5px; margin: auto">
-                        <MudText Typo="Typo.h5">Dostępne samochody: @filteredCarsCount</MudText>
+                        <MudText Typo="Typo.h5">Available cars: @filteredCarsCount</MudText>
                     </MudItem>
 
                     @foreach (var car in cars)
@@ -121,14 +121,14 @@
                                     <MudItem xs="7" sm="7">
                                         <div style="display: flex; flex-direction: column; align-items: flex-start; padding-left: 16px">
                                             <MudText Typo="Typo.h5">@car.Model.Brand.Name @car.Model.Name</MudText>
-                                            <MudText Typo="Typo.body2" Class="my-1">Rocznik: @car.ProductionYear</MudText>
-                                            <MudText Typo="Typo.body2" Class="my-1">Bez limitu kilometrów</MudText>
+                                            <MudText Typo="Typo.body2" Class="my-1">Production year: @car.ProductionYear</MudText>
+                                            <MudText Typo="Typo.body2" Class="my-1">No mileage limit</MudText>
                                         </div>
                                     </MudItem>
                                     <MudItem xs="5" sm="5">
                                         <div style="display: flex; flex-direction: column; align-items: flex-end; padding-right: 16px">
                                             <MudImage Src="car.jpg" Style="width: 100px; height: 100px; object-fit: cover;" />
-                                            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="() => NavigateToCarDetails(car.ID)">Zobacz oferty</MudButton>
+                                            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="() => NavigateToCarDetails(car.ID)">See offers</MudButton>
                                         </div>
                                     </MudItem>
                                 </MudGrid>
@@ -136,10 +136,16 @@
                         </MudItem>
                     }
                 }
+                else if(!isLoading)
+                {
+                    <MudItem xs="12" Style="margin: 5px">
+                        <MudText Typo="Typo.h4" Color="Color.Secondary" Class="text-center">There are no result matching your criteria.</MudText>
+                    </MudItem>
+                }
                 else
                 {
                     <MudItem xs="12" Style="margin: 5px">
-                        <MudText Typo="Typo.h4" Color="Color.Secondary" Class="text-center">Brak wyników spełniających twoje kryteria.</MudText>
+                        <MudText Typo="Typo.h4" Color="Color.Primary" Class="text-center">Loading...</MudText>
                     </MudItem>
                 }
             </MudGrid>
@@ -164,6 +170,8 @@
     [SupplyParameterFromQuery(Name = "lastId")]
     public int? lastId { get; set; }
 
+    private bool isLoading = false;
+
     private IEnumerable<string> brandOptions { get; set; } = new HashSet<string>() { };
     private IEnumerable<string> modelOptions { get; set; } = new HashSet<string>() { };
 
@@ -184,6 +192,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        isLoading = true;
         if (brands != null)
             brandOptions = new HashSet<string>(brands) { };
 
@@ -191,7 +200,7 @@
             modelOptions = new HashSet<string>(models) { };
 
         (cars, filteredCarsCount) = await rentalService.GetCars(brandOptions.ToList(), modelOptions.ToList(), lastId, pageSize);
-
+        isLoading = false;
         await base.OnParametersSetAsync();
     }
 
