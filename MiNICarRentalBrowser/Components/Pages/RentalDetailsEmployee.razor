@@ -1,5 +1,6 @@
 ﻿@page "/RentalDetailsEmployee/{rentalId:int}"
 @using Browser_FrontEnd.Services
+@using MiNICarRentalBrowser.Components.Components
 @using MiNICarRentalBrowser.Services
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
@@ -13,47 +14,17 @@
 @inject NavigationManager navigation
 
 <div class="container">
-	<div class="card">
-		@if (_isCarLoaded)
-		{ // TODO Komponent renderfragment contenttemplate
-			<h3>Szczegóły samochodu</h3>
-			<p><strong>Brand:</strong> @_car.Model.Brand.Name</p>
-			<p><strong>Model:</strong> @_car.Model.Name</p>
-			<p><strong>Production Year:</strong> @_car.ProductionYear</p>
-			<p><strong>Doors:</strong> @_car.DoorsNumber</p>
-			<p><strong>Transmission:</strong> @_car.Transmission</p>
-			<p><strong>Colour:</strong> @char.ToUpper(_car.Colour[0])@_car.Colour.Substring(1)</p>
-			<p><strong>Drive:</strong> @_car.Drive</p>
-			<p><strong>FuelType:</strong> @_car.FuelType</p>
-			<p><strong>HorsePower:</strong> @_car.HorsePower HP</p>
-			<p><strong>Location: </strong><a href=@searchAddress>@_car.Latitude, @_car.Longitude</a></p>
-		}
-		else
-		{
-			<p>Loading Car Details...</p>
-		}
-	</div>
 
+	@if (_isCarLoaded)
+	{
+		<CarDisplay car="_car" />
+	}
 	<div class="card">
 		@if (_isCarLoaded)
 		{
-			<h3>Location</h3>
-			string source = $"https://www.google.com/maps?q={@_car.Latitude.ToString().Replace(',', '.')},{@_car.Longitude.ToString().Replace(',', '.')}&z=15&output=embed";
-			<iframe width="100%"
-			height="300"
-			style="border:0"
-			loading="lazy"
-			allowfullscreen
-			referrerpolicy="no-referrer-when-downgrade"
-			src=@source>
-			</iframe>
-			<h3>Rental Details</h3>
-			<p><strong>Insurance: </strong>@_rental.IsInsurance</p>
-			<p><strong>Price Per Day: </strong>@Math.Round(_rental.PricePerDay)</p>
-			<p><strong>Rent Date: </strong>@_rental.RentDate</p>
-			<p><strong>User: </strong>@_rental.UserEmail</p>
-			<p><strong>Status: </strong>@_rental.RentalStatus</p>
-			if (_rental.RentalStatus == RentalStatus.RETURNED)
+			<LocationDisplay car="_car" />
+			<RentalDisplay rental="_rental" />
+			if (_rental != null && _rental.RentalStatus == RentalStatus.RETURNED)
 			{
 				<button @onclick="() => AcceptReturnAction()" class="button">Akceptuj Zwrot</button>
 			}
@@ -71,7 +42,6 @@
 	public int rentalId { get; set; }
 	private Rental _rental { get; set; }
 	private Car _car;
-	string searchAddress;
 	private bool _isCarLoaded = false;
 
 
@@ -86,14 +56,9 @@
 		await base.OnInitializedAsync();
 
 		_rental = await rentalService.GetRentalAsync(rentalId);
-		_car = await rentalService.GetCarDetailsAsync(_rental.CarID);
-		if (_car != null)
-		{
-			_isCarLoaded = true;
-		}
-		searchAddress = $"https://www.google.com/maps/search/?api=1&query={_car.Latitude.ToString().Replace(',', '.')},{_car.Longitude.ToString().Replace(',', '.')}"; // TODO Invariant culture
-
-		//await InvokeAsync(StateHasChanged);
+		if (_rental != null)
+			_car = await rentalService.GetCarDetailsAsync(_rental.CarID);
+		_isCarLoaded = true;
 	}
 	public void AcceptReturnAction()
 	{

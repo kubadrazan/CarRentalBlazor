@@ -1,0 +1,18 @@
+﻿@using SharedDataModels
+<h3>Rental Details</h3>
+@if (rental != null)
+{
+	<p><strong>Insurance: </strong>@rental.IsInsurance</p>
+	<p><strong>Price Per Day: </strong>@Math.Round(rental.PricePerDay)</p>
+	<p><strong>Rent Date: </strong>@rental.RentDate</p>
+	<p><strong>Status: </strong>@rental.RentalStatus</p>
+	<p><strong>User: </strong>@rental.UserEmail</p>
+}
+else
+{
+	<p>No data</p>
+}
+@code {
+	[Parameter]
+	public required Rental rental { get; set; }
+}
