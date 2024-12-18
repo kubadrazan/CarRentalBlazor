@@ -51,22 +51,20 @@
 </MudContainer>
 
 <div class="mt-5 mb-5 d-flex flex-column align-center">
-    <MudPagination ShowPageButtons="false" PageSize="@pageSize" Count="@pagesCount" SelectedChanged="OnPageChanged"/>
+    <MudPagination PageSize="@pageSize" Count="@pagesCount" SelectedChanged="OnPageChanged"/>
 </div>
 
 @code {
 
     [Parameter]
-    [SupplyParameterFromQuery(Name = "lastId")]
-    public int? lastId { get; set; }
+    [SupplyParameterFromQuery(Name = "pageInd")]
+    public int? pageInd { get; set; }
 
-    public int newLastId = 0; 
+    public int pageSize = 15;
 
     private List<(Rental, int browserID)> rentals = new List<(Rental, int)>();
 
     bool isLoading = false;
-
-    private int pageSize = 15;
 
     private int userRentalsCount = 0;
 
@@ -107,10 +105,12 @@
         if (user.Identity != null && user.Identity.IsAuthenticated)
         {
             var email = user.FindFirstValue(ClaimTypes.Email);
-            List<RentalBrowser> rentalsBrowser = await userService.GetUsersRentals(email, lastId, pageSize);
+
+            if (pageInd == null || pageInd < 1 || pageInd > pagesCount)
+                pageInd = 1;
+            List<RentalBrowser> rentalsBrowser = await userService.GetUsersRentals(email, pageInd, pageSize);
             if (rentalsBrowser.Count != 0)
             {
-                newLastId = rentalsBrowser.Last().ID;
                 Rental rental;
                 foreach (var rent in rentalsBrowser)
                 {
@@ -125,9 +125,10 @@
         isLoading = false;
     }
 
-    private void OnPageChanged()
+    private void OnPageChanged(int page)
     {
-        lastId = newLastId;
+        pageInd = page;
+        rentals.Clear();
         UpdateUrl();
     }
 
@@ -136,13 +137,9 @@
         var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
         var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
 
-        query.Remove("pageSize");
-        query.Remove("lastId");
+        query.Remove("pageInd");
 
-        query.Add("pageSize", pageSize.ToString());
-
-        if (lastId.HasValue)
-            query.Add("lastId", lastId.ToString());
+        query.Add("pageInd", pageInd.ToString());
 
         var newUri = $"{uri.GetLeftPart(UriPartial.Path)}?{query}";
         Navigation.NavigateTo(newUri, forceLoad: false);

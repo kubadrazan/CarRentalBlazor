@@ -204,17 +204,12 @@ namespace Browser_FrontEnd.Services
             }
         }
 
-        public async Task<List<Rental>> GetRentalsAsync(int? lastId = null, int pageSize = 15, bool lowerThanId = false)
+        public async Task<List<Rental>> GetRentalsAsync(int? pageInd, int pageSize = 15)
         {
+			// Building query
             var queryParams = new List<string>();
-
-            if (lastId.HasValue)
-                queryParams.Add($"lastId={lastId}");
-
+			queryParams.Add($"pageInd={pageInd}");
             queryParams.Add($"pageSize={pageSize}");
-
-			queryParams.Add($"lowerThanId={lowerThanId.ToString().ToLower()}");
-
 			string url = $"{_apiA}/api/Rental/rentals?{string.Join("&", queryParams)}";
 
             try

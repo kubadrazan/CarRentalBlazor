@@ -8,7 +8,7 @@ namespace MiNICarRentalBrowser.Services
 
         Task AcceptOfferAsync(Rental rental);
 
-        Task<List<RentalBrowser>> GetUsersRentals(string email, int? lastRentalId = null, int pageSize = 15);
+        Task<List<RentalBrowser>> GetUsersRentals(string email, int? pageInd, int pageSize = 15);
 
         int GetUsersRentalsCount(string email);
     }
