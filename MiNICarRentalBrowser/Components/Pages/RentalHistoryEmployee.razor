@@ -93,7 +93,7 @@
     {
         isLoading = true;
         await base.OnParametersSetAsync();
-        rentals = await rentalService.GetRentalsAsync(lastId, pageSize, false);
+        rentals = await rentalService.GetRentalsAsync(lastId, pageSize);
         isLoading = false;
     }
 

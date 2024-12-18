@@ -13,11 +13,13 @@ namespace MiniCarRentalAPI.Services
 		private readonly SendGridClient _client;
 		private readonly EmailAddress _address;
 		private readonly SendGridMessage _message;
+
 		public EmailService(IOptions<EmailServiceOptions> options)
 		{
 			_client = new SendGridClient(options.Value.APIKey);
 			_address = new EmailAddress("minicarrental@hotmail.com");
 		}
+
 		public async void SendConfirmationEmail(Offer offer, Car car)
 		{
 			string templateId = "d-e2f6c8f4dd7247c2bdd18d8cb3ee973f";
@@ -34,10 +36,9 @@ namespace MiniCarRentalAPI.Services
 			var response = await _client.SendEmailAsync(message);
 		}
 	}
+
 	public class EmailServiceOptions
 	{
 		public string APIKey { get; set; } = string.Empty;
 	}
-
-
 }

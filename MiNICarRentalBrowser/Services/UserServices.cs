@@ -20,9 +20,9 @@ namespace MiNICarRentalBrowser.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<RentalBrowser>> GetUsersRentals(string email, int? lastRentalId = null, int pageSize = 15)
+        public async Task<List<RentalBrowser>> GetUsersRentals(string email, int? pageInd, int pageSize = 15)
         {
-            if (pageSize <= 0)
+            if (pageInd == null || pageSize < 1 || pageInd < 1)
                 return new List<RentalBrowser>();
 
             User? user = _context.Users.Where(user => user.Email == email).FirstOrDefault();
@@ -34,9 +34,9 @@ namespace MiNICarRentalBrowser.Services
 
             query = query.Where(rental => user.ID == rental.UserID);
 
-            if (lastRentalId != null && lastRentalId > -1)
-                query = query.Where(rental => rental.ID < lastRentalId);
-            return await query.OrderByDescending(rental => rental.ID).Take(pageSize).ToListAsync();
+            query = query.OrderByDescending(rental => rental.ID);
+
+            return await query.Skip(((int)pageInd - 1) * pageSize).Take(pageSize).ToListAsync();
         }
 
         public async Task<RentalBrowser> GetRentalBrowserAsync(int rentalBrowserId)

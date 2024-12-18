@@ -50,8 +50,7 @@ namespace MiniCarRentalAPI.Controllers
 
 
 		[HttpGet("offers/{carId}")]
-		public async Task<IActionResult> GetCarOffers(int carId
-			)
+		public async Task<IActionResult> GetCarOffers(int carId)
 		{
 			var car = await _context.Cars.FirstOrDefaultAsync(c => c.ID == carId);
 
@@ -209,7 +208,6 @@ namespace MiniCarRentalAPI.Controllers
             return Ok(acceptation);
         }
 
-
 		[HttpGet("rentals/{rentalId}")]
 		public async Task<IActionResult> GetRental(int rentalId)
 		{
@@ -236,28 +234,19 @@ namespace MiniCarRentalAPI.Controllers
 
         [HttpGet("rentals")]
         public async Task<IActionResult> GetRentals(
-			[FromQuery] int? lastId = null,
-            [FromQuery] int pageSize = -1,
-			[FromQuery] bool lowerThanId = false)
+			[FromQuery] int pageInd = 1,
+            [FromQuery] int pageSize = 1)
         {
+			if (pageInd < 1 || pageSize < 1)
+				return NotFound();
+
 			var query = _context.Rentals.AsQueryable();
             List<Rental>? rentals;
 
-            if (lastId.HasValue)
-			{
-				if (lowerThanId)
-					query = query.Where(r  => r.ID < lastId.Value);
-				else
-                    query = query.Where(r => r.ID > lastId.Value);
-            }
-
-            if (pageSize <= 0)
-				rentals = await query.OrderByDescending(r => r.ID).Include(r => r.Car)
-					.Include(r => r.Car.Model).Include(r => r.Car.Model.Brand).ToListAsync();
-			else
-                rentals = await query.OrderByDescending(r => r.ID).Include(r => r.Car)
-                    .Include(r => r.Car.Model).Include(r => r.Car.Model.Brand).
-					Take(pageSize).ToListAsync();
+			query = query.OrderByDescending(r => r.ID);
+			query = query.Skip((pageInd - 1) * pageSize);
+            rentals = await query.Include(r => r.Car).Include(r => r.Car.Model).
+				Include(r => r.Car.Model.Brand).Take(pageSize).ToListAsync();
 
             return Ok(rentals);
         }
