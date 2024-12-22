@@ -1,0 +1,29 @@
+﻿@using SharedDataModels
+@using System.Globalization
+<h3>Location</h3>
+@if (car != null)
+{
+	<iframe width="100%"
+		height="300"
+		style="border:0"
+		loading="lazy"
+		allowfullscreen
+		referrerpolicy="no-referrer-when-downgrade"
+		src=@_source>
+</iframe>
+}
+else{
+	<p>No Data</p>
+}
+@code {
+	[Parameter]
+	public required Car car { get; set; }
+
+	private string _source { get; set; }
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+		if (car != null)
+			_source = $"https://www.google.com/maps?q={@car.Latitude.ToString(CultureInfo.InvariantCulture)},{@car.Longitude.ToString(CultureInfo.InvariantCulture)}&z=15&output=embed";
+	}
+}
