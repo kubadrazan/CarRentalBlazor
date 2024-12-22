@@ -59,7 +59,7 @@ namespace MiniCarRentalAPI.Controllers
 				return NotFound();
 			}
 
-
+			// todo Mapper
 			var offers = new List<Offer> {
 					new Offer()
 					{
@@ -124,6 +124,7 @@ namespace MiniCarRentalAPI.Controllers
 				return NotFound();
 			}
 
+			// todo Mapper
 			var rental = new Rental
 			{
 				RentDate = DateTime.UtcNow,
@@ -155,7 +156,7 @@ namespace MiniCarRentalAPI.Controllers
             {
                 return NotFound();
             }
-
+			// todo mapper
             var carReturn = new Return
             {
                 ReturnDate = DateTime.UtcNow,
