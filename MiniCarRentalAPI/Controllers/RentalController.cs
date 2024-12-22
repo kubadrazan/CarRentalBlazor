@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MiniCarRentalAPI.Data;
 using MiniCarRentalAPI.Services;
 using SharedDataModels;
+using SharedDataModels.Factories;
 
 namespace MiniCarRentalAPI.Controllers
 {
@@ -12,12 +13,19 @@ namespace MiniCarRentalAPI.Controllers
 	{
 		private readonly CarRentalContext _context;
 		private readonly EmailService _emailService;
+		private readonly OfferFactory _offerFactory;
+		private readonly RentalFactory _rentalFactory;
+		private readonly ReturnFactory _returnFactory;
+		private readonly AcceptationFactory _acceptationFactory;
 
-
-		public RentalController(CarRentalContext context, EmailService emailService)
+		public RentalController(CarRentalContext context, EmailService emailService, OfferFactory offerFactory, RentalFactory rentalFactory, ReturnFactory returnFactory, AcceptationFactory acceptationFactory)
 		{
 			_context = context;
 			_emailService = emailService;
+			_offerFactory = offerFactory;
+			_rentalFactory = rentalFactory;	
+			_returnFactory = returnFactory;
+			_acceptationFactory = acceptationFactory;
 		}
 
 		// generate one offer based on metadata
@@ -59,28 +67,7 @@ namespace MiniCarRentalAPI.Controllers
 				return NotFound();
 			}
 
-			// todo Mapper
-			var offers = new List<Offer> {
-					new Offer()
-					{
-						OfferHashID = new Random().Next(1_000_000),
-						CarId = carId,
-						IsInsurance = true,
-						Price = car.InsurancePricePerDay,
-						ExpirationDate = DateTime.UtcNow.AddMinutes(10),
-						UserEmail = null
-					},
-					new Offer()
-					{
-						OfferHashID = new Random().Next(1_000_000),
-						CarId = carId,
-						IsInsurance = false,
-						Price = car.PricePerDay,
-						ExpirationDate = DateTime.UtcNow.AddMinutes(10),
-						UserEmail = null
-					}
-			};
-
+			var offers = _offerFactory.CreateOfferList(car);
 
 			_context.Offers.Add(offers[0]);
 			_context.Offers.Add(offers[1]);
@@ -124,16 +111,7 @@ namespace MiniCarRentalAPI.Controllers
 				return NotFound();
 			}
 
-			// todo Mapper
-			var rental = new Rental
-			{
-				RentDate = DateTime.UtcNow,
-				CarID = offer.CarId,
-				UserEmail = offer.UserEmail,
-				SourceAPI = 0,
-				PricePerDay = offer.Price,
-				IsInsurance = offer.IsInsurance
-			};
+			var rental = _rentalFactory.CreateRental(offer);
 
 			_context.Rentals.Add(rental);
 			await _context.SaveChangesAsync();
@@ -156,14 +134,7 @@ namespace MiniCarRentalAPI.Controllers
             {
                 return NotFound();
             }
-			// todo mapper
-            var carReturn = new Return
-            {
-                ReturnDate = DateTime.UtcNow,
-                RentalID = rentalId,
-				Latitude = latitude,
-				Longitude = longitude
-            };
+			var carReturn = _returnFactory.CreateReturn(rentalId, new Location { Longitude = longitude, Latitude = latitude });
 			rental.RentalStatus = RentalStatus.RETURNED;
             _context.Returns.Add(carReturn);
             await _context.SaveChangesAsync();
@@ -184,16 +155,7 @@ namespace MiniCarRentalAPI.Controllers
                 return NotFound();
             }
 
-            var acceptation = new Acceptation
-            {
-				AcceptationDate = DateTime.UtcNow,
-				ReturnID = carReturn.ID,
-                EmployeeEmail = employeeEmail,
-				Description = new Description
-                {
-                    Content = returnDescription
-                }
-            }; // TODO add mapper
+			var acceptation = _acceptationFactory.CreateAcceptation(carReturn, employeeEmail, returnDescription);
 
             var rental = await _context.Rentals.FirstOrDefaultAsync(r => r.ID == rentalId);
 

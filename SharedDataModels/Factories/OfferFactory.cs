@@ -1,0 +1,34 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime.ConstrainedExecution;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SharedDataModels.Factories
+{
+	public class OfferFactory
+	{
+		public Offer CreateOffer(Car car, bool addInsurance)
+		{
+			return new Offer()
+			{
+				OfferHashID = new Random().Next(1_000_000),
+				CarId = car.ID,
+				IsInsurance = addInsurance,
+				Price = car.InsurancePricePerDay,
+				ExpirationDate = DateTime.UtcNow.AddMinutes(10),
+				UserEmail = null
+			};
+		}
+		public List<Offer> CreateOfferList(Car car)
+		{
+			return new List<Offer>()
+			{
+				CreateOffer(car, true),
+				CreateOffer(car, false)
+			};
+		}
+	}
+}
