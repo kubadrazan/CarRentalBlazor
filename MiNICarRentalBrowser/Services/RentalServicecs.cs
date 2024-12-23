@@ -14,12 +14,12 @@ namespace Browser_FrontEnd.Services
 	public class RentalServicecs
 	{
 		private readonly HttpClient _httpClient;
-		private readonly string _apiA; // Our CarRentalApi
+		private readonly string _apiA;
 		private readonly IUserService _userService;
 
-		public RentalServicecs(HttpClient httpClient, IUserService userService, IConfiguration configuration)
+		public RentalServicecs(IHttpClientFactory httpClientFactor, IUserService userService, IConfiguration configuration)
 		{
-			_httpClient = httpClient;
+			_httpClient = httpClientFactor.CreateClient("ApiKeyClient");
 			_userService = userService;
 			_apiA = configuration.GetValue<string>("ApiUrls:ApiRentalA");
 		}

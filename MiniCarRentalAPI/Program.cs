@@ -16,7 +16,6 @@ namespace MiniCarRentalAPI
 		{
 			var builder = WebApplication.CreateBuilder(args);
 
-			// Add services to the container.
 
 			builder.Services.AddControllers();
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -36,9 +35,9 @@ namespace MiniCarRentalAPI
 			builder.Services.AddTransient<ReturnFactory>();
 			builder.Services.AddTransient<RentalFactory>();
 
+			builder.Services.AddTransient<IApiKeyValidatorService, ApiKeyValidatorService>();
 			var app = builder.Build();
 
-			// Configure the HTTP request pipeline.
 			if (app.Environment.IsDevelopment())
 			{
 				app.UseSwagger();
@@ -46,7 +45,7 @@ namespace MiniCarRentalAPI
 			}
 
 			app.UseHttpsRedirection();
-
+			app.UseMiddleware<ApiAuthMiddleware>();
 			app.UseAuthorization();
 
 
