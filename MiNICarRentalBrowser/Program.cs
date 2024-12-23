@@ -19,12 +19,12 @@ namespace MiNICarRentalBrowser
 		{
 			var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddDbContext<UsersContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-                );
+			builder.Services.AddDbContext<UsersContext>(options =>
+				options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+				);
 
-            builder.Services.AddScoped<UserValidationService>();
-            builder.Services.AddScoped<EmployeeValidationService>();
+			builder.Services.AddScoped<UserValidationService>();
+			builder.Services.AddScoped<EmployeeValidationService>();
 
 			// Google Authentication
 			builder.Services.AddAuthentication(options =>
@@ -50,19 +50,23 @@ namespace MiNICarRentalBrowser
 			builder.Services.AddScoped<IAuthorizationHandler, RegistrationHandler>();
 			builder.Services.AddScoped<IAuthorizationHandler, EmployeeRoleHandler>();
 			builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
-            builder.Services.AddHttpContextAccessor();
+			builder.Services.AddHttpContextAccessor();
 
 
-            // Add services to the container.
-            builder.Services.AddRazorComponents()
+			// Add services to the container.
+			builder.Services.AddRazorComponents()
 				.AddInteractiveServerComponents();
-            builder.Services.AddMudServices();
+			builder.Services.AddMudServices();
 
-            builder.Services.AddHttpClient();
+			builder.Services.AddHttpClient("ApiKeyClient")
+					.AddHttpMessageHandler<CustomHttpMessageHandler>();
+
+			builder.Services.AddTransient<CustomHttpMessageHandler>();
+
 			builder.Services.AddScoped<RentalServicecs>();
-            builder.Services.AddScoped<IUserService, UserServices>();
+			builder.Services.AddScoped<IUserService, UserServices>();
 
-            var app = builder.Build();
+			var app = builder.Build();
 
 			// Configure the HTTP request pipeline.
 			if (!app.Environment.IsDevelopment())
