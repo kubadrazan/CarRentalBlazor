@@ -5,6 +5,7 @@ using MiniCarRentalAPI.Data;
 using MiniCarRentalAPI.Services;
 using Newtonsoft.Json.Converters;
 using SharedDataModels;
+using SharedDataModels.Factories;
 using System.Text.Json.Serialization;
 
 namespace MiniCarRentalAPI
@@ -30,6 +31,10 @@ namespace MiniCarRentalAPI
 				options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 			builder.Services.Configure<EmailServiceOptions>(options => options.APIKey = builder.Configuration["EmailService:SendGrid:ApiKey"]);
 			builder.Services.AddTransient<EmailService>();
+			builder.Services.AddTransient<AcceptationFactory>();
+			builder.Services.AddTransient<OfferFactory>();
+			builder.Services.AddTransient<ReturnFactory>();
+			builder.Services.AddTransient<RentalFactory>();
 
 			var app = builder.Build();
 

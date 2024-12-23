@@ -27,12 +27,19 @@
 		<h3>Offers</h3>
 		@if (_areOffersLoaded)
 		{
-			@foreach (Offer offer in _offers)
+			if (_offers != null)
 			{
-				<div class="offer-row">
-					<p><strong>Price Per Day: @Math.Round(offer.Price) zł</strong> Insurance: @offer.IsInsurance</p>
-					<button @onclick="() => RentMeAction(offer.ID)" class="button">Rent Me</button>
-				</div>
+				@foreach (Offer offer in _offers)
+				{
+					<div class="offer-row">
+						<p><strong>Price Per Day: @Math.Round(offer.Price) zł</strong> Insurance: @offer.IsInsurance</p>
+						<button @onclick="() => RentMeAction(offer.ID)" class="button">Rent Me</button>
+					</div>
+				}
+			}
+			else
+			{
+				<p>No offers found...</p>
 			}
 		}
 		else
@@ -60,10 +67,7 @@
 		_isCarLoaded = true;
 
 		_offers = await renatalService.GetOffersAsync(carID);
-		if (_offers == null)
-		{
-			_offers = new List<Offer>();
-		}
+
 		_areOffersLoaded = true;
 	}
 
