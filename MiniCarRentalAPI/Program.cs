@@ -1,6 +1,7 @@
 
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using MiniCarRentalAPI.Data;
 using MiniCarRentalAPI.Services;
 using Newtonsoft.Json.Converters;
@@ -20,7 +21,31 @@ namespace MiniCarRentalAPI
 			builder.Services.AddControllers();
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 			builder.Services.AddEndpointsApiExplorer();
-			builder.Services.AddSwaggerGen();
+			builder.Services.AddSwaggerGen(c =>
+			{
+				c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+				{
+					In = ParameterLocation.Header,
+					Name = "X-Api-Key", 
+					Type = SecuritySchemeType.ApiKey,
+					Description = "API key needed to access the endpoints"
+				});
+
+				c.AddSecurityRequirement(new OpenApiSecurityRequirement
+				{
+					{
+						new OpenApiSecurityScheme
+						{
+							Reference = new OpenApiReference
+							{
+								Type = ReferenceType.SecurityScheme,
+								Id = "ApiKey"
+							}
+						},
+						new string[] {}
+					}
+				});
+			});
 
 			// TODO Change to AddDbContextFactory??
 			builder.Services.AddDbContext<CarRentalContext>(options =>
