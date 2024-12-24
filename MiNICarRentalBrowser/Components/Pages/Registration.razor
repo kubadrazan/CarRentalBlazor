@@ -160,7 +160,7 @@
                 LastName = _lastName,
                 BirthDate = (DateTime)_birthDate,
                 DrivingLicenseObtainDate = (DateTime)_drivingLicenseDate,
-                LocalizationID = 0
+                Location = new Location { Latitude = 0, Longitude = 0 } // TODO zmienic
             };
 
         await UserService.AddUserAsync(user);

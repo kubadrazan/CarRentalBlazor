@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace SharedDataModels
 {
-	public class Location
+	[ComplexType]
+    public class Location
 	{
 		public float Latitude { get; set; }
 
