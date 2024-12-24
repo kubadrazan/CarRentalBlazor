@@ -52,22 +52,20 @@
 </MudContainer>
 
 <div class="mt-5 mb-5 d-flex flex-column align-center">
-    <MudPagination ShowPageButtons="false" PageSize="@pageSize" Count="@pagesCount" SelectedChanged="OnPageChanged" />
+    <MudPagination PageSize="@pageSize" Count="@pagesCount" SelectedChanged="OnPageChanged" />
 </div>
 
 @code {
 
     [Parameter]
-    [SupplyParameterFromQuery(Name = "lastId")]
-    public int? lastId { get; set; }
+    [SupplyParameterFromQuery(Name = "pageInd")]
+    public int? pageInd { get; set; }
 
-    public int newLastId = 0;
+    private int pageSize = 15;
 
     private List<Rental> rentals = new List<Rental>();
 
     bool isLoading = false;
-
-    private int pageSize = 15;
 
     private int rentalsCount = 0;
 
@@ -93,13 +91,16 @@
     {
         isLoading = true;
         await base.OnParametersSetAsync();
-        rentals = await rentalService.GetRentalsAsync(lastId, pageSize);
+        if (pageInd == null || pageInd < 1 || pageInd > pagesCount)
+            pageInd = 1;
+        rentals = await rentalService.GetRentalsAsync(pageInd, pageSize);
         isLoading = false;
     }
 
-    private void OnPageChanged()
+    private void OnPageChanged(int page)
     {
-        lastId = newLastId;
+        pageInd = page;
+        rentals.Clear();
         UpdateUrl();
     }
 
@@ -108,13 +109,8 @@
         var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
         var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
 
-        query.Remove("pageSize");
-        query.Remove("lastId");
-
-        query.Add("pageSize", pageSize.ToString());
-
-        if (lastId.HasValue)
-            query.Add("lastId", lastId.ToString());
+        query.Remove("pageInd");
+        query.Add("pageInd", pageInd.ToString());
 
         var newUri = $"{uri.GetLeftPart(UriPartial.Path)}?{query}";
         Navigation.NavigateTo(newUri, forceLoad: false);
