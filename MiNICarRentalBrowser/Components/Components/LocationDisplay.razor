@@ -24,6 +24,6 @@ else{
 	{
 		await base.OnInitializedAsync();
 		if (car != null)
-			_source = $"https://www.google.com/maps?q={@car.Latitude.ToString(CultureInfo.InvariantCulture)},{@car.Longitude.ToString(CultureInfo.InvariantCulture)}&z=15&output=embed";
+			_source = $"https://www.google.com/maps?q={@car.Location.Latitude.ToString(CultureInfo.InvariantCulture)},{@car.Location.Longitude.ToString(CultureInfo.InvariantCulture)}&z=15&output=embed";
 	}
 }

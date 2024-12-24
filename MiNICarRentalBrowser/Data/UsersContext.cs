@@ -11,7 +11,6 @@ namespace MiNICarRentalBrowser.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Employee> Employees { get; set; }
-        public DbSet<LocalizationBrowser> Localizations { get; set; }
         public DbSet<RentalBrowser> Rentals { get; set; }
     }
 }

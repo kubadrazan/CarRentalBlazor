@@ -15,9 +15,8 @@ namespace SharedDataModels
 
         [DataType(DataType.Date)]
         public DateTime ReturnDate { get; set; }
-        public float Latitude { get; set; }
 
-        public float Longitude { get; set; }
+        public Location Location { get; set; }
 
         public int RentalID { get; set; }
 

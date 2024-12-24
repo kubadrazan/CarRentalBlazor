@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -29,9 +30,7 @@ namespace SharedDataModels
         [DataType(DataType.Date)]
         public DateTime BirthDate { get; set; }
 
-        public int LocalizationID { get; set; }
-
-        public LocalizationBrowser Localization { get; set; }
+        public Location Location { get; set; }
 
         [JsonIgnore]
         public ICollection<RentalBrowser> Rentals { get; set; }

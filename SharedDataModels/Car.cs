@@ -39,10 +39,7 @@ namespace SharedDataModels
 
         public int ModelID { get; set; }
 
-		//public Location Location { get; set; } // TODO
-		public float Latitude { get; set; }
-
-		public float Longitude { get; set; }
+		public Location Location { get; set; }
 
 		public Model Model { get; set; }
 

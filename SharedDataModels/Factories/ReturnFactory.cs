@@ -14,8 +14,7 @@ namespace SharedDataModels.Factories
 			{
 				ReturnDate = DateTime.UtcNow,
 				RentalID = rentalId,
-				Latitude = location.Latitude,
-				Longitude = location.Longitude
+                Location = location
 			};
 		}
 	}

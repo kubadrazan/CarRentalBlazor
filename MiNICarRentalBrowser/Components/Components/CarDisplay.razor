@@ -13,7 +13,7 @@
 		<p><strong>Drive:</strong> @car.Drive</p>
 		<p><strong>FuelType:</strong> @car.FuelType</p>
 		<p><strong>HorsePower:</strong> @car.HorsePower HP</p>
-		<p><strong>Location: </strong><a href=@_searchAddress>@car.Latitude, @car.Longitude</a></p>
+		<p><strong>Location: </strong><a href=@_searchAddress>@car.Location.Latitude, @car.Location.Longitude</a></p>
 	}
 	else
 	{
@@ -29,6 +29,6 @@
 	{
 		await base.OnInitializedAsync();
 		if (car != null)
-			_searchAddress = $"https://www.google.com/maps/search/?api=1&query={car.Latitude.ToString(CultureInfo.InvariantCulture)},{car.Longitude.ToString(CultureInfo.InvariantCulture)}";
+			_searchAddress = $"https://www.google.com/maps/search/?api=1&query={car.Location.Latitude.ToString(CultureInfo.InvariantCulture)},{car.Location.Longitude.ToString(CultureInfo.InvariantCulture)}";
 	}
 }
