@@ -2,14 +2,23 @@
 {
 	public class CustomHttpMessageHandler : DelegatingHandler
 	{
-		protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) // TODO Different acction for each api
+		private readonly ApiKeyProvider _apiKeyProvider;
+
+		public CustomHttpMessageHandler(ApiKeyProvider apiKeyProvider) 
 		{
-			request.Headers.Add("X-Api-Key", "1"); // TODO get ApiKey from vault
+			_apiKeyProvider = apiKeyProvider;
+		}
+
+		protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+		{
+			string baseUrl = request.RequestUri?.GetLeftPart(UriPartial.Authority) ?? throw new InvalidOperationException("Invalid request URI");
+			string apiKey = _apiKeyProvider.GetApiKeyAsync(baseUrl);
+
+			request.Headers.Add("X-Api-Key", apiKey);
 
 			Console.WriteLine($"Request URI: {request.RequestUri}");
 
 			var response = await base.SendAsync(request, cancellationToken);
-
 
 			return response;
 		}

@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Browser_FrontEnd.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -20,8 +21,7 @@ namespace MiNICarRentalBrowser
 			var builder = WebApplication.CreateBuilder(args);
 
 			builder.Services.AddDbContext<UsersContext>(options =>
-				options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-				);
+				options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 			builder.Services.AddScoped<UserValidationService>();
 			builder.Services.AddScoped<EmployeeValidationService>();
@@ -52,16 +52,19 @@ namespace MiNICarRentalBrowser
 			builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
 			builder.Services.AddHttpContextAccessor();
 
+			// AzureKeyVault
+			builder.Configuration.AddAzureKeyVault(new Uri(builder.Configuration.GetValue<string>("KeyVault:https")), new DefaultAzureCredential());
 
 			// Add services to the container.
 			builder.Services.AddRazorComponents()
 				.AddInteractiveServerComponents();
 			builder.Services.AddMudServices();
 
-			builder.Services.AddHttpClient("ApiKeyClient")
-					.AddHttpMessageHandler<CustomHttpMessageHandler>();
+			builder.Services.AddSingleton<ApiKeyProvider>();
+            builder.Services.AddTransient<CustomHttpMessageHandler>();
 
-			builder.Services.AddTransient<CustomHttpMessageHandler>();
+            builder.Services.AddHttpClient("ApiKeyClient")
+					.AddHttpMessageHandler<CustomHttpMessageHandler>();
 
 			builder.Services.AddScoped<RentalServicecs>();
 			builder.Services.AddScoped<IUserService, UserServices>();
@@ -86,8 +89,6 @@ namespace MiNICarRentalBrowser
 
 			app.MapRazorComponents<App>()
 				.AddInteractiveServerRenderMode();
-
-
 
 			app.Run();
 		}

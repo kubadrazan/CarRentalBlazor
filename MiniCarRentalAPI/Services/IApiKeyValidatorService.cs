@@ -4,6 +4,7 @@
 	{
 		bool IsValidApiKey(string apiKey);
 	}
+
 	public class ApiKeyValidatorService : IApiKeyValidatorService
 	{
 		public bool IsValidApiKey(string apiKey)
