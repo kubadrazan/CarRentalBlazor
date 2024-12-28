@@ -70,7 +70,7 @@ namespace MiNICarRentalBrowser.Services
             
             var rentalBrowser = new RentalBrowser()
             {
-                ApiID = rental.ID,
+                ApiID = rental.ID, // todo change for our api 
                 UserID = (await GetUser(rental.UserEmail)).ID
 			};
 			_context.Rentals.Add(rentalBrowser);

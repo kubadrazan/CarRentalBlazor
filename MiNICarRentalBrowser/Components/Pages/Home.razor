@@ -4,6 +4,7 @@
 @inject NavigationManager Navigation
 @using Browser_FrontEnd.Services
 @using SharedDataModels
+@using SharedDataModels.DTO
 @inject RentalServicecs rentalService
 
 <style>
@@ -118,20 +119,17 @@
     {
         await base.OnInitializedAsync();
 
-        List<Model> models = await rentalService.GetBrandsModelsNamesAsyc();
+        List<BrandModelDTO> models = await rentalService.GetBrandsModelsNamesAsyc();
         _models = new();
         _brands = new();
-        if (models is not null)
+        foreach (var m in models)
         {
-            foreach (var m in models)
+            if (_models.ContainsKey(m.BrandName))
+                _models[m.BrandName].Add(m.ModelName);
+            else
             {
-                if (_models.ContainsKey(m.Brand.Name))
-                    _models[m.Brand.Name].Add(m.Name);
-                else
-                {
-                    _brands.Add(m.Brand.Name);
-                    _models[m.Brand.Name] = new() { m.Name };
-                }
+                _brands.Add(m.BrandName);
+                _models[m.BrandName] = new() { m.ModelName };
             }
         }
     }

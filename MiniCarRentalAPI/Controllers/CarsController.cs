@@ -70,19 +70,15 @@ namespace MiniCarRentalAPI.Controllers
         public async Task<IActionResult> GetBrandsModels()
         {
 
-            //var models = await _context.Cars
-            //    .Select(c => c.Model)
-            //    .Distinct()
-            //    .Include(b => b.Brand)
-            //    .Select(b => new BrandModelDTO
-            //    {
-            //        BrandName = b.Brand.Name,
-            //        ModelName = b.Name
-            //    })
-            //    .ToListAsync();
-
-            var models = await _context.Models
-                .Include(m => m.Brand)
+            var models = await _context.Cars
+                .Select(c => c.Model)
+                .Distinct()
+                .Include(b => b.Brand)
+                .Select(b => new BrandModelDTO
+                {
+                    BrandName = b.Brand.Name,
+                    ModelName = b.Name
+                })
                 .ToListAsync();
 
             return Ok(models);
