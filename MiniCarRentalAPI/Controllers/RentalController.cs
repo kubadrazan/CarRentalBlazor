@@ -91,8 +91,8 @@ namespace MiniCarRentalAPI.Controllers
 
 			_context.Offers.Update(offer);
 			await _context.SaveChangesAsync();
+
 			var car = await _context.Cars
-				//.Include(c => c.Localization)
 				.Include(c => c.Model)
 				.ThenInclude(m => m.Brand)
 				.FirstOrDefaultAsync(c => c.ID == offer.CarId);
@@ -124,18 +124,16 @@ namespace MiniCarRentalAPI.Controllers
         public async Task<IActionResult> ReturnCar(int rentalId,
 			[FromBody] ReturnCarRequest request)
         {
-
-			var email = request.EmailAddress;
-			var latitude = request.Latitude;
-			var longitude = request.Longitude;
 			var rental = await _context.Rentals.FirstOrDefaultAsync(r => r.ID == rentalId);
 
             if (rental == null)
             {
                 return NotFound();
             }
-			var carReturn = _returnFactory.CreateReturn(rentalId, new Location { Longitude = longitude, Latitude = latitude });
+
+			var carReturn = _returnFactory.CreateReturn(rentalId, request.Latitude, request.Longitude);
 			rental.RentalStatus = RentalStatus.RETURNED;
+
             _context.Returns.Add(carReturn);
             await _context.SaveChangesAsync();
 
@@ -146,8 +144,6 @@ namespace MiniCarRentalAPI.Controllers
         public async Task<IActionResult> AcceptReturn(int rentalId,
 			 [FromBody] AcceptReturnRequest request)
         {
-			var employeeEmail = request.EmployeeEmail;
-			var returnDescription = request.ReturnDescription;
 			var carReturn = await _context.Returns.FirstOrDefaultAsync(r => r.RentalID == rentalId);
 
             if (carReturn == null)
@@ -155,7 +151,7 @@ namespace MiniCarRentalAPI.Controllers
                 return NotFound();
             }
 
-			var acceptation = _acceptationFactory.CreateAcceptation(carReturn, employeeEmail, returnDescription);
+			var acceptation = _acceptationFactory.CreateAcceptation(carReturn, request.EmployeeEmail, request.ReturnDescription);
 
             var rental = await _context.Rentals.FirstOrDefaultAsync(r => r.ID == rentalId);
 
