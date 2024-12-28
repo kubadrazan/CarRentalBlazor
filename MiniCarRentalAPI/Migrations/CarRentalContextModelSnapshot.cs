@@ -50,7 +50,7 @@ namespace MiniCarRentalAPI.Migrations
                     b.HasIndex("ReturnID")
                         .IsUnique();
 
-                    b.ToTable("Acceptations");
+                    b.ToTable("Acceptations", (string)null);
                 });
 
             modelBuilder.Entity("SharedDataModels.Brand", b =>
@@ -68,7 +68,7 @@ namespace MiniCarRentalAPI.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Brands");
+                    b.ToTable("Brands", (string)null);
                 });
 
             modelBuilder.Entity("SharedDataModels.Car", b =>
@@ -126,7 +126,7 @@ namespace MiniCarRentalAPI.Migrations
 
                     b.HasIndex("ModelID");
 
-                    b.ToTable("Cars");
+                    b.ToTable("Cars", (string)null);
                 });
 
             modelBuilder.Entity("SharedDataModels.Description", b =>
@@ -144,7 +144,7 @@ namespace MiniCarRentalAPI.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Descriptions");
+                    b.ToTable("Descriptions", (string)null);
                 });
 
             modelBuilder.Entity("SharedDataModels.Model", b =>
@@ -167,7 +167,7 @@ namespace MiniCarRentalAPI.Migrations
 
                     b.HasIndex("BrandID");
 
-                    b.ToTable("Models");
+                    b.ToTable("Models", (string)null);
                 });
 
             modelBuilder.Entity("SharedDataModels.Offer", b =>
@@ -198,7 +198,7 @@ namespace MiniCarRentalAPI.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Offers");
+                    b.ToTable("Offers", (string)null);
                 });
 
             modelBuilder.Entity("SharedDataModels.Rental", b =>
@@ -238,7 +238,7 @@ namespace MiniCarRentalAPI.Migrations
 
                     b.HasIndex("CarID");
 
-                    b.ToTable("Rentals");
+                    b.ToTable("Rentals", (string)null);
                 });
 
             modelBuilder.Entity("SharedDataModels.Return", b =>
@@ -266,7 +266,7 @@ namespace MiniCarRentalAPI.Migrations
                     b.HasIndex("RentalID")
                         .IsUnique();
 
-                    b.ToTable("Returns");
+                    b.ToTable("Returns", (string)null);
                 });
 
             modelBuilder.Entity("SharedDataModels.Acceptation", b =>

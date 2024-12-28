@@ -8,14 +8,14 @@ namespace SharedDataModels.Factories
 {
 	public class ReturnFactory
 	{
-		public Return CreateReturn(int rentalId, Location location)
+		public Return CreateReturn(int rentalId, float latitude, float longitude)
 		{
 			return new Return
 			{
 				ReturnDate = DateTime.UtcNow,
 				RentalID = rentalId,
-                Location = location
-			};
+                Location = new Location { Latitude = latitude, Longitude = longitude }
+            };
 		}
 	}
 }

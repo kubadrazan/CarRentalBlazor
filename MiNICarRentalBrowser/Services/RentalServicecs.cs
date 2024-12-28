@@ -52,19 +52,19 @@ namespace Browser_FrontEnd.Services
 			}
 		}
 
-		public async Task<List<Model>> GetBrandsModelsNamesAsyc()
+		public async Task<List<BrandModelDTO>> GetBrandsModelsNamesAsyc()
 		{
 			try
 			{
-				var response = await _httpClient.GetFromJsonAsync<List<Model>>(
+				var response = await _httpClient.GetFromJsonAsync<List<BrandModelDTO>>(
 					$"{_apiA}/api/Cars/brandsModels"
 					);
-				return response ?? new List<Model>();
+				return response ?? new List<BrandModelDTO>();
 			}
 			catch (Exception ex)
 			{
 				Console.WriteLine($"Error fetching car data: {ex.Message}");
-				return new List<Model>();
+				return new List<BrandModelDTO>();
 			}
 		}
 
