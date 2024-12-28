@@ -10,7 +10,7 @@ namespace MiNICarRentalBrowser
         public ApiKeyProvider(IConfiguration configuration)
         {
             _configuration = configuration;
-            _apiA = configuration.GetValue<string>("ApiUrls:ApiRentalA");
+            _apiA = configuration.GetValue<string>("ApiUrls:ApiRentalA") ?? throw new Exception("No apiA Url in configuration file!");
         }
 
         public string GetApiKeyAsync(string apiUrl)
@@ -21,7 +21,7 @@ namespace MiNICarRentalBrowser
             else
                 throw new KeyNotFoundException($"No key found for Url {apiUrl}");
 
-            return _configuration[keyName];
+            return _configuration[keyName] ?? throw new KeyNotFoundException($"No key found for good Url {apiUrl}");
         }
     }
 }
