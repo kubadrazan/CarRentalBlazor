@@ -60,10 +60,11 @@ namespace MiNICarRentalBrowser
 				.AddInteractiveServerComponents();
 			builder.Services.AddMudServices();
 
-			builder.Services.AddHttpClient("ApiKeyClient")
-					.AddHttpMessageHandler<CustomHttpMessageHandler>();
+			builder.Services.AddSingleton<ApiKeyProvider>();
+            builder.Services.AddTransient<CustomHttpMessageHandler>();
 
-			builder.Services.AddTransient<CustomHttpMessageHandler>();
+            builder.Services.AddHttpClient("ApiKeyClient")
+					.AddHttpMessageHandler<CustomHttpMessageHandler>();
 
 			builder.Services.AddScoped<RentalServicecs>();
 			builder.Services.AddScoped<IUserService, UserServices>();
