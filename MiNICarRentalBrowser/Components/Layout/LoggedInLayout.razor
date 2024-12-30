@@ -6,11 +6,7 @@
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IAuthorizationService AuthorizationService
-
-<MudThemeProvider @rendermode="InteractiveServer" />
-<MudPopoverProvider @rendermode="InteractiveServer" />
-<MudDialogProvider @rendermode="InteractiveServer" />
-<MudSnackbarProvider @rendermode="InteractiveServer" />
+@layout MainLayout
 
 <MudLayout>
     <MudAppBar Color="Color.Primary" Fixed="false" Elevation="1">
@@ -28,12 +24,6 @@
     <MudMainContent Style="padding-top: 20px;">
         @Body
     </MudMainContent>
-
-    <footer>
-        <p>©MiNiCarRental 2024-2025</p>
-        <p>Authors: Igor Kober, Kuba Drażan, Piotr Iśtok</p>
-        <a href="mailto:minicarrental@hotmail.com">minicarrental@hotmail.com</a>
-    </footer>
 </MudLayout>
 
 @code {
@@ -55,10 +45,3 @@
             Navigation.NavigateTo("/rentalhistory-client", forceLoad: true);
     }
 }
-
-<style>
-    footer {
-        text-align: center;
-        padding: 40px;
-    }
-</style>

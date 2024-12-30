@@ -1,0 +1,30 @@
+﻿@inherits LayoutComponentBase
+
+<MudThemeProvider @rendermode="InteractiveServer" />
+<MudPopoverProvider @rendermode="InteractiveServer" />
+<MudDialogProvider @rendermode="InteractiveServer" />
+<MudSnackbarProvider @rendermode="InteractiveServer" />
+
+<MudLayout>
+
+    <MudMainContent Style="padding: 0;">
+        @Body
+    </MudMainContent>
+
+    <footer>
+        <p>©MiNiCarRental 2024-2025</p>
+        <p>Authors: Igor Kober, Kuba Drażan, Piotr Iśtok</p>
+        <a href="mailto:minicarrental@hotmail.com">minicarrental@hotmail.com</a>
+    </footer>
+</MudLayout>
+
+@code {
+
+}
+
+<style>
+    footer {
+        text-align: center;
+        padding: 40px;
+    }
+</style>
