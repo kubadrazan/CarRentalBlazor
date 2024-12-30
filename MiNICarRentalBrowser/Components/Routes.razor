@@ -15,7 +15,9 @@
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />
         </Found>
         <NotFound>
-            <p>Strona nie została znaleziona.</p>
+            <LayoutView Layout="@typeof(Layout.ErrorLayout)">
+                <MiNICarRentalBrowser.Components.Pages.ErrorPage StatusCode="404" />
+            </LayoutView>
         </NotFound>
     </Router>
 </CascadingAuthenticationState>
