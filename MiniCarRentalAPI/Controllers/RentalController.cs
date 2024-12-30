@@ -120,7 +120,6 @@ namespace MiniCarRentalAPI.Controllers
 		}
 
         [HttpPut("rentals/returnCar/{rentalId}")]
-
         public async Task<IActionResult> ReturnCar(int rentalId,
 			[FromBody] ReturnCarRequest request)
         {

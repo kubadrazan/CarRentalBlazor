@@ -128,9 +128,9 @@ namespace Browser_FrontEnd.Services
 			}
 		}
 
-		public async Task<(List<Car>, int filteredCarsCount)> GetCars(List<string>? brands, List<string>? models, int? lastId, int pageSize)
+		public async Task<(List<Car>, int filteredCarsCount)> GetCars(List<string>? brands, List<string>? models, int? pageInd, int pageSize)
 		{
-			var queryParams = CreateQuery(brands, models, lastId, pageSize);
+			var queryParams = CreateQuery(brands, models, pageInd, pageSize);
 
 			var urlA = $"{_apiA}/api/Cars?{queryParams}";
 
@@ -142,7 +142,7 @@ namespace Browser_FrontEnd.Services
 			return (new List<Car>(), 0);
 		}
 
-		private string CreateQuery(List<string>? brands, List<string>? models, int? lastId, int pageSize)
+		private string CreateQuery(List<string>? brands, List<string>? models, int? pageInd, int pageSize)
 		{
 			var queryParams = new List<string>();
 
@@ -154,10 +154,11 @@ namespace Browser_FrontEnd.Services
 				foreach (var model in models)
 					queryParams.Add($"models={model}");
 
-			if (lastId.HasValue)
-				queryParams.Add($"lastId={lastId}");
+			if (pageInd == null || pageInd < 1)
+				pageInd = 1;
 
-			queryParams.Add($"pageSize={pageSize}");
+			queryParams.Add($"pageInd={pageInd}");
+            queryParams.Add($"pageSize={pageSize}");
 
 			return string.Join("&", queryParams);
 		}
