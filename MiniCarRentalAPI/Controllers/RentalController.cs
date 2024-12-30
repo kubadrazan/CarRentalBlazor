@@ -4,6 +4,7 @@ using MiniCarRentalAPI.Data;
 using MiniCarRentalAPI.Services;
 using SharedDataModels;
 using SharedDataModels.Factories;
+using System;
 
 namespace MiniCarRentalAPI.Controllers
 {
@@ -168,6 +169,15 @@ namespace MiniCarRentalAPI.Controllers
                 return NotFound();
             }
             rental.RentalStatus = RentalStatus.CLOSED;
+
+            var car = await _context.Cars.FirstOrDefaultAsync(c => c.ID == rental.CarID);
+
+            if (car == null)
+            {
+                return NotFound();
+            }
+
+            car.Availability = Availability.AVAILABLE;
 
             _context.Acceptations.Add(acceptation);
             await _context.SaveChangesAsync();
