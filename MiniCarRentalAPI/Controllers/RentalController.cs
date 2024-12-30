@@ -109,9 +109,18 @@ namespace MiniCarRentalAPI.Controllers
 			if (offer == null || offer.UserEmail is null)
 			{
 				return NotFound();
-			}
+            }
 
-			var rental = _rentalFactory.CreateRental(offer);
+            var car = await _context.Cars.FirstOrDefaultAsync(c => c.ID == offer.CarId);
+
+            if (car == null)
+            {
+                return NotFound();
+            }
+
+			car.Availability = Availability.NOT_AVAILABLE;
+
+            var rental = _rentalFactory.CreateRental(offer);
 
 			_context.Rentals.Add(rental);
 			await _context.SaveChangesAsync();
