@@ -17,7 +17,9 @@ namespace SharedDataModels.Factories
 				UserEmail = offer.UserEmail,
 				SourceAPI = 0,
 				PricePerDay = offer.Price,
-				IsInsurance = offer.IsInsurance
+				IsInsurance = offer.IsInsurance,
+				RentalStatus = RentalStatus.ACTIVE,
+				OfferHashID = offer.OfferHashID
 			};
 		}
 	}
