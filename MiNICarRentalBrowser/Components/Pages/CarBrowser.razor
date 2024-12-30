@@ -154,7 +154,7 @@
 </MudContainer>
 
 <div class="mt-5 mb-5 d-flex flex-column align-center">
-    <MudPagination ShowPageButtons="false" PageSize="5" Count="@filteredCarsCount" SelectedChanged="OnPageChanged" />
+    <MudPagination PageSize="@pageSize" Count="@pagesCount" SelectedChanged="OnPageChanged" />
 </div>
 
 @code {
@@ -167,8 +167,8 @@
     public string[]? models { get; set; }
 
     [Parameter]
-    [SupplyParameterFromQuery(Name = "lastId")]
-    public int? lastId { get; set; }
+    [SupplyParameterFromQuery(Name = "pageInd")]
+    public int? pageInd { get; set; }
 
     private bool isLoading = false;
 
@@ -180,6 +180,7 @@
     private List<string> uniqueModels = new List<string>(); // Lista modeli do selectBoxa
 
     private int pageSize = 5;
+    private int pagesCount = 1;
     private int filteredCarsCount = 0;
 
     protected override async Task OnInitializedAsync()
@@ -199,14 +200,26 @@
         if (models != null)
             modelOptions = new HashSet<string>(models) { };
 
-        (cars, filteredCarsCount) = await rentalService.GetCars(brandOptions.ToList(), modelOptions.ToList(), lastId, pageSize);
+        if (pageInd == null || pageInd < 0)
+            pageInd = 1;
+
+        (cars, filteredCarsCount) = await rentalService.GetCars(brandOptions.ToList(), modelOptions.ToList(), pageInd, pageSize);
+
+        if (filteredCarsCount % pageSize == 0 && filteredCarsCount != 0)
+            pagesCount = filteredCarsCount / pageSize;
+        else
+            pagesCount = filteredCarsCount / pageSize + 1;
+
+        if (pageInd > pagesCount)
+            OnPageChanged(1);
+
         isLoading = false;
         await base.OnParametersSetAsync();
     }
 
     private void ApplyFiltersButtonClick()
     {
-        lastId = -1;
+        pageInd = 1;
         UpdateUrl();
     }
 
@@ -230,9 +243,9 @@
 
     }
 
-    private void OnPageChanged()
+    private void OnPageChanged(int page)
     {
-        lastId = cars.Last().ID;
+        pageInd = page;
         UpdateUrl();
     }
 
@@ -262,12 +275,10 @@
         query.Remove("brand");
         query.Remove("model");
         query.Remove("pageSize");
-        query.Remove("lastId");
+        query.Remove("pageInd");
 
         query.Add("pageSize",pageSize.ToString());
-
-        if (lastId.HasValue)
-            query.Add("lastId", lastId.ToString());
+        query.Add("pageInd", pageInd.ToString());
 
         foreach (var brand in brandOptions)
         {

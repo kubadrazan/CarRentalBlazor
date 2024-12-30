@@ -89,9 +89,13 @@ namespace MiniCarRentalAPI.Controllers
         public async Task<IActionResult> GetFilteredCars(
             [FromQuery] List<string> brands,
             [FromQuery] List<string> models,
-            [FromQuery] int? lastId = null,
-            [FromQuery] int pageSize = -1)
+            [FromQuery] int pageInd = 1,
+            [FromQuery] int pageSize = 1,
+            [FromQuery] bool onlyAvailable = true)
         {
+            if (pageInd < 1 || pageSize < 1)
+                return NotFound();
+
             var query = _context.Cars.AsQueryable();
 
             if (brands != null && brands.Any())
@@ -100,18 +104,15 @@ namespace MiniCarRentalAPI.Controllers
             if (models != null && models.Any())
                 query = query.Where(car => models.Contains(car.Model.Name));
 
+            if (onlyAvailable)
+                query = query.Where(car => car.Availability == Availability.AVAILABLE);
+
             int allCount = query.Count();
 
-            if (lastId.HasValue)
-                query = query.Where(car => car.ID > lastId.Value);
-
             List<Car>? cars;
-
-            if (pageSize <= 0)
-                cars = await query.OrderBy(car => car.ID).Include(c => c.Model)
-                .ThenInclude(m => m.Brand).ToListAsync();
-            else
-                cars = await query.OrderBy(car => car.ID).Include(c => c.Model)
+            query = query.OrderBy(car => car.ID);
+            query = query.Skip((pageInd - 1) * pageSize);
+            cars = await query.Include(c => c.Model)
                 .ThenInclude(m => m.Brand).Take(pageSize).ToListAsync();
 
             var result = new PagedCarsResponse() { Cars = cars, TotalCount = allCount };
