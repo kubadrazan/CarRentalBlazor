@@ -6,11 +6,7 @@
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IAuthorizationService AuthorizationService
-
-<MudThemeProvider @rendermode="InteractiveServer" />
-<MudPopoverProvider @rendermode="InteractiveServer" />
-<MudDialogProvider @rendermode="InteractiveServer" />
-<MudSnackbarProvider @rendermode="InteractiveServer" />
+@layout MainLayout
 
 <MudLayout>
     <MudAppBar Color="Color.Primary" Fixed="false" Elevation="1">
@@ -25,7 +21,7 @@
         </MudMenu>
     </MudAppBar>
 
-    <MudMainContent>
+    <MudMainContent Style="padding-top: 20px;">
         @Body
     </MudMainContent>
 </MudLayout>

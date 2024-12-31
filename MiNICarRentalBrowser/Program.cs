@@ -79,7 +79,9 @@ namespace MiNICarRentalBrowser
 				app.UseHsts();
 			}
 
-			app.UseHttpsRedirection();
+            app.UseStatusCodePagesWithReExecute("/error-page/{0}");
+
+            app.UseHttpsRedirection();
 
 			app.UseStaticFiles();
 			app.UseAntiforgery();
