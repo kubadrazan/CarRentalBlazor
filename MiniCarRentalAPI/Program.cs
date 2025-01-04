@@ -59,6 +59,7 @@ namespace MiniCarRentalAPI
 			builder.Services.AddTransient<OfferFactory>();
 			builder.Services.AddTransient<ReturnFactory>();
 			builder.Services.AddTransient<RentalFactory>();
+			builder.Services.AddTransient<PdfGenerationService>();
 
 			builder.Services.AddTransient<IApiKeyValidatorService, ApiKeyValidatorService>();
 			var app = builder.Build();

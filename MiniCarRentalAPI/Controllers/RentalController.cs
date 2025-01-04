@@ -180,7 +180,8 @@ namespace MiniCarRentalAPI.Controllers
             car.Availability = Availability.AVAILABLE;
 
             _context.Acceptations.Add(acceptation);
-            await _context.SaveChangesAsync();
+			_emailService.SendInvoice(rental);
+			await _context.SaveChangesAsync();
 
             return Ok(acceptation);
         }

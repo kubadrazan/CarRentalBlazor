@@ -11,13 +11,15 @@ namespace MiniCarRentalAPI.Services
 	public class EmailService
 	{
 		private readonly SendGridClient _client;
+		private readonly PdfGenerationService _pdfGenerationService;
 		private readonly EmailAddress _address;
 		private readonly SendGridMessage _message;
 
-		public EmailService(IOptions<EmailServiceOptions> options)
+		public EmailService(IOptions<EmailServiceOptions> options, PdfGenerationService pdfGenerationService)
 		{
 			_client = new SendGridClient(options.Value.APIKey);
 			_address = new EmailAddress("minicarrental@hotmail.com");
+			_pdfGenerationService = pdfGenerationService;
 		}
 
 		public async void SendConfirmationEmail(Offer offer, Car car)
@@ -33,6 +35,18 @@ namespace MiniCarRentalAPI.Services
 				price = offer.Price.ToString(),
 				callbackUrl = $"https://localhost:7156/rentalconfirmation?offer_id={offer.OfferHashID}" // TODO
 			});
+			var response = await _client.SendEmailAsync(message);
+		}
+		public async void SendInvoice(Rental rental)
+		{
+			string templateId = "TEMPLATE";
+			var to = new EmailAddress(rental.UserEmail);
+			var message = MailHelper.CreateSingleTemplateEmail(_address, to, templateId, new
+			{
+
+			});
+			message.AddAttachment("Invoice.pdf", Convert.ToBase64String(_pdfGenerationService.GenerateInvoice(rental)));
+
 			var response = await _client.SendEmailAsync(message);
 		}
 	}
