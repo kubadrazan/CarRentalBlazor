@@ -19,34 +19,8 @@
     <MudGrid>
         <!-- Lista wypożyczeń -->
         <MudItem xs="12" sm="12" md="12">
-            <MudGrid Class="mt-4" Spacing="12">
-                @if (rentals != null && rentals.Any())
-                {
-                    <MudItem xs="12" Style="margin: 5px">
-                        <MudText Typo="Typo.h5">Your renatls: @rentalsCount</MudText>
-                    </MudItem>
-
-                    @foreach (var rental in rentals)
-                    {
-                        <MudItem xs="12" Style="margin: 5px">
-                            <MiNICarRentalBrowser.Components.Shared.RentalCard 
-                            rental="@rental" rentalID="@rental.ID" OnButtonClicked="@NavigateToRentalDetails"/>
-                        </MudItem>
-                    }
-                }
-                else if (isLoading)
-                {
-                    <MudItem xs="12" Style="margin: 5px; ">
-                        <MudText Typo="Typo.h4" Color="Color.Primary" Class="text-center">Loading...</MudText>
-                    </MudItem>
-                }
-                else
-                {
-                    <MudItem xs="12" Style="margin: 5px">
-                        <MudText Typo="Typo.h4" Color="Color.Secondary" Class="text-center">No rentals...</MudText>
-                    </MudItem>
-                }
-            </MudGrid>
+            <MiNICarRentalBrowser.Components.Shared.ItemListWithLoading collection="rentals" collectionCount="rentalsCount" isLoading="isLoading"
+             collectionSummaryText="Your rentals:" emptyCollectionText="No rentals..." RenderCard="RenderMyCard" />
         </MudItem>
     </MudGrid>
 </MudContainer>
@@ -96,6 +70,23 @@
         rentals = await rentalService.GetRentalsAsync(pageInd, pageSize);
         isLoading = false;
     }
+
+    private RenderFragment<object> RenderMyCard => item =>
+    {
+        if (item is Rental rental)
+        {
+            return@<MiNICarRentalBrowser.Components.Shared.RentalCard rental="@rental"
+                    rentalID="rental.ID" OnButtonClicked="NavigateToRentalDetails" />;
+        }
+        else
+        {
+            return @<MudCard>
+                        <MudCardContent>
+                            <MudText Typo="Typo.body1">Unknown item type</MudText>
+                        </MudCardContent>
+                    </MudCard>;
+        }
+    };
 
     private void OnPageChanged(int page)
     {
