@@ -116,36 +116,20 @@
                     @foreach (var car in cars)
                     {
                         <MudItem xs="12" Style="margin: 5px">
-                            <MudPaper Class="p-4" Style="max-width: 800px; height: 200px; margin: auto" Elevation="4">
-                                <MudGrid>
-                                    <MudItem xs="7" sm="7">
-                                        <div style="display: flex; flex-direction: column; align-items: flex-start; padding-left: 16px">
-                                            <MudText Typo="Typo.h5">@car.Model.Brand.Name @car.Model.Name</MudText>
-                                            <MudText Typo="Typo.body2" Class="my-1">Production year: @car.ProductionYear</MudText>
-                                            <MudText Typo="Typo.body2" Class="my-1">No mileage limit</MudText>
-                                        </div>
-                                    </MudItem>
-                                    <MudItem xs="5" sm="5">
-                                        <div style="display: flex; flex-direction: column; align-items: flex-end; padding-right: 16px">
-                                            <MudImage Src="car.jpg" Style="width: 100px; height: 100px; object-fit: cover;" />
-                                            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="() => NavigateToCarDetails(car.ID)">See offers</MudButton>
-                                        </div>
-                                    </MudItem>
-                                </MudGrid>
-                            </MudPaper>
+                            <MiNICarRentalBrowser.Components.Shared.CarCard car="car" OnButtonClicked="NavigateToCarDetails" buttonText="See offers" imgSrc="car.jpg"/>
                         </MudItem>
                     }
                 }
-                else if(!isLoading)
+                else if(isLoading)
                 {
                     <MudItem xs="12" Style="margin: 5px">
-                        <MudText Typo="Typo.h4" Color="Color.Secondary" Class="text-center">There are no result matching your criteria.</MudText>
+                        <MudText Typo="Typo.h4" Color="Color.Primary" Class="text-center">Loading...</MudText>
                     </MudItem>
                 }
                 else
                 {
                     <MudItem xs="12" Style="margin: 5px">
-                        <MudText Typo="Typo.h4" Color="Color.Primary" Class="text-center">Loading...</MudText>
+                        <MudText Typo="Typo.h4" Color="Color.Secondary" Class="text-center">There are no result matching your criteria.</MudText>
                     </MudItem>
                 }
             </MudGrid>
