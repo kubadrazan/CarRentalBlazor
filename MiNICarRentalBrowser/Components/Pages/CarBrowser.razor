@@ -106,49 +106,8 @@
 
         <!-- Lista aut -->
         <MudItem xs="12" sm="12" md="8">
-            <MudGrid Class="mt-4" Spacing="12">
-                @if (cars.Any())
-                {
-                    <MudItem xs="12" Style="margin: 5px; margin: auto">
-                        <MudText Typo="Typo.h5">Available cars: @filteredCarsCount</MudText>
-                    </MudItem>
-
-                    @foreach (var car in cars)
-                    {
-                        <MudItem xs="12" Style="margin: 5px">
-                            <MudPaper Class="p-4" Style="max-width: 800px; height: 200px; margin: auto" Elevation="4">
-                                <MudGrid>
-                                    <MudItem xs="7" sm="7">
-                                        <div style="display: flex; flex-direction: column; align-items: flex-start; padding-left: 16px">
-                                            <MudText Typo="Typo.h5">@car.Model.Brand.Name @car.Model.Name</MudText>
-                                            <MudText Typo="Typo.body2" Class="my-1">Production year: @car.ProductionYear</MudText>
-                                            <MudText Typo="Typo.body2" Class="my-1">No mileage limit</MudText>
-                                        </div>
-                                    </MudItem>
-                                    <MudItem xs="5" sm="5">
-                                        <div style="display: flex; flex-direction: column; align-items: flex-end; padding-right: 16px">
-                                            <MudImage Src="car.jpg" Style="width: 100px; height: 100px; object-fit: cover;" />
-                                            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="() => NavigateToCarDetails(car.ID)">See offers</MudButton>
-                                        </div>
-                                    </MudItem>
-                                </MudGrid>
-                            </MudPaper>
-                        </MudItem>
-                    }
-                }
-                else if(!isLoading)
-                {
-                    <MudItem xs="12" Style="margin: 5px">
-                        <MudText Typo="Typo.h4" Color="Color.Secondary" Class="text-center">There are no result matching your criteria.</MudText>
-                    </MudItem>
-                }
-                else
-                {
-                    <MudItem xs="12" Style="margin: 5px">
-                        <MudText Typo="Typo.h4" Color="Color.Primary" Class="text-center">Loading...</MudText>
-                    </MudItem>
-                }
-            </MudGrid>
+            <MiNICarRentalBrowser.Components.Shared.ItemListWithLoading collection="cars" collectionCount="filteredCarsCount" isLoading="isLoading"
+             collectionSummaryText="Available cars:" emptyCollectionText="There are no result matching your criteria." RenderCard="RenderMyCard" />
         </MudItem>
     </MudGrid>
 </MudContainer>
@@ -266,6 +225,22 @@
 
     private void OnChipClose(MudChip<string> chip) =>
         modelOptions = modelOptions.Where(x => x != chip.Value);
+
+    private RenderFragment<object> RenderMyCard => item =>
+    {
+        if (item is Car car)
+        {
+            return@<MiNICarRentalBrowser.Components.Shared.CarCard car="car" OnButtonClicked="NavigateToCarDetails" buttonText="See offers" imgSrc="car.jpg" />;
+        }
+        else
+        {
+            return @<MudCard>
+            <MudCardContent>
+                <MudText Typo="Typo.body1">Unknown item type</MudText>
+            </MudCardContent>
+            </MudCard>;
+        }
+    };
 
     private void UpdateUrl()
     {
