@@ -45,5 +45,10 @@ namespace SharedDataModels
 
         [JsonIgnore]
         public ICollection<Rental> Rentals { get; set; }
-    }
+
+		public override string ToString()
+		{
+			return $"{ProductionYear} {Model.Brand.Name} {Model.Name}" ;
+		}
+	}
 }

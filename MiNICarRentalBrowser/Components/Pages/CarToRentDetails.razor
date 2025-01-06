@@ -78,13 +78,15 @@
 		if (user.Identity != null && user.Identity.IsAuthenticated)
 		{
 			var email = user.FindFirstValue(ClaimTypes.Email);
-			await renatalService.SendMail(offerID, email);
+			var result = await renatalService.ChooseOffer(offerID, email);
+			if (result == "Error")
+				navigation.NavigateTo("/error-page/");
 			navigation.NavigateTo("/check-mail");
 		}
 		else
 		{
-			var returnUrl = navigation.Uri;
-			navigation.NavigateTo($"/login", true);//?returnUrl={Uri.EscapeDataString(returnUrl)}");
+			string url = (new Uri(navigation.Uri)).AbsolutePath;
+			navigation.NavigateTo($"/login?returnUrl={url}", true);
 		}
 	}
 }

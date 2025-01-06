@@ -1,9 +1,11 @@
 ﻿using Humanizer;
 using Microsoft.Extensions.Options;
+using Microsoft.VisualBasic;
 using MiniCarRentalAPI.Controllers;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using SharedDataModels;
+using System;
 using System.Drawing.Drawing2D;
 
 namespace MiniCarRentalAPI.Services
@@ -39,10 +41,18 @@ namespace MiniCarRentalAPI.Services
 		}
 		public async void SendInvoice(Rental rental)
 		{
-			string templateId = "TEMPLATE";
+			string templateId = "d-1875804a5f7349978f3f1daadee834ef";
 			var to = new EmailAddress(rental.UserEmail);
 			var message = MailHelper.CreateSingleTemplateEmail(_address, to, templateId, new
 			{
+				userName = rental.UserEmail,
+				prodYear = rental.Car.ProductionYear.ToString(),
+				brand = rental.Car.Model.Brand.Name,
+				model = rental.Car.Model.Name,
+				InvoiceNumber = "IN-" + DateTime.Now.ToString("yyyy-MM-dd-hhmmss"),
+				IssueDate = DateTime.Now.ToString(),
+				DueDate = DateTime.Now.AddDays(14).ToString(),
+				Amount = (rental.PricePerDay * (DateTime.Now - rental.RentDate).Days).ToString() + "$"
 
 			});
 			message.AddAttachment("Invoice.pdf", Convert.ToBase64String(_pdfGenerationService.GenerateInvoice(rental)));
