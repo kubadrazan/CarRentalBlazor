@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using MiniCarRentalAPI.Data;
 using NuGet.Versioning;
+using PdfSharp;
 using SharedDataModels;
 using SharedDataModels.DTO;
 
@@ -90,8 +92,7 @@ namespace MiniCarRentalAPI.Controllers
             [FromQuery] List<string> brands,
             [FromQuery] List<string> models,
             [FromQuery] int pageInd = 1,
-            [FromQuery] int pageSize = 1,
-            [FromQuery] bool onlyAvailable = true)
+            [FromQuery] int pageSize = 1)
         {
             if (pageInd < 1 || pageSize < 1)
                 return NotFound();
@@ -104,8 +105,7 @@ namespace MiniCarRentalAPI.Controllers
             if (models != null && models.Any())
                 query = query.Where(car => models.Contains(car.Model.Name));
 
-            if (onlyAvailable)
-                query = query.Where(car => car.Availability == Availability.AVAILABLE);
+            query = query.Where(car => car.Availability == Availability.AVAILABLE);
 
             int allCount = query.Count();
 
@@ -118,6 +118,22 @@ namespace MiniCarRentalAPI.Controllers
             var result = new PagedCarsResponse() { Cars = cars, TotalCount = allCount };
 
             return Ok(result);
+        }
+
+        // GET: api/Cars/allAvailable
+        [HttpGet("allAvailable")]
+        public async Task<IActionResult> GetAllAvailableCars()
+        {
+            var query = _context.Cars.AsQueryable();
+
+            query = query.Where(car => car.Availability == Availability.AVAILABLE);
+
+            int allCount = query.Count();
+
+            List<Car>? cars;
+            cars = await query.Include(c => c.Model).ThenInclude(m => m.Brand).ToListAsync();
+
+            return Ok(cars);
         }
     }
 }
