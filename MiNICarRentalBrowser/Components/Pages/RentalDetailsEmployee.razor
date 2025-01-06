@@ -35,6 +35,12 @@
 		}
 	</div>
 </div>
+<div class="centered">
+	@if (_rental != null && _rental.RentalStatus == RentalStatus.CLOSED)
+	{
+		<CarImageDisplay rental="_rental" />
+	}
+</div>
 
 
 @code {
@@ -67,6 +73,17 @@
 }
 
 <style>
+	.centered {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 20px;
+		padding: 20px;
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		justify-content: center;
+		align-items: flex-start;
+		max-width: 1200px;
+		margin: 0 auto;
+	}
 	.container {
 		display: flex;
 		flex-wrap: wrap;
