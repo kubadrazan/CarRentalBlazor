@@ -21,7 +21,7 @@ namespace MiNICarRentalBrowser
 			var builder = WebApplication.CreateBuilder(args);
 
 			builder.Services.AddDbContext<UsersContext>(options =>
-				options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+				options.UseSqlServer(builder.Configuration["UsersDBConnectionString"]));
 
 			builder.Services.AddScoped<UserValidationService>();
 			builder.Services.AddScoped<EmployeeValidationService>();

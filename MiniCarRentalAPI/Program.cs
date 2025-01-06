@@ -53,7 +53,7 @@ namespace MiniCarRentalAPI
 
             // TODO Change to AddDbContextFactory??
             builder.Services.AddDbContext<CarRentalContext>(options =>
-				options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+				options.UseSqlServer(builder.Configuration["CarRentalDBConnectionString"])
 			);
 			builder.Services.Configure<JsonOptions>(options =>
 				options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
