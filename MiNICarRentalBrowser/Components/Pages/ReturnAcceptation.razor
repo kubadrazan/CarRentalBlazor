@@ -143,8 +143,9 @@
 
         string email = user.FindFirstValue(ClaimTypes.Email) ?? "";
 
-        var buf = new byte[_carImage.Size];
-        using (var stream = _carImage.OpenReadStream())
+        var resizedFile = await _carImage.RequestImageFileAsync(_carImage.ContentType, 300, 300);
+        var buf = new byte[resizedFile.Size];
+        using (var stream = resizedFile.OpenReadStream())
         {
             await stream.ReadAsync(buf);
         }

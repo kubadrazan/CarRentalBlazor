@@ -1,4 +1,5 @@
 
+using Azure.Identity;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -47,14 +48,17 @@ namespace MiniCarRentalAPI
 				});
 			});
 
-			// TODO Change to AddDbContextFactory??
-			builder.Services.AddDbContext<CarRentalContext>(options =>
+            // AzureKeyVault
+            builder.Configuration.AddAzureKeyVault(new Uri(builder.Configuration.GetValue<string>("KeyVault:https")), new DefaultAzureCredential());
+
+            // TODO Change to AddDbContextFactory??
+            builder.Services.AddDbContext<CarRentalContext>(options =>
 				options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 			);
 			builder.Services.Configure<JsonOptions>(options =>
 				options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 			builder.Services.Configure<EmailServiceOptions>(options => options.APIKey = builder.Configuration["EmailService:SendGrid:ApiKey"]);
-            builder.Services.Configure<AzureBlobServiceOptions>(options => options.ConnectionString = builder.Configuration.GetConnectionString("AzureBlobConnection"));
+            builder.Services.Configure<AzureBlobServiceOptions>(options => options.ConnectionString = builder.Configuration["AzureBlobConnectionString"]);
             builder.Services.AddTransient<EmailService>();
 			builder.Services.AddTransient<AcceptationFactory>();
 			builder.Services.AddTransient<OfferFactory>();
@@ -63,7 +67,9 @@ namespace MiniCarRentalAPI
             builder.Services.AddTransient<AzureBlobService>();
 
             builder.Services.AddTransient<IApiKeyValidatorService, ApiKeyValidatorService>();
-			var app = builder.Build();
+
+
+            var app = builder.Build();
 
 			if (app.Environment.IsDevelopment())
 			{
