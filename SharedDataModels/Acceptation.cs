@@ -27,12 +27,6 @@ namespace SharedDataModels
 
         public Description Description { get; set; }
 
-        //[JsonIgnore]
-        //public ICollection<Image> Images { get; set; }
-
-
-        //[FromForm]
-        //[NotMapped]
-        //public IFormFileCollection Files { get; set; }
+        public string ImageAzureBlobUri {  get; set; }
     }
 }

@@ -160,7 +160,13 @@ namespace MiniCarRentalAPI.Controllers
                 return NotFound();
             }
 
-			var acceptation = _acceptationFactory.CreateAcceptation(carReturn, request.EmployeeEmail, request.ReturnDescription);
+			var bytes = Convert.FromBase64String(request.Base64EncodedCarImage);
+			using (var stream = new MemoryStream(bytes))
+			{
+
+			}
+
+			var acceptation = _acceptationFactory.CreateAcceptation(carReturn, request.EmployeeEmail, request.ReturnDescription, ""/*cblob.Uri*/);
 
             var rental = await _context.Rentals.FirstOrDefaultAsync(r => r.ID == rentalId);
 

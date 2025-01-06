@@ -8,7 +8,7 @@ namespace SharedDataModels.Factories
 {
 	public class AcceptationFactory
 	{
-		public Acceptation CreateAcceptation(Return carReturn, string employeeEmail, string returnDescription)
+		public Acceptation CreateAcceptation(Return carReturn, string employeeEmail, string returnDescription, string imageUri)
 		{
 			return new Acceptation
 			{
@@ -18,7 +18,8 @@ namespace SharedDataModels.Factories
 				Description = new Description
 				{
 					Content = returnDescription
-				}
+				},
+				ImageAzureBlobUri = imageUri
 			};
 		}
 	}

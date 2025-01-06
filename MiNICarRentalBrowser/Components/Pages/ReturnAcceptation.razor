@@ -53,7 +53,7 @@
                     </ActivatorContent>
                 </MudFileUpload>
 
-                @if(_isLoading)
+                @if (_isLoading)
                 {
                     <MudCard Style="width: 300px; height: 300px" Elevation="25" Class="rounded-lg">
                         <MudCardContent>
@@ -138,11 +138,18 @@
     {
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
-        if (String.IsNullOrEmpty(user.FindFirstValue(ClaimTypes.Email)))
+        if (String.IsNullOrEmpty(user.FindFirstValue(ClaimTypes.Email)) || _carImage is null)
             return;
 
         string email = user.FindFirstValue(ClaimTypes.Email) ?? "";
-        await rentalService.AcceptCarReturn(rentalId, email, _descriptionText);
+
+        var buf = new byte[_carImage.Size];
+        using (var stream = _carImage.OpenReadStream())
+        {
+            await stream.ReadAsync(buf);
+        }
+
+        await rentalService.AcceptCarReturn(rentalId, email, _descriptionText, Convert.ToBase64String(buf));
         Navigation.NavigateTo($"/RentalDetailsEmployee/{rentalId}");
     }
 }
