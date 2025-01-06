@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text;
 using Azure;
 using MiNICarRentalBrowser.Services;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace Browser_FrontEnd.Services
 {
@@ -235,9 +236,9 @@ namespace Browser_FrontEnd.Services
 			var response = await _httpClient.PutAsJsonAsync<ReturnCarRequest>($"{_apiA}/api/Rental/rentals/returnCar/{rental.ID}", returnRequest);
 		}
 
-		public async Task AcceptCarReturn(int rentalId, string employeeEmail, string acceptationDescription)
+		public async Task AcceptCarReturn(int rentalId, string employeeEmail, string acceptationDescription, string carImage)
         {
-            var acceptReturnRequest = new AcceptReturnRequest(employeeEmail, acceptationDescription);
+            var acceptReturnRequest = new AcceptReturnRequest(employeeEmail, acceptationDescription, carImage);
             var response = await _httpClient.PutAsJsonAsync<AcceptReturnRequest>($"{_apiA}/api/Rental/rentals/acceptReturn/{rentalId}", acceptReturnRequest);
         }
 	}
