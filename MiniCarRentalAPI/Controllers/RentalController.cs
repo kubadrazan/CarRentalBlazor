@@ -18,8 +18,9 @@ namespace MiniCarRentalAPI.Controllers
 		private readonly RentalFactory _rentalFactory;
 		private readonly ReturnFactory _returnFactory;
 		private readonly AcceptationFactory _acceptationFactory;
+        private readonly AzureBlobService _azureBlobService;
 
-		public RentalController(CarRentalContext context, EmailService emailService, OfferFactory offerFactory, RentalFactory rentalFactory, ReturnFactory returnFactory, AcceptationFactory acceptationFactory)
+        public RentalController(CarRentalContext context, EmailService emailService, OfferFactory offerFactory, RentalFactory rentalFactory, ReturnFactory returnFactory, AcceptationFactory acceptationFactory, AzureBlobService azureBlobService)
 		{
 			_context = context;
 			_emailService = emailService;
@@ -27,6 +28,7 @@ namespace MiniCarRentalAPI.Controllers
 			_rentalFactory = rentalFactory;	
 			_returnFactory = returnFactory;
 			_acceptationFactory = acceptationFactory;
+			_azureBlobService = azureBlobService;
 		}
 
 		// generate one offer based on metadata
@@ -161,12 +163,9 @@ namespace MiniCarRentalAPI.Controllers
             }
 
 			var bytes = Convert.FromBase64String(request.Base64EncodedCarImage);
-			using (var stream = new MemoryStream(bytes))
-			{
+			var blobUri = await _azureBlobService.Upload(bytes);
 
-			}
-
-			var acceptation = _acceptationFactory.CreateAcceptation(carReturn, request.EmployeeEmail, request.ReturnDescription, ""/*cblob.Uri*/);
+			var acceptation = _acceptationFactory.CreateAcceptation(carReturn, request.EmployeeEmail, request.ReturnDescription, blobUri);
 
             var rental = await _context.Rentals.FirstOrDefaultAsync(r => r.ID == rentalId);
 
