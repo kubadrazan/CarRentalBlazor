@@ -24,7 +24,7 @@ namespace MiniCarRentalAPI.Controllers
 			_context = context;
 			_emailService = emailService;
 			_offerFactory = offerFactory;
-			_rentalFactory = rentalFactory;	
+			_rentalFactory = rentalFactory;
 			_returnFactory = returnFactory;
 			_acceptationFactory = acceptationFactory;
 		}
@@ -97,6 +97,9 @@ namespace MiniCarRentalAPI.Controllers
 				.Include(c => c.Model)
 				.ThenInclude(m => m.Brand)
 				.FirstOrDefaultAsync(c => c.ID == offer.CarId);
+			
+			if(car.Availability != Availability.AVAILABLE) return UnprocessableEntity();
+
 			_emailService.SendConfirmationEmail(offer, car);
 
 			return Ok($"Sent offer {offer.OfferHashID} to  '{emailAddress}'.");
@@ -110,18 +113,18 @@ namespace MiniCarRentalAPI.Controllers
 			if (offer == null || offer.UserEmail is null)
 			{
 				return NotFound();
-            }
+			}
 
-            var car = await _context.Cars.FirstOrDefaultAsync(c => c.ID == offer.CarId);
+			var car = await _context.Cars.FirstOrDefaultAsync(c => c.ID == offer.CarId);
 
-            if (car == null)
-            {
-                return NotFound();
-            }
+			if (car == null)
+			{
+				return NotFound();
+			}
 
 			car.Availability = Availability.NOT_AVAILABLE;
 
-            var rental = _rentalFactory.CreateRental(offer);
+			var rental = _rentalFactory.CreateRental(offer);
 
 			_context.Rentals.Add(rental);
 			await _context.SaveChangesAsync();
@@ -129,61 +132,63 @@ namespace MiniCarRentalAPI.Controllers
 			return Ok(rental);
 		}
 
-        [HttpPut("rentals/returnCar/{rentalId}")]
-        public async Task<IActionResult> ReturnCar(int rentalId,
+		[HttpPut("rentals/returnCar/{rentalId}")]
+		public async Task<IActionResult> ReturnCar(int rentalId,
 			[FromBody] ReturnCarRequest request)
-        {
+		{
 			var rental = await _context.Rentals.FirstOrDefaultAsync(r => r.ID == rentalId);
 
-            if (rental == null)
-            {
-                return NotFound();
-            }
+			if (rental == null)
+			{
+				return NotFound();
+			}
 
 			var carReturn = _returnFactory.CreateReturn(rentalId, request.Latitude, request.Longitude);
 			rental.RentalStatus = RentalStatus.RETURNED;
 
-            _context.Returns.Add(carReturn);
-            await _context.SaveChangesAsync();
+			_context.Returns.Add(carReturn);
+			await _context.SaveChangesAsync();
 
-            return Ok(carReturn);
-        }
+			return Ok(carReturn);
+		}
 
-        [HttpPut("rentals/acceptReturn/{rentalId}")]
-        public async Task<IActionResult> AcceptReturn(int rentalId,
+		[HttpPut("rentals/acceptReturn/{rentalId}")]
+		public async Task<IActionResult> AcceptReturn(int rentalId,
 			 [FromBody] AcceptReturnRequest request)
-        {
+		{
 			var carReturn = await _context.Returns.FirstOrDefaultAsync(r => r.RentalID == rentalId);
 
-            if (carReturn == null)
-            {
-                return NotFound();
-            }
+			if (carReturn == null)
+			{
+				return NotFound();
+			}
 
 			var acceptation = _acceptationFactory.CreateAcceptation(carReturn, request.EmployeeEmail, request.ReturnDescription);
 
-            var rental = await _context.Rentals.FirstOrDefaultAsync(r => r.ID == rentalId);
+			var rental = await _context.Rentals.Include(r => r.Car).ThenInclude(c => c.Model)
+				.ThenInclude(m => m.Brand).FirstOrDefaultAsync(r => r.ID == rentalId);
 
-            if (rental == null)
-            {
-                return NotFound();
-            }
-            rental.RentalStatus = RentalStatus.CLOSED;
+			if (rental == null)
+			{
+				return NotFound();
+			}
+			rental.RentalStatus = RentalStatus.CLOSED;
 
-            var car = await _context.Cars.FirstOrDefaultAsync(c => c.ID == rental.CarID);
+			var car = await _context.Cars.FirstOrDefaultAsync(c => c.ID == rental.CarID);
 
-            if (car == null)
-            {
-                return NotFound();
-            }
+			if (car == null)
+			{
+				return NotFound();
+			}
 
-            car.Availability = Availability.AVAILABLE;
+			car.Availability = Availability.AVAILABLE;
 
-            _context.Acceptations.Add(acceptation);
-            await _context.SaveChangesAsync();
+			_context.Acceptations.Add(acceptation);
+			_emailService.SendInvoice(rental);
+			await _context.SaveChangesAsync();
 
-            return Ok(acceptation);
-        }
+			return Ok(acceptation);
+		}
 
 		[HttpGet("rentals/{rentalId}")]
 		public async Task<IActionResult> GetRental(int rentalId)
@@ -201,33 +206,33 @@ namespace MiniCarRentalAPI.Controllers
 			return Ok(rental);
 		}
 
-        [HttpGet("rentals/count")]
-        public async Task<IActionResult> GetRentalsCount()
-        {
+		[HttpGet("rentals/count")]
+		public async Task<IActionResult> GetRentalsCount()
+		{
 			var query = _context.Rentals.AsQueryable();
 
-            return Ok(query.Count());
-        }
+			return Ok(query.Count());
+		}
 
-        [HttpGet("rentals")]
-        public async Task<IActionResult> GetRentals(
+		[HttpGet("rentals")]
+		public async Task<IActionResult> GetRentals(
 			[FromQuery] int pageInd = 1,
-            [FromQuery] int pageSize = 1)
-        {
+			[FromQuery] int pageSize = 1)
+		{
 			if (pageInd < 1 || pageSize < 1)
 				return NotFound();
 
 			var query = _context.Rentals.AsQueryable();
-            List<Rental>? rentals;
+			List<Rental>? rentals;
 
 			query = query.OrderByDescending(r => r.ID);
 			query = query.Skip((pageInd - 1) * pageSize);
-            rentals = await query.Include(r => r.Car).Include(r => r.Car.Model).
+			rentals = await query.Include(r => r.Car).Include(r => r.Car.Model).
 				Include(r => r.Car.Model.Brand).Take(pageSize).ToListAsync();
 
-            return Ok(rentals);
-        }
-    }
+			return Ok(rentals);
+		}
+	}
 
 }
 
