@@ -9,36 +9,52 @@ using System.Text;
 
 namespace MiniCarRentalAPI.Services
 {
-    public class AzureBlobService
-    {
-        private readonly BlobServiceClient _blobServiceClient;
+	public class AzureBlobService
+	{
+		private readonly BlobServiceClient _blobServiceClient;
 
-        public AzureBlobService(IOptions<AzureBlobServiceOptions> options)
-        {
-            _blobServiceClient = new (options.Value.ConnectionString);
-        }
+		public AzureBlobService(IOptions<AzureBlobServiceOptions> options)
+		{
+			_blobServiceClient = new(options.Value.ConnectionString);
+		}
 
-        public async Task<string> Upload(byte[] image)
-        {
-            BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient("carimages");
+		public async Task<string> Upload(byte[] image)
+		{
+			BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient("carimages");
 
-            await containerClient.CreateIfNotExistsAsync();
+			await containerClient.CreateIfNotExistsAsync();
 
-            string blobName = Guid.NewGuid().ToString() + ".png";
+			string blobName = Guid.NewGuid().ToString() + ".png";
 
-            BlobClient blobClient = containerClient.GetBlobClient(blobName);
+			BlobClient blobClient = containerClient.GetBlobClient(blobName);
 
-            using (var stream = new MemoryStream(image))
-            {
-                await blobClient.UploadAsync(stream);
-            }
+			using (var stream = new MemoryStream(image))
+			{
+				await blobClient.UploadAsync(stream);
+			}
 
-            return blobClient.Uri.ToString();
-        }
-    }
+			return blobClient.Uri.ToString();
+		}
+		public async Task<byte[]> Download(string url)
+		{
+			Uri uri = new Uri(url);
+			string blobName = uri.Segments.Last();
 
-    public class AzureBlobServiceOptions
-    {
-        public string ConnectionString { get; set; } = string.Empty;
-    }
+			BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient("carimages");
+
+			BlobClient blobClient = containerClient.GetBlobClient(blobName);
+
+			using (var memoryStream = new MemoryStream())
+			{
+				await blobClient.DownloadToAsync(memoryStream);
+				return memoryStream.ToArray();
+			}
+		}
+	}
+
+
+	public class AzureBlobServiceOptions
+	{
+		public string ConnectionString { get; set; } = string.Empty;
+	}
 }

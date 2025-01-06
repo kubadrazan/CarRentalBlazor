@@ -194,8 +194,20 @@ namespace Browser_FrontEnd.Services
 				return null;
 			}
 		}
-
-        public async Task<int> GetRentalsCountAsync()
+		public async Task<byte[]> GetCarImage(int Id)
+		{
+			try
+			{
+				var response = await _httpClient.GetFromJsonAsync<byte[]>($"{_apiA}/api/acceptations/carimage/{Id}");
+				return response;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error fetching rental data: {ex.Message}");
+				return null;
+			}
+		}
+		public async Task<int> GetRentalsCountAsync()
         {
             try
             {
@@ -239,6 +251,21 @@ namespace Browser_FrontEnd.Services
         {
             var acceptReturnRequest = new AcceptReturnRequest(employeeEmail, acceptationDescription, carImage);
             var response = await _httpClient.PutAsJsonAsync<AcceptReturnRequest>($"{_apiA}/api/Rental/rentals/acceptReturn/{rentalId}", acceptReturnRequest);
+        }		
+		public async Task<byte[]> GetImage(int rentalId)
+        {
+			try
+			{
+				var response = await _httpClient.GetFromJsonAsync<byte[]>($"{_apiA}/api/acceptations/carimage/{rentalId}"); 
+				return response;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error fetching rental data: {ex.Message}");
+				return null;
+			}
+
         }
+		
 	}
 }
