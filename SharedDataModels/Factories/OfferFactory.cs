@@ -17,7 +17,7 @@ namespace SharedDataModels.Factories
 				OfferHashID = new Random().Next(1_000_000),
 				CarId = car.ID,
 				IsInsurance = addInsurance,
-				Price = car.InsurancePricePerDay,
+				Price = addInsurance ? car.InsurancePricePerDay : car.PricePerDay,
 				ExpirationDate = DateTime.UtcNow.AddMinutes(10),
 				UserEmail = null
 			};
