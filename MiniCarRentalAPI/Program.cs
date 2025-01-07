@@ -57,7 +57,7 @@ namespace MiniCarRentalAPI
 			);
 			builder.Services.Configure<JsonOptions>(options =>
 				options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
-			builder.Services.Configure<EmailServiceOptions>(options => options.APIKey = builder.Configuration["EmailService:SendGrid:ApiKey"]);
+			builder.Services.Configure<EmailServiceOptions>(options => options.APIKey = builder.Configuration["SendGridApiKey"]);
             builder.Services.Configure<AzureBlobServiceOptions>(options => options.ConnectionString = builder.Configuration["AzureBlobConnectionString"]);
             builder.Services.AddTransient<EmailService>();
 			builder.Services.AddTransient<AcceptationFactory>();

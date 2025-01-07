@@ -36,8 +36,8 @@ namespace MiNICarRentalBrowser
 			.AddCookie()
 			.AddGoogle(googleOptions =>
 			{
-				googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-				googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+				googleOptions.ClientId = builder.Configuration["GoogleClientId"];
+				googleOptions.ClientSecret = builder.Configuration["GoogleClientSecret"];
 			});
 			builder.Services.AddAuthorization(options =>
 			{
