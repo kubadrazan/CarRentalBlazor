@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SharedDataModels
 {
+    [Index(nameof(Email))]
     public class Employee
     {
         public int ID { get; set; }
@@ -21,7 +18,5 @@ namespace SharedDataModels
 
         [EmailAddress(ErrorMessage = "Invalid email address format.")]
         public string Email { get; set; }
-
-        // my nie mamy hasla bo autoryzacja przez oauth chyba xD
     }
 }
