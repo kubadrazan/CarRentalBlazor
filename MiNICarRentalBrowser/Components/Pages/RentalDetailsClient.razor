@@ -34,12 +34,12 @@
 			<p>Loading Rental Details...</p>
 		}
 	</div>
-</div>
-<div class="centered">
-	@if (_rental != null && _rental.RentalStatus == RentalStatus.CLOSED)
-	{
-		<CarImageDisplay rental="_rental" />
-	}
+	<div class="card">
+		@if (_rental != null && _rental.RentalStatus == RentalStatus.CLOSED)
+		{
+			<CarImageDisplay rental="_rental" />
+		}
+	</div>
 </div>
 
 
@@ -80,71 +80,5 @@
 	{
 		await rentalService.ReturnCarAsync(_rental);
 		navigation.NavigateTo(navigation.Uri, forceLoad: true);
-
 	}
 }
-
-<style>
-	.centered {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 20px;
-		padding: 20px;
-		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-		justify-content: center;
-		align-items: flex-start;
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	.container {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 20px;
-		padding: 20px;
-		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-		justify-content: center;
-		align-items: flex-start;
-		max-width: 1200px;
-		margin: 0 auto;
-	}
-
-	.card {
-		border-radius: 12px;
-		padding: 20px;
-		width: 100%;
-		max-width: 450px;
-		box-shadow: 0 10px 20px rgba(186, 104, 200, 0.3), 0 6px 6px rgba(0, 0, 0, 0.1);
-		align-self: center
-	}
-
-		.card h3 {
-			border-bottom: 2px solid #AB47BC;
-			padding-bottom: 8px;
-			margin-bottom: 15px;
-			font-size: 1.3rem;
-		}
-
-		.card p {
-			font-size: 1rem;
-			line-height: 1.6;
-			margin-bottom: 10px;
-		}
-
-	.offer-row {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		margin-bottom: 10px;
-	}
-
-	a {
-		color: #1E90FF;
-		text-decoration: underline;
-		cursor: pointer;
-	}
-
-		a:hover {
-			color: #FF4500;
-		}
-</style>
