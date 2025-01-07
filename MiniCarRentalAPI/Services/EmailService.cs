@@ -16,12 +16,15 @@ namespace MiniCarRentalAPI.Services
 		private readonly PdfGenerationService _pdfGenerationService;
 		private readonly EmailAddress _address;
 		private readonly SendGridMessage _message;
+		private readonly IConfiguration _configuration;
 
-		public EmailService(IOptions<EmailServiceOptions> options, PdfGenerationService pdfGenerationService)
+		public EmailService(IConfiguration configuration, IOptions<EmailServiceOptions> options, PdfGenerationService pdfGenerationService)
 		{
+
 			_client = new SendGridClient(options.Value.APIKey);
 			_address = new EmailAddress("minicarrental@hotmail.com");
 			_pdfGenerationService = pdfGenerationService;
+			_configuration = configuration;
 		}
 
 		public async void SendConfirmationEmail(Offer offer, Car car)
@@ -35,7 +38,7 @@ namespace MiniCarRentalAPI.Services
 				brand = car.Model.Brand.Name,
 				model = car.Model.Name,
 				price = offer.Price.ToString(),
-				callbackUrl = $"https://localhost:7156/rentalconfirmation?offer_id={offer.OfferHashID}" // TODO
+				callbackUrl = $"{_configuration.GetValue<string>("aApiUrl")}/rentalconfirmation?offer_id={offer.OfferHashID}" // TODO
 			});
 			var response = await _client.SendEmailAsync(message);
 		}
