@@ -22,7 +22,7 @@ namespace Browser_FrontEnd.Services
 		{
 			_httpClient = httpClientFactor.CreateClient("ApiKeyClient");
 			_userService = userService;
-			_apiA = configuration.GetValue<string>("ApiUrls:ApiRentalA") ?? throw new Exception("No apiA Url in configuration file!");
+			_apiA = configuration.GetValue<string>("aApiUrl") ?? throw new Exception("No apiA Url in configuration file!");
 		}
 
 		public async Task<List<string>> GetUniqueBrandNamesAsyc()
