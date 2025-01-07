@@ -2,7 +2,6 @@
 @using SharedDataModels
 @using System.Globalization
 @inject RentalServicecs renatalService
-<div class="card">
 	<h3>Returned Car Image</h3>
 	@if (_base64data != null)
 	{
@@ -16,7 +15,6 @@
 			</MudCardContent>
 		</MudCard>
 	}
-</div>
 @code {
 	[Parameter]
 	public required Rental rental { get; set; }
