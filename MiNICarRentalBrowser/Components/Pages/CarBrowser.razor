@@ -2,6 +2,7 @@
 @using SharedDataModels
 @using System.Linq
 @using Browser_FrontEnd.Services
+@using SharedDataModels.DTO;
 @rendermode RenderMode.InteractiveServer
 @inject NavigationManager Navigation
 @inject RentalServicecs rentalService
@@ -134,7 +135,7 @@
     private IEnumerable<string> brandOptions { get; set; } = new HashSet<string>() { };
     private IEnumerable<string> modelOptions { get; set; } = new HashSet<string>() { };
 
-    private List<Car> cars = new List<Car>();
+    private List<SimpleCarDTO> cars = new List<SimpleCarDTO>();
     private List<string> uniqueBrands = new List<string>(); // Lista marek do selectBoxa
     private List<string> uniqueModels = new List<string>(); // Lista modeli do selectBoxa
 
@@ -228,7 +229,7 @@
 
     private RenderFragment<object> RenderMyCard => item =>
     {
-        if (item is Car car)
+        if (item is SimpleCarDTO car)
         {
             return@<MiNICarRentalBrowser.Components.Shared.CarCard car="car" OnButtonClicked="NavigateToCarDetails" buttonText="See offers" imgSrc="car.jpg" />;
         }
