@@ -1,10 +1,10 @@
-﻿@using SharedDataModels
+﻿@using SharedDataModels.DTO
 
 <MudPaper Class="p-4" Style="max-width: 800px; height: 200px; margin: auto" Elevation="4">
     <MudGrid>
         <MudItem xs="7" sm="7">
             <div style="display: flex; flex-direction: column; align-items: flex-start; padding-left: 16px">
-                <MudText Typo="Typo.h5">@car.Model.Brand.Name @car.Model.Name</MudText>
+                <MudText Typo="Typo.h5">@car.BrandName @car.ModelName</MudText>
                 <MudText Typo="Typo.body2" Class="my-1">Production year: @car.ProductionYear</MudText>
                 <MudText Typo="Typo.body2" Class="my-1">No mileage limit</MudText>
             </div>
@@ -22,7 +22,7 @@
 @code {
 
     [Parameter]
-    public required Car car { get; set; }
+    public required SimpleCarDTO car { get; set; }
 
     [Parameter]
     public required string imgSrc { get; set; }

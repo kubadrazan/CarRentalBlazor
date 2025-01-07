@@ -132,7 +132,7 @@ namespace Browser_FrontEnd.Services
 			}
 		}
 
-		public async Task<(List<Car>, int filteredCarsCount)> GetCars(List<string>? brands, List<string>? models, int? pageInd, int pageSize)
+		public async Task<(List<SimpleCarDTO>, int filteredCarsCount)> GetCars(List<string>? brands, List<string>? models, int? pageInd, int pageSize)
 		{
 			var queryParams = CreateQuery(brands, models, pageInd, pageSize);
 
@@ -143,7 +143,7 @@ namespace Browser_FrontEnd.Services
 			if (response != null && response.Cars != null && response.Cars.Any())
 				return (response.Cars, response.TotalCount);
 
-			return (new List<Car>(), 0);
+			return (new List<SimpleCarDTO>(), 0);
 		}
 
 		private string CreateQuery(List<string>? brands, List<string>? models, int? pageInd, int pageSize)
@@ -194,6 +194,7 @@ namespace Browser_FrontEnd.Services
 				return null;
 			}
 		}
+
 		public async Task<byte[]> GetCarImage(int Id)
 		{
 			try
@@ -207,6 +208,7 @@ namespace Browser_FrontEnd.Services
 				return null;
 			}
 		}
+
 		public async Task<int> GetRentalsCountAsync()
         {
             try
@@ -252,6 +254,7 @@ namespace Browser_FrontEnd.Services
             var acceptReturnRequest = new AcceptReturnRequest(employeeEmail, acceptationDescription, carImage);
             var response = await _httpClient.PutAsJsonAsync<AcceptReturnRequest>($"{_apiA}/api/Rental/rentals/acceptReturn/{rentalId}", acceptReturnRequest);
         }		
+
 		public async Task<byte[]> GetImage(int rentalId)
         {
 			try
@@ -266,6 +269,5 @@ namespace Browser_FrontEnd.Services
 			}
 
         }
-		
 	}
 }

@@ -115,7 +115,14 @@ namespace MiniCarRentalAPI.Controllers
             cars = await query.Include(c => c.Model)
                 .ThenInclude(m => m.Brand).Take(pageSize).ToListAsync();
 
-            var result = new PagedCarsResponse() { Cars = cars, TotalCount = allCount };
+            var carsDTO = new List<SimpleCarDTO>();
+            // TODO add mapper
+            foreach (var car in cars)
+            {
+                carsDTO.Add(new SimpleCarDTO { ID = car.ID, BrandName = car.Model.Brand.Name, ModelName = car.Model.Name, ProductionYear = car.ProductionYear });
+            }
+
+            var result = new PagedCarsResponse() { Cars = carsDTO, TotalCount = allCount };
 
             return Ok(result);
         }
@@ -133,7 +140,14 @@ namespace MiniCarRentalAPI.Controllers
             List<Car>? cars;
             cars = await query.Include(c => c.Model).ThenInclude(m => m.Brand).ToListAsync();
 
-            return Ok(cars);
+            List<SimpleCarDTO> carsDTO = new List<SimpleCarDTO>();
+            // TODO add mapper
+            foreach(var car in cars)
+            {
+                carsDTO.Add(new SimpleCarDTO { ID = car.ID, BrandName = car.Model.Brand.Name, ModelName = car.Model.Name, ProductionYear = car.ProductionYear });
+            }
+
+            return Ok(carsDTO);
         }
     }
 }
