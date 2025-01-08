@@ -18,7 +18,7 @@ namespace SharedDataModels.Factories
 				CarId = car.ID,
 				IsInsurance = addInsurance,
 				Price = addInsurance ? car.InsurancePricePerDay : car.PricePerDay,
-				ExpirationDate = DateTime.UtcNow.AddMinutes(10),
+				ExpirationDate = DateTime.Now.AddMinutes(10),
 				UserEmail = null
 			};
 		}

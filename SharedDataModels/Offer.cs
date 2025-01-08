@@ -10,6 +10,7 @@ namespace SharedDataModels
 	public class Offer
 	{
 		public int ID {  get; set; }
+
         public int OfferHashID { get; set; }
 
         public bool IsInsurance { get; set; }
@@ -23,6 +24,5 @@ namespace SharedDataModels
 
         [EmailAddress(ErrorMessage = "Invalid email address format.")]
         public string? UserEmail { get; set; }
-
-    }
+	}
 }
