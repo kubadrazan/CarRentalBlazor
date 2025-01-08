@@ -49,5 +49,15 @@ namespace MiNICarRentalBrowser.Services.Car_Service
         {
             return _carRepository.GetFilteredCarsCount(brands, models);
         }
+
+        public async Task<List<string>> GetUniqueBrands()
+        {
+            return await _carRepository.GetUniqueBrandsAsync();
+        }
+
+        public async Task<List<string>> GetUniqueModels()
+        {
+            return await _carRepository.GetUniqueModelsAsync();
+        }
     }
 }

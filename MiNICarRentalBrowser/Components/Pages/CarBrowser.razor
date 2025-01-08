@@ -147,10 +147,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await base.OnInitializedAsync();
+        uniqueBrands = await aggregatedCarService.GetUniqueBrands();
+        uniqueModels = await aggregatedCarService.GetUniqueModels();
 
-        uniqueBrands = await rentalService.GetUniqueBrandNamesAsyc();
-        uniqueModels = await rentalService.GetUniqueModelNamesAsyc();
+        await base.OnInitializedAsync();
     }
 
     protected override async Task OnParametersSetAsync()

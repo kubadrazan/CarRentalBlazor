@@ -9,6 +9,8 @@ namespace MiNICarRentalBrowser.Data
         Task UpdateCarsAsync(List<CarCache> cars);
         Task<List<CarCache>> GetFilteredCarsAsync(List<string> brands, List<string> models, int pageInd = 1, int pageSize = 1);
         int GetFilteredCarsCount(List<string> brands, List<string> models);
+        Task<List<string>> GetUniqueBrandsAsync();
+        Task<List<string>> GetUniqueModelsAsync();
     }
 
     public class CarRepository : ICarRepository
@@ -70,6 +72,18 @@ namespace MiNICarRentalBrowser.Data
                 query = query.Where(car => models.Contains(car.ModelName));
 
             return query.Count();
+        }
+
+        public async Task<List<string>> GetUniqueBrandsAsync()
+        {
+            return await _context.CarsCache.Select(c =>  c.BrandName)
+                .Distinct().ToListAsync();
+        }
+
+        public async Task<List<string>> GetUniqueModelsAsync()
+        {
+            return await _context.CarsCache.Select(c => c.ModelName)
+                .Distinct().ToListAsync();
         }
     }
 }
