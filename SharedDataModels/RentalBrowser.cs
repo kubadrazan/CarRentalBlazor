@@ -17,7 +17,7 @@ namespace SharedDataModels
 
         public int ApiID { get; set; }
 
-        public int SourceAPI { get; set; }
+        public int SourceApiID { get; set; }
 
         public User User { get; set; }
     }

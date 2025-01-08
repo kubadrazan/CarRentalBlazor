@@ -12,6 +12,7 @@ namespace MiNICarRentalBrowser.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<RentalBrowser> Rentals { get; set; }
+        public DbSet<CarCache> CarsCache { get; set; }
     }
 }
 
