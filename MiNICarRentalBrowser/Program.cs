@@ -21,8 +21,13 @@ namespace MiNICarRentalBrowser
 			var builder = WebApplication.CreateBuilder(args);
 			// AzureKeyVault
 			builder.Configuration.AddAzureKeyVault(new Uri(builder.Configuration.GetValue<string>("KeyVault:https")), new DefaultAzureCredential());
+#if DEBUG
+			builder.Services.AddDbContext<UsersContext>(options =>
+				options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+#else
 			builder.Services.AddDbContext<UsersContext>(options =>
 				options.UseSqlServer(builder.Configuration["UsersDBConnectionString"]));
+#endif
 
 			builder.Services.AddScoped<UserValidationService>();
 			builder.Services.AddScoped<EmployeeValidationService>();

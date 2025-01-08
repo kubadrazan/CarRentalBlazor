@@ -51,10 +51,13 @@ namespace MiniCarRentalAPI
             // AzureKeyVault
             builder.Configuration.AddAzureKeyVault(new Uri(builder.Configuration.GetValue<string>("KeyVault:https")), new DefaultAzureCredential());
 
-            // TODO Change to AddDbContextFactory??
-            builder.Services.AddDbContext<CarRentalContext>(options =>
-				options.UseSqlServer(builder.Configuration["CarRentalDBConnectionString"])
-			);
+#if DEBUG
+			builder.Services.AddDbContext<CarRentalContext>(options =>
+				options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+#else
+			builder.Services.AddDbContext<CarRentalContext>(options =>
+				options.UseSqlServer(builder.Configuration["CarRentalDBConnectionString"]));
+#endif
 			builder.Services.Configure<JsonOptions>(options =>
 				options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 			builder.Services.Configure<EmailServiceOptions>(options => options.APIKey = builder.Configuration["SendGridApiKey"]);
