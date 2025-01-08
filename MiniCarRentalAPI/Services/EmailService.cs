@@ -17,6 +17,7 @@ namespace MiniCarRentalAPI.Services
 		private readonly EmailAddress _address;
 		private readonly SendGridMessage _message;
 		private readonly IConfiguration _configuration;
+		private readonly string _apiA;
 
 		public EmailService(IConfiguration configuration, IOptions<EmailServiceOptions> options, PdfGenerationService pdfGenerationService)
 		{
@@ -25,6 +26,11 @@ namespace MiniCarRentalAPI.Services
 			_address = new EmailAddress("minicarrental@hotmail.com");
 			_pdfGenerationService = pdfGenerationService;
 			_configuration = configuration;
+#if DEBUG
+			_apiA = configuration.GetValue<string>("ApiUrls:ApiBrowserA") ?? throw new Exception("No apiA Url in configuration file!");
+#else
+			_apiA = configuration.GetValue<string>("aApiUrl") ?? throw new Exception("No apiA Url in configuration file!");
+#endif
 		}
 
 		public async void SendConfirmationEmail(Offer offer, Car car)
@@ -38,7 +44,7 @@ namespace MiniCarRentalAPI.Services
 				brand = car.Model.Brand.Name,
 				model = car.Model.Name,
 				price = offer.Price.ToString(),
-				callbackUrl = $"{_configuration.GetValue<string>("aApiUrl")}/rentalconfirmation?offer_id={offer.OfferHashID}" // TODO
+				callbackUrl = $"{_apiA}/rentalconfirmation?offer_id={offer.OfferGuid}" // TODO
 			});
 			var response = await _client.SendEmailAsync(message);
 		}

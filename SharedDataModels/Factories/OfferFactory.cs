@@ -14,7 +14,7 @@ namespace SharedDataModels.Factories
 		{
 			return new Offer()
 			{
-				OfferHashID = new Random().Next(1_000_000),
+				OfferGuid = Guid.NewGuid(),
 				CarId = car.ID,
 				IsInsurance = addInsurance,
 				Price = addInsurance ? car.InsurancePricePerDay : car.PricePerDay,

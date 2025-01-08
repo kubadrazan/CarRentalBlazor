@@ -6,7 +6,7 @@
 @code {
 	[Parameter]
 	[SupplyParameterFromQuery(Name = "offer_id")]
-	public int offerId { get; set; }
+	public Guid offerId { get; set; }
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{

@@ -101,11 +101,11 @@ namespace Browser_FrontEnd.Services
 			}
 		}
 
-		public async Task<string> ConfirmOffer(int offerId)
+		public async Task<string> ConfirmOffer(Guid offerId)
 		{
 			try
 			{
-				var response = await _httpClient.PutAsJsonAsync<int>($"{_apiA}/api/Rental/offers/acceptOffer", offerId);
+				var response = await _httpClient.PutAsJsonAsync<Guid>($"{_apiA}/api/Rental/offers/acceptOffer", offerId);
 				await _userService.AcceptOfferAsync(await response.Content.ReadFromJsonAsync<Rental>());
 
 				return await response.Content.ReadAsStringAsync();

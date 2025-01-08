@@ -11,7 +11,7 @@ namespace SharedDataModels
 	{
 		public int ID {  get; set; }
 
-        public int OfferHashID { get; set; }
+		public Guid OfferGuid { get; set; }
 
         public bool IsInsurance { get; set; }
 
