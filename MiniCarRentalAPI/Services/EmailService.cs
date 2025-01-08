@@ -29,7 +29,7 @@ namespace MiniCarRentalAPI.Services
 #if DEBUG
 			_apiA = configuration.GetValue<string>("ApiUrls:ApiBrowserA") ?? throw new Exception("No apiA Url in configuration file!");
 #else
-			_apiA = configuration.GetValue<string>("aApiUrl") ?? throw new Exception("No apiA Url in configuration file!");
+			_apiA = configuration.GetValue<string>("aApiUrl") ?? throw new Exception("No apiA Url in Azure key vault!");
 #endif
 		}
 
