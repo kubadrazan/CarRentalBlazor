@@ -2,10 +2,12 @@
 @using SharedDataModels
 @using System.Linq
 @using Browser_FrontEnd.Services
-@using SharedDataModels.DTO;
+@using SharedDataModels.DTO
+@using MiNICarRentalBrowser.Services.Car_Service
 @rendermode RenderMode.InteractiveServer
 @inject NavigationManager Navigation
 @inject RentalServicecs rentalService
+@inject AggregatedCarService aggregatedCarService
 
 <MudContainer>
     <MudGrid>
@@ -108,7 +110,7 @@
         <!-- Lista aut -->
         <MudItem xs="12" sm="12" md="8">
             <MiNICarRentalBrowser.Components.Shared.ItemListWithLoading collection="cars" collectionCount="filteredCarsCount" isLoading="isLoading"
-             collectionSummaryText="Available cars:" emptyCollectionText="There are no result matching your criteria." RenderCard="RenderMyCard" />
+            collectionSummaryText="Available cars:" emptyCollectionText="There are no result matching your criteria." RenderCard="RenderMyCard" />
         </MudItem>
     </MudGrid>
 </MudContainer>
@@ -135,7 +137,7 @@
     private IEnumerable<string> brandOptions { get; set; } = new HashSet<string>() { };
     private IEnumerable<string> modelOptions { get; set; } = new HashSet<string>() { };
 
-    private List<SimpleCarDTO> cars = new List<SimpleCarDTO>();
+    private List<CarCache> cars = new List<CarCache>();
     private List<string> uniqueBrands = new List<string>(); // Lista marek do selectBoxa
     private List<string> uniqueModels = new List<string>(); // Lista modeli do selectBoxa
 
@@ -163,7 +165,8 @@
         if (pageInd == null || pageInd < 0)
             pageInd = 1;
 
-        (cars, filteredCarsCount) = await rentalService.GetCars(brandOptions.ToList(), modelOptions.ToList(), pageInd, pageSize);
+        filteredCarsCount = aggregatedCarService.GetFilteredCarsCount(brandOptions.ToList(), modelOptions.ToList());
+        cars = await aggregatedCarService.GetFilteredCars(brandOptions.ToList(), modelOptions.ToList(), pageInd, pageSize);
 
         if (filteredCarsCount % pageSize == 0 && filteredCarsCount != 0)
             pagesCount = filteredCarsCount / pageSize;
@@ -229,7 +232,7 @@
 
     private RenderFragment<object> RenderMyCard => item =>
     {
-        if (item is SimpleCarDTO car)
+        if (item is CarCache car)
         {
             return@<MiNICarRentalBrowser.Components.Shared.CarCard car="car" OnButtonClicked="NavigateToCarDetails" buttonText="See offers" imgSrc="car.jpg" />;
         }

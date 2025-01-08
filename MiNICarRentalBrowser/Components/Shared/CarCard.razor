@@ -1,4 +1,4 @@
-﻿@using SharedDataModels.DTO
+﻿@using SharedDataModels
 
 <MudPaper Class="p-4" Style="max-width: 800px; height: 200px; margin: auto" Elevation="4">
     <MudGrid>
@@ -12,7 +12,7 @@
         <MudItem xs="5" sm="5">
             <div style="display: flex; flex-direction: column; align-items: flex-end; padding-right: 16px">
                 <MudImage Src=@imgSrc Style="width: 100px; height: 100px; object-fit: cover;" />
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="() => OnButtonClicked(car.ID)">@buttonText</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="() => OnButtonClicked(car.CarID)">@buttonText</MudButton>
             </div>
         </MudItem>
     </MudGrid>
@@ -22,7 +22,7 @@
 @code {
 
     [Parameter]
-    public required SimpleCarDTO car { get; set; }
+    public required CarCache car { get; set; }
 
     [Parameter]
     public required string imgSrc { get; set; }
