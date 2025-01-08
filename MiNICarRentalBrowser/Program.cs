@@ -109,8 +109,8 @@ namespace MiNICarRentalBrowser
 			RecurringJob.AddOrUpdate<AggregatedCarService>(
 				"update-car-data",
 				service => service.UpdateCarsInDBAsync(),
-				Cron.Hourly(30)
-				);
+                "*/30 * * * *"
+                );
 			app.Run();
 		}
 	}

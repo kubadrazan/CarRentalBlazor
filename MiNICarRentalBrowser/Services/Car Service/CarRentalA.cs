@@ -26,7 +26,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
             {
                 foreach (var car in response)
                 {
-                    result.Add(new CarCache() { ID = car.ID, BrandName = car.BrandName, ModelName = car.ModelName, ProductionYear = car.ProductionYear, SourceApiID = _apiID });
+                    result.Add(new CarCache() { CarID = car.ID, BrandName = car.BrandName, ModelName = car.ModelName, ProductionYear = car.ProductionYear, SourceApiID = _apiID });
                 }
             }
 
