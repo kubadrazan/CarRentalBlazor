@@ -12,8 +12,8 @@ namespace MiNICarRentalBrowser.Services
 		{
 			_serviceMap = new Dictionary<int, Func<ICarRental>>
 			{
-				{ 1, () => serviceProvider.GetRequiredService<CarRentalA>() },
-				{ 2, () => serviceProvider.GetRequiredService<CarRentalB>() },
+				{ 0, () => serviceProvider.GetRequiredService<CarRentalA>() },
+				{ 1, () => serviceProvider.GetRequiredService<CarRentalB>() },
 			};
 		}
 

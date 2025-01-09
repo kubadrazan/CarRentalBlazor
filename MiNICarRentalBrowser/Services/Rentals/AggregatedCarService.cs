@@ -69,89 +69,64 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			return await _carRepository.GetBrandsModelsAsync();
 		}
 
-		public Task<List<CarCache>> GetCarsAsync()
-		{
-			return _carRentalServiceFactory.GetService(1).GetCarsAsync();
-		}
-
-		public Task<List<string>> GetUniqueBrandNamesAsyc()
-		{
-			return _carRentalServiceFactory.GetService(1).GetUniqueBrandNamesAsyc();
-		}
-
-		public Task<List<string>> GetUniqueModelNamesAsyc()
-		{
-			return _carRentalServiceFactory.GetService(1).GetUniqueModelNamesAsyc();
-		}
-
-		public Task<List<BrandModelDTO>> GetBrandsModelsNamesAsyc()
-		{
-			return _carRentalServiceFactory.GetService(1).GetBrandsModelsNamesAsyc();
-		}
-
 		public Task<Car> GetCarDetailsAsync(int carId)
 		{
-			return _carRentalServiceFactory.GetService(1).GetCarDetailsAsync(carId);
+			return _carRentalServiceFactory.GetService(0).GetCarDetailsAsync(carId);
 		}
 
 		public Task<List<Offer>> GetOffersAsync(int carId)
 		{
-			return _carRentalServiceFactory.GetService(1).GetOffersAsync(carId);
+			return _carRentalServiceFactory.GetService(0).GetOffersAsync(carId);
 		}
 
 		public Task<string> ConfirmOffer(Guid offerId)
 		{
-			return _carRentalServiceFactory.GetService(1).ConfirmOffer(offerId);
+			return _carRentalServiceFactory.GetService(0).ConfirmOffer(offerId);
 		}
 
 		public Task<string> ChooseOffer(int offerid, string emailAddress)
 		{
-			return _carRentalServiceFactory.GetService(1).ChooseOffer(offerid, emailAddress);
-		}
-
-		public Task<(List<SimpleCarDTO>, int filteredCarsCount)> GetCars(List<string>? brands, List<string>? models, int? pageInd, int pageSize)
-		{
-			return _carRentalServiceFactory.GetService(1).GetCars(brands, models, pageInd, pageSize);
+			return _carRentalServiceFactory.GetService(0).ChooseOffer(offerid, emailAddress);
 		}
 
 		public Task<Rental> GetRentalAsync(RentalBrowser rentalBrowser)
 		{
-			return _carRentalServiceFactory.GetService(1).GetRentalAsync(rentalBrowser);
+			return _carRentalServiceFactory.GetService(0).GetRentalAsync(rentalBrowser);
 		}
 
 		public Task<Rental> GetRentalAsync(int Id)
 		{
-			return _carRentalServiceFactory.GetService(1).GetRentalAsync(Id);
+			return _carRentalServiceFactory.GetService(0).GetRentalAsync(Id);
 		}
 
 		public Task<byte[]> GetCarImage(int Id)
 		{
-			return _carRentalServiceFactory.GetService(1).GetCarImage(Id);
+			return _carRentalServiceFactory.GetService(0).GetCarImage(Id);
 		}
 
 		public Task<int> GetRentalsCountAsync()
 		{
-			return _carRentalServiceFactory.GetService(1).GetRentalsCountAsync();
+			return _carRentalServiceFactory.GetService(0).GetRentalsCountAsync();
 		}
 
 		public Task<List<Rental>> GetRentalsAsync(int? pageInd, int pageSize = 15)
 		{
-			return _carRentalServiceFactory.GetService(1).GetRentalsAsync(pageInd, pageSize);
+			return _carRentalServiceFactory.GetService(0).GetRentalsAsync(pageInd, pageSize);
 		}
 
 		public Task ReturnCarAsync(Rental rental)
 		{
-			return _carRentalServiceFactory.GetService(1).ReturnCarAsync(rental);
+			return _carRentalServiceFactory.GetService(0).ReturnCarAsync(rental);
 		}
 
 		public Task AcceptCarReturn(int rentalId, string employeeEmail, string acceptationDescription, string carImage)
 		{
-			return _carRentalServiceFactory.GetService(1).AcceptCarReturn(rentalId, employeeEmail, acceptationDescription, carImage);
+			return _carRentalServiceFactory.GetService(0).AcceptCarReturn(rentalId, employeeEmail, acceptationDescription, carImage);
 		}
 
 		public Task<byte[]> GetImage(int rentalId)
 		{
-			return _carRentalServiceFactory.GetService(1).GetImage(rentalId);
+			return _carRentalServiceFactory.GetService(0).GetImage(rentalId);
 		}
 	}
 }

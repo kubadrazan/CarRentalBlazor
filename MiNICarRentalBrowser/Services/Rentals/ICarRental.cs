@@ -8,14 +8,10 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 	public interface ICarRental
 	{
 		Task<List<CarCache>> GetCarsAsync();
-		Task<List<string>> GetUniqueBrandNamesAsyc();
-		Task<List<string>> GetUniqueModelNamesAsyc();
-		Task<List<BrandModelDTO>> GetBrandsModelsNamesAsyc();
 		Task<Car> GetCarDetailsAsync(int carId);
 		Task<List<Offer>> GetOffersAsync(int carId);
 		Task<string> ConfirmOffer(Guid offerId);
 		Task<string> ChooseOffer(int offerid, string emailAddress);
-		Task<(List<SimpleCarDTO>, int filteredCarsCount)> GetCars(List<string>? brands, List<string>? models, int? pageInd, int pageSize);
 		Task<Rental> GetRentalAsync(RentalBrowser rentalBrowser);
 		Task<Rental> GetRentalAsync(int Id);
 		Task<byte[]> GetCarImage(int Id);

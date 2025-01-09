@@ -33,22 +33,12 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			throw new NotImplementedException();
 		}
 
-		public Task<List<BrandModelDTO>> GetBrandsModelsNamesAsyc()
-		{
-			throw new NotImplementedException();
-		}
-
 		public Task<Car> GetCarDetailsAsync(int carId)
 		{
 			throw new NotImplementedException();
 		}
 
 		public Task<byte[]> GetCarImage(int Id)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<(List<SimpleCarDTO>, int filteredCarsCount)> GetCars(List<string>? brands, List<string>? models, int? pageInd, int pageSize)
 		{
 			throw new NotImplementedException();
 		}
@@ -96,16 +86,6 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 		}
 
 		public Task<int> GetRentalsCountAsync()
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<List<string>> GetUniqueBrandNamesAsyc()
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<List<string>> GetUniqueModelNamesAsyc()
 		{
 			throw new NotImplementedException();
 		}

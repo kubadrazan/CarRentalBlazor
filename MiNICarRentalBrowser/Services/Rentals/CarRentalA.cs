@@ -42,48 +42,6 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 
 			return result;
 		}
-		public async Task<List<string>> GetUniqueBrandNamesAsyc()
-		{
-			try
-			{
-				var response = await _httpClient.GetFromJsonAsync<List<string>>($"{_apiUrl}/api/Cars/brands");
-				return response ?? new List<string>();
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"Error fetching car data: {ex.Message}");
-				return new List<string>();
-			}
-		}
-		public async Task<List<string>> GetUniqueModelNamesAsyc()
-		{
-			try
-			{
-				var response = await _httpClient.GetFromJsonAsync<List<string>>($"{_apiUrl}/api/Cars/models");
-				return response ?? new List<string>();
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"Error fetching car data: {ex.Message}");
-				return new List<string>();
-			}
-		}
-
-		public async Task<List<BrandModelDTO>> GetBrandsModelsNamesAsyc()
-		{
-			try
-			{
-				var response = await _httpClient.GetFromJsonAsync<List<BrandModelDTO>>(
-					$"{_apiUrl}/api/Cars/brandsModels"
-					);
-				return response ?? new List<BrandModelDTO>();
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"Error fetching car data: {ex.Message}");
-				return new List<BrandModelDTO>();
-			}
-		}
 
 		public async Task<Car> GetCarDetailsAsync(int carId)
 		{
@@ -146,41 +104,6 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 				Console.WriteLine($"Error sending email");
 				throw;
 			}
-		}
-
-		public async Task<(List<SimpleCarDTO>, int filteredCarsCount)> GetCars(List<string>? brands, List<string>? models, int? pageInd, int pageSize)
-		{
-			var queryParams = CreateQuery(brands, models, pageInd, pageSize);
-
-			var urlA = $"{_apiUrl}/api/Cars?{queryParams}";
-
-			var response = await _httpClient.GetFromJsonAsync<PagedCarsResponse>(urlA);
-
-			if (response != null && response.Cars != null && response.Cars.Any())
-				return (response.Cars, response.TotalCount);
-
-			return (new List<SimpleCarDTO>(), 0);
-		}
-
-		private string CreateQuery(List<string>? brands, List<string>? models, int? pageInd, int pageSize)
-		{
-			var queryParams = new List<string>();
-
-			if (brands != null && brands.Any())
-				foreach (var brand in brands)
-					queryParams.Add($"brands={brand}");
-
-			if (models != null && models.Any())
-				foreach (var model in models)
-					queryParams.Add($"models={model}");
-
-			if (pageInd == null || pageInd < 1)
-				pageInd = 1;
-
-			queryParams.Add($"pageInd={pageInd}");
-			queryParams.Add($"pageSize={pageSize}");
-
-			return string.Join("&", queryParams);
 		}
 
 		public async Task<Rental> GetRentalAsync(RentalBrowser rentalBrowser)
