@@ -1,12 +1,12 @@
 ﻿@page "/CarToRentDetails/{apiID:int}/{carID:int}"
-@using Browser_FrontEnd.Services
 @using MiNICarRentalBrowser.Components.Components
+@using MiNICarRentalBrowser.Services.Car_Service
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using SharedDataModels
 @using System.Security.Claims
 @rendermode InteractiveServer
-@inject RentalServicecs renatalService
+@inject AggregatedCarService aggregatedCarService
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject NavigationManager navigation
 <div class="container">
@@ -67,10 +67,10 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await base.OnInitializedAsync();
-		_car = await renatalService.GetCarDetailsAsync(carID);
+		_car = await aggregatedCarService.GetCarDetailsAsync(carID);
 		_isCarLoaded = true;
 
-		_offers = await renatalService.GetOffersAsync(carID);
+		_offers = await aggregatedCarService.GetOffersAsync(carID);
 
 		_areOffersLoaded = true;
 	}
@@ -82,7 +82,7 @@
 		if (user.Identity != null && user.Identity.IsAuthenticated)
 		{
 			var email = user.FindFirstValue(ClaimTypes.Email);
-			var result = await renatalService.ChooseOffer(offerID, email);
+			var result = await aggregatedCarService.ChooseOffer(offerID, email);
 			if (result == "Error")
 				navigation.NavigateTo("/error-page/");
 			navigation.NavigateTo("/check-mail");

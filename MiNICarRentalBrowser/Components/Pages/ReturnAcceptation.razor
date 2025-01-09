@@ -1,15 +1,15 @@
 ﻿@page "/acceptReturn/{rentalId:int}"
 @attribute [Authorize(Policy = "RegisteredPolicy")]
 
+@using MiNICarRentalBrowser.Services.Car_Service
 @using MudBlazor
 @using System.Threading
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims
-@using Browser_FrontEnd.Services
 @using SharedDataModels
 @inject NavigationManager Navigation
-@inject RentalServicecs rentalService
+@inject AggregatedCarService rentalService
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject Services.IUserService UserService
 

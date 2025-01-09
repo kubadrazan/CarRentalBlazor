@@ -4,11 +4,12 @@ using MiniCarRentalAPI.Data;
 using MiniCarRentalAPI.Services;
 using SharedDataModels;
 using SharedDataModels.Factories;
+using SharedDataModels.Requests;
 using System;
 
 namespace MiniCarRentalAPI.Controllers
 {
-	[Route("api/[controller]")]
+    [Route("api/[controller]")]
 	[ApiController]
 	public class RentalController : ControllerBase
 	{
@@ -30,35 +31,6 @@ namespace MiniCarRentalAPI.Controllers
 			_acceptationFactory = acceptationFactory;
 			_azureBlobService = azureBlobService;
 		}
-
-		// generate one offer based on metadata
-		// GET: api/Cars/offers/5
-		//[HttpGet("offer/")]
-		//public async Task<IActionResult> GetCarOffer(
-		//	[FromQuery] int carId,
-		//	[FromQuery] bool isInsurance,
-		//	[FromQuery] int userId)
-		//{
-		//	var offer = await _context.Cars
-		//		.Select(c => new Offer()
-		//		{
-		//                  OfferHashID = new Random().Next(1_000_000),
-		//			CarId = carId,
-		//			IsInsurance = isInsurance,
-		//			Price = isInsurance ? c.InsurancePricePerDay : c.PricePerDay,
-		//			ExpirationDate = DateTime.UtcNow.AddMinutes(10),
-		//			UserID = userId
-		//		})
-		//		.FirstOrDefaultAsync(c => c.CarId == carId);
-
-		//	if (offer == null)
-		//	{
-		//		return NotFound();
-		//	}
-
-		//	return Ok(offer);
-		//}
-
 
 		[HttpGet("offers/{carId}")]
 		public async Task<IActionResult> GetCarOffers(int carId)
@@ -104,13 +76,13 @@ namespace MiniCarRentalAPI.Controllers
 
 			_emailService.SendConfirmationEmail(offer, car);
 
-			return Ok($"Sent offer {offer.OfferHashID} to  '{emailAddress}'.");
+			return Ok($"Sent offer {offer.OfferGuid} to  '{emailAddress}'.");
 		}
 
 		[HttpPut("offers/acceptOffer")]
-		public async Task<IActionResult> AcceptOffer([FromBody] int offerId)
+		public async Task<IActionResult> AcceptOffer([FromBody] Guid offerId)
 		{
-			var offer = await _context.Offers.FirstOrDefaultAsync(f => f.OfferHashID == offerId);
+			var offer = await _context.Offers.FirstOrDefaultAsync(f => f.OfferGuid == offerId);
 
 			if (offer == null || offer.UserEmail is null)
 			{
@@ -123,6 +95,8 @@ namespace MiniCarRentalAPI.Controllers
 			{
 				return NotFound();
 			}
+
+			if (car.Availability != Availability.AVAILABLE) return UnprocessableEntity();
 
 			car.Availability = Availability.NOT_AVAILABLE;
 

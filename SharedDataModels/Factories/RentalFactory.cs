@@ -18,8 +18,7 @@ namespace SharedDataModels.Factories
 				SourceAPI = 0,
 				PricePerDay = offer.Price,
 				IsInsurance = offer.IsInsurance,
-				RentalStatus = RentalStatus.ACTIVE,
-				OfferHashID = offer.OfferHashID
+				RentalStatus = RentalStatus.ACTIVE
 			};
 		}
 	}

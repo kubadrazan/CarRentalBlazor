@@ -1,5 +1,4 @@
 using Azure.Identity;
-using Browser_FrontEnd.Services;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -8,6 +7,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.EntityFrameworkCore;
+using MiNICarRentalBrowser.ApiKey;
 using MiNICarRentalBrowser.Components;
 using MiNICarRentalBrowser.Data;
 using MiNICarRentalBrowser.Services;
@@ -23,8 +23,13 @@ namespace MiNICarRentalBrowser
 			var builder = WebApplication.CreateBuilder(args);
 			// AzureKeyVault
 			builder.Configuration.AddAzureKeyVault(new Uri(builder.Configuration.GetValue<string>("KeyVault:https")), new DefaultAzureCredential());
+#if DEBUG
+			builder.Services.AddDbContext<UsersContext>(options =>
+				options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+#else
 			builder.Services.AddDbContext<UsersContext>(options =>
 				options.UseSqlServer(builder.Configuration["UsersDBConnectionString"]));
+#endif
 
 			builder.Services.AddScoped<UserValidationService>();
 			builder.Services.AddScoped<EmployeeValidationService>();
@@ -59,7 +64,11 @@ namespace MiNICarRentalBrowser
 
 			builder.Services.AddHangfire(config =>
 			{
+#if DEBUG
+				config.UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection"));
+#else
 				config.UseSqlServerStorage(builder.Configuration["UsersDBConnectionString"]);
+#endif
 			});
 
 			builder.Services.AddHangfireServer();
@@ -75,12 +84,12 @@ namespace MiNICarRentalBrowser
             builder.Services.AddHttpClient("ApiKeyClient")
 					.AddHttpMessageHandler<CustomHttpMessageHandler>();
 
-			builder.Services.AddScoped<RentalServicecs>();
 			builder.Services.AddScoped<IUserService, UserServices>();
+			builder.Services.AddTransient<CarRentalServiceFactory>();
 
 			builder.Services.AddScoped<ICarRental, CarRentalA>();
             //builder.Services.AddScoped<ICarRental, CarRentalB>();
-            builder.Services.AddScoped<AggregatedCarService>();
+            builder.Services.AddScoped<Services.Car_Service.AggregatedCarService>();
 
 			var app = builder.Build();
 
@@ -108,7 +117,7 @@ namespace MiNICarRentalBrowser
             app.MapRazorComponents<App>()
 				.AddInteractiveServerRenderMode();
 
-			RecurringJob.AddOrUpdate<AggregatedCarService>(
+			RecurringJob.AddOrUpdate<Services.Car_Service.AggregatedCarService>(
 				"update-car-data",
 				service => service.UpdateCarsInDBAsync(),
                 "*/30 * * * *"

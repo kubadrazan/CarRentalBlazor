@@ -1,12 +1,12 @@
 ﻿@page "/rentalconfirmation"
-@using Browser_FrontEnd.Services
-@inject RentalServicecs renatalService
+@using MiNICarRentalBrowser.Services.Car_Service
+@inject AggregatedCarService aggregatedCarService
 <h3>RentalConfirmation</h3>
 
 @code {
 	[Parameter]
 	[SupplyParameterFromQuery(Name = "offer_id")]
-	public int offerId { get; set; }
+	public Guid offerId { get; set; }
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
@@ -14,7 +14,7 @@
 
 		if (firstRender)
 		{
-			await renatalService.ConfirmOffer(offerId);
+			await aggregatedCarService.ConfirmOffer(offerId);
 		}
 	}
 }

@@ -1,4 +1,6 @@
-﻿namespace MiNICarRentalBrowser
+﻿using MiNICarRentalBrowser.ApiKey;
+
+namespace MiNICarRentalBrowser
 {
 	public class CustomHttpMessageHandler : DelegatingHandler
 	{

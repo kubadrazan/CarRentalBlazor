@@ -22,7 +22,5 @@ namespace MiniCarRentalAPI.Data
 
         public DbSet<Description> Descriptions { get; set; }
 
-        // todo add other tables: Image
-
     }
 }
