@@ -22,7 +22,11 @@ namespace Browser_FrontEnd.Services
 		{
 			_httpClient = httpClientFactor.CreateClient("ApiKeyClient");
 			_userService = userService;
-			_apiA = configuration.GetValue<string>("aApiUrl") ?? throw new Exception("No apiA Url in configuration file!");
+#if DEBUG
+			_apiA = configuration.GetValue<string>("ApiUrls:ApiRentalA") ?? throw new Exception("No apiA Url in configuration file!");
+#else
+			_apiA = configuration.GetValue<string>("aApiUrl") ?? throw new Exception("No apiA Url in Azure key vault!");
+#endif
 		}
 
 		public async Task<List<string>> GetUniqueBrandNamesAsyc()
@@ -97,11 +101,11 @@ namespace Browser_FrontEnd.Services
 			}
 		}
 
-		public async Task<string> ConfirmOffer(int offerId)
+		public async Task<string> ConfirmOffer(Guid offerId)
 		{
 			try
 			{
-				var response = await _httpClient.PutAsJsonAsync<int>($"{_apiA}/api/Rental/offers/acceptOffer", offerId);
+				var response = await _httpClient.PutAsJsonAsync<Guid>($"{_apiA}/api/Rental/offers/acceptOffer", offerId);
 				await _userService.AcceptOfferAsync(await response.Content.ReadFromJsonAsync<Rental>());
 
 				return await response.Content.ReadAsStringAsync();

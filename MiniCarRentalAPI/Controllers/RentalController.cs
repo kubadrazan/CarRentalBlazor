@@ -104,13 +104,13 @@ namespace MiniCarRentalAPI.Controllers
 
 			_emailService.SendConfirmationEmail(offer, car);
 
-			return Ok($"Sent offer {offer.OfferHashID} to  '{emailAddress}'.");
+			return Ok($"Sent offer {offer.OfferGuid} to  '{emailAddress}'.");
 		}
 
 		[HttpPut("offers/acceptOffer")]
-		public async Task<IActionResult> AcceptOffer([FromBody] int offerId)
+		public async Task<IActionResult> AcceptOffer([FromBody] Guid offerId)
 		{
-			var offer = await _context.Offers.FirstOrDefaultAsync(f => f.OfferHashID == offerId);
+			var offer = await _context.Offers.FirstOrDefaultAsync(f => f.OfferGuid == offerId);
 
 			if (offer == null || offer.UserEmail is null)
 			{

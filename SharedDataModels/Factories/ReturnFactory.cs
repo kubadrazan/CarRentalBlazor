@@ -12,7 +12,7 @@ namespace SharedDataModels.Factories
 		{
 			return new Return
 			{
-				ReturnDate = DateTime.UtcNow,
+				ReturnDate = DateTime.Now,
 				RentalID = rentalId,
                 Location = new Location { Latitude = latitude, Longitude = longitude }
             };
