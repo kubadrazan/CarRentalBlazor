@@ -31,35 +31,6 @@ namespace MiniCarRentalAPI.Controllers
 			_azureBlobService = azureBlobService;
 		}
 
-		// generate one offer based on metadata
-		// GET: api/Cars/offers/5
-		//[HttpGet("offer/")]
-		//public async Task<IActionResult> GetCarOffer(
-		//	[FromQuery] int carId,
-		//	[FromQuery] bool isInsurance,
-		//	[FromQuery] int userId)
-		//{
-		//	var offer = await _context.Cars
-		//		.Select(c => new Offer()
-		//		{
-		//                  OfferHashID = new Random().Next(1_000_000),
-		//			CarId = carId,
-		//			IsInsurance = isInsurance,
-		//			Price = isInsurance ? c.InsurancePricePerDay : c.PricePerDay,
-		//			ExpirationDate = DateTime.UtcNow.AddMinutes(10),
-		//			UserID = userId
-		//		})
-		//		.FirstOrDefaultAsync(c => c.CarId == carId);
-
-		//	if (offer == null)
-		//	{
-		//		return NotFound();
-		//	}
-
-		//	return Ok(offer);
-		//}
-
-
 		[HttpGet("offers/{carId}")]
 		public async Task<IActionResult> GetCarOffers(int carId)
 		{
