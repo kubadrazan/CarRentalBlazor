@@ -4,11 +4,12 @@ using MiniCarRentalAPI.Data;
 using MiniCarRentalAPI.Services;
 using SharedDataModels;
 using SharedDataModels.Factories;
+using SharedDataModels.Requests;
 using System;
 
 namespace MiniCarRentalAPI.Controllers
 {
-	[Route("api/[controller]")]
+    [Route("api/[controller]")]
 	[ApiController]
 	public class RentalController : ControllerBase
 	{
