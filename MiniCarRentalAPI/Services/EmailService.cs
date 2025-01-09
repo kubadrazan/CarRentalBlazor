@@ -64,7 +64,7 @@ namespace MiniCarRentalAPI.Services
 				InvoiceNumber = "IN-" + localNow.ToString("yyyy-MM-dd-hhmmss"),
 				IssueDate = localNow.ToString(),
 				DueDate = localNow.AddDays(14).ToString(),
-				Amount = (rental.PricePerDay * (localNow - rental.RentDate).Days).ToString() + "$"
+				Amount = (rental.PricePerDay * (localNow - rental.RentDate.ToLocalTime()).Days).ToString() + "$"
 
 			});
 			message.AddAttachment("Invoice.pdf", Convert.ToBase64String(_pdfGenerationService.GenerateInvoice(rental)));

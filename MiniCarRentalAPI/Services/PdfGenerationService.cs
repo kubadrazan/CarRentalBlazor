@@ -53,13 +53,13 @@ namespace MiniCarRentalAPI.Services
 
 			gfx.DrawString(rental.ID.ToString(), font, XBrushes.Black, new XPoint(tableX, tableY));
 			gfx.DrawString(rental.Car.ToString(), font, XBrushes.Black, new XPoint(tableX + columnWidth, tableY));
-			gfx.DrawString((localNow - rental.RentDate).Days.ToString(), font, XBrushes.Black, new XPoint(tableX + 2 * columnWidth, tableY));
+			gfx.DrawString((localNow - rental.RentDate.ToLocalTime()).Days.ToString(), font, XBrushes.Black, new XPoint(tableX + 2 * columnWidth, tableY));
 			gfx.DrawString(rental.PricePerDay.ToString() + "$", font, XBrushes.Black, new XPoint(tableX + 3 * columnWidth, tableY));
 
 			tableY += 20;
 			tableY += 20;
 			gfx.DrawString("Summary: ", boldFont, XBrushes.Black, new XPoint(tableX + 2 * columnWidth, tableY));
-			gfx.DrawString((rental.PricePerDay * (localNow - rental.RentDate).Days).ToString() + "$", font, XBrushes.Black, new XPoint(tableX + 3 * columnWidth, tableY));
+			gfx.DrawString((rental.PricePerDay * (localNow - rental.RentDate.ToLocalTime()).Days).ToString() + "$", font, XBrushes.Black, new XPoint(tableX + 3 * columnWidth, tableY));
 
 			using (var memoryStream = new MemoryStream())
 			{
