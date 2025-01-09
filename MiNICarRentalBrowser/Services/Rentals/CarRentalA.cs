@@ -1,40 +1,52 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using SharedDataModels;
+﻿using SharedDataModels;
 using SharedDataModels.DTO;
-using System.Net.Mail;
-using System.Text.Json;
-using System.Text;
-using Azure;
-using MiNICarRentalBrowser.Services;
-using Microsoft.AspNetCore.Components.Forms;
 using SharedDataModels.Requests;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 
-namespace Browser_FrontEnd.Services
+namespace MiNICarRentalBrowser.Services.Car_Service
 {
-    public class RentalServicecs
+	public class CarRentalA : ICarRental //Our api
 	{
 		private readonly HttpClient _httpClient;
-		private readonly string _apiA;
+		private readonly string _apiUrl;
+		private readonly int _apiID;
 		private readonly IUserService _userService;
 
-		public RentalServicecs(IHttpClientFactory httpClientFactor, IUserService userService, IConfiguration configuration)
+		public CarRentalA(IHttpClientFactory httpClientFactory, IConfiguration configuration, IUserService userService)
 		{
-			_httpClient = httpClientFactor.CreateClient("ApiKeyClient");
-			_userService = userService;
+			_httpClient = httpClientFactory.CreateClient("ApiKeyClient");
+			_apiID = 0;
 #if DEBUG
-			_apiA = configuration.GetValue<string>("ApiUrls:ApiRentalA") ?? throw new Exception("No apiA Url in configuration file!");
+			_apiUrl = configuration.GetValue<string>("ApiUrls:ApiRentalA") ?? throw new Exception("No ApiRentalA Url in configuration file!");
 #else
-			_apiA = configuration.GetValue<string>("aApiUrl") ?? throw new Exception("No apiA Url in Azure key vault!");
+			_apiUrl = configuration.GetValue<string>("aApiUrl") ?? throw new Exception("No apiA Url in configuration file!");
 #endif
+			_userService = userService;
 		}
 
+		public async Task<List<CarCache>> GetCarsAsync()
+		{
+			var response = await _httpClient.GetFromJsonAsync<List<SimpleCarDTO>>($"{_apiUrl}/api/Cars/allAvailable");
+
+			List<CarCache> result = new List<CarCache>();
+			// TODO add mapper
+			if (response != null)
+			{
+				foreach (var car in response)
+				{
+					result.Add(new CarCache() { CarID = car.ID, BrandName = car.BrandName, ModelName = car.ModelName, ProductionYear = car.ProductionYear, SourceApiID = _apiID });
+				}
+			}
+
+			return result;
+		}
 		public async Task<List<string>> GetUniqueBrandNamesAsyc()
 		{
 			try
 			{
-				var response = await _httpClient.GetFromJsonAsync<List<string>>($"{_apiA}/api/Cars/brands");
+				var response = await _httpClient.GetFromJsonAsync<List<string>>($"{_apiUrl}/api/Cars/brands");
 				return response ?? new List<string>();
 			}
 			catch (Exception ex)
@@ -43,12 +55,11 @@ namespace Browser_FrontEnd.Services
 				return new List<string>();
 			}
 		}
-
 		public async Task<List<string>> GetUniqueModelNamesAsyc()
 		{
 			try
 			{
-				var response = await _httpClient.GetFromJsonAsync<List<string>>($"{_apiA}/api/Cars/models");
+				var response = await _httpClient.GetFromJsonAsync<List<string>>($"{_apiUrl}/api/Cars/models");
 				return response ?? new List<string>();
 			}
 			catch (Exception ex)
@@ -63,7 +74,7 @@ namespace Browser_FrontEnd.Services
 			try
 			{
 				var response = await _httpClient.GetFromJsonAsync<List<BrandModelDTO>>(
-					$"{_apiA}/api/Cars/brandsModels"
+					$"{_apiUrl}/api/Cars/brandsModels"
 					);
 				return response ?? new List<BrandModelDTO>();
 			}
@@ -78,7 +89,7 @@ namespace Browser_FrontEnd.Services
 		{
 			try
 			{
-				var response = await _httpClient.GetFromJsonAsync<Car>($"{_apiA}/api/cars/{carId}");
+				var response = await _httpClient.GetFromJsonAsync<Car>($"{_apiUrl}/api/cars/{carId}");
 				return response;
 			}
 			catch (Exception ex)
@@ -92,7 +103,7 @@ namespace Browser_FrontEnd.Services
 		{
 			try
 			{
-				var response = await _httpClient.GetFromJsonAsync<List<Offer>>($"{_apiA}/api/Rental/offers/{carId}");
+				var response = await _httpClient.GetFromJsonAsync<List<Offer>>($"{_apiUrl}/api/Rental/offers/{carId}");
 				return response;
 			}
 			catch (Exception ex)
@@ -106,7 +117,7 @@ namespace Browser_FrontEnd.Services
 		{
 			try
 			{
-				var response = await _httpClient.PutAsJsonAsync<Guid>($"{_apiA}/api/Rental/offers/acceptOffer", offerId);
+				var response = await _httpClient.PutAsJsonAsync<Guid>($"{_apiUrl}/api/Rental/offers/acceptOffer", offerId);
 				await _userService.AcceptOfferAsync(await response.Content.ReadFromJsonAsync<Rental>());
 
 				return await response.Content.ReadAsStringAsync();
@@ -123,7 +134,7 @@ namespace Browser_FrontEnd.Services
 			try
 			{
 				var content = new StringContent(JsonSerializer.Serialize(emailAddress), Encoding.UTF8, "application/json");
-				var response = await _httpClient.PutAsync($"{_apiA}/api/Rental/offers/chooseOffer/{offerid}", content);
+				var response = await _httpClient.PutAsync($"{_apiUrl}/api/Rental/offers/chooseOffer/{offerid}", content);
 				if (!response.IsSuccessStatusCode)
 				{
 					return "Error";
@@ -141,7 +152,7 @@ namespace Browser_FrontEnd.Services
 		{
 			var queryParams = CreateQuery(brands, models, pageInd, pageSize);
 
-			var urlA = $"{_apiA}/api/Cars?{queryParams}";
+			var urlA = $"{_apiUrl}/api/Cars?{queryParams}";
 
 			var response = await _httpClient.GetFromJsonAsync<PagedCarsResponse>(urlA);
 
@@ -167,7 +178,7 @@ namespace Browser_FrontEnd.Services
 				pageInd = 1;
 
 			queryParams.Add($"pageInd={pageInd}");
-            queryParams.Add($"pageSize={pageSize}");
+			queryParams.Add($"pageSize={pageSize}");
 
 			return string.Join("&", queryParams);
 		}
@@ -176,7 +187,7 @@ namespace Browser_FrontEnd.Services
 		{
 			try
 			{
-				var response = await _httpClient.GetFromJsonAsync<Rental>($"{_apiA}/api/rentals/{rentalBrowser.ID}");
+				var response = await _httpClient.GetFromJsonAsync<Rental>($"{_apiUrl}/api/rentals/{rentalBrowser.ID}");
 				return response;
 			}
 			catch (Exception ex)
@@ -190,7 +201,7 @@ namespace Browser_FrontEnd.Services
 		{
 			try
 			{
-				var response = await _httpClient.GetFromJsonAsync<Rental>($"{_apiA}/api/rental/rentals/{Id}");
+				var response = await _httpClient.GetFromJsonAsync<Rental>($"{_apiUrl}/api/rental/rentals/{Id}");
 				return response;
 			}
 			catch (Exception ex)
@@ -204,7 +215,7 @@ namespace Browser_FrontEnd.Services
 		{
 			try
 			{
-				var response = await _httpClient.GetFromJsonAsync<byte[]>($"{_apiA}/api/acceptations/carimage/{Id}");
+				var response = await _httpClient.GetFromJsonAsync<byte[]>($"{_apiUrl}/api/acceptations/carimage/{Id}");
 				return response;
 			}
 			catch (Exception ex)
@@ -215,56 +226,56 @@ namespace Browser_FrontEnd.Services
 		}
 
 		public async Task<int> GetRentalsCountAsync()
-        {
-            try
-            {
-                var response = await _httpClient.GetFromJsonAsync<int>($"{_apiA}/api/rental/rentals/count");
-                return response;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching rental data: {ex.Message}");
-                return -1;
-            }
-        }
+		{
+			try
+			{
+				var response = await _httpClient.GetFromJsonAsync<int>($"{_apiUrl}/api/rental/rentals/count");
+				return response;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error fetching rental data: {ex.Message}");
+				return -1;
+			}
+		}
 
-        public async Task<List<Rental>> GetRentalsAsync(int? pageInd, int pageSize = 15)
-        {
+		public async Task<List<Rental>> GetRentalsAsync(int? pageInd, int pageSize = 15)
+		{
 			// Building query
-            var queryParams = new List<string>();
+			var queryParams = new List<string>();
 			queryParams.Add($"pageInd={pageInd}");
-            queryParams.Add($"pageSize={pageSize}");
-			string url = $"{_apiA}/api/Rental/rentals?{string.Join("&", queryParams)}";
+			queryParams.Add($"pageSize={pageSize}");
+			string url = $"{_apiUrl}/api/Rental/rentals?{string.Join("&", queryParams)}";
 
-            try
-            {
-                var response = await _httpClient.GetFromJsonAsync<List<Rental>>(url);
-                return response;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching rental data: {ex.Message}");
-                return null;
-            }
-        }
+			try
+			{
+				var response = await _httpClient.GetFromJsonAsync<List<Rental>>(url);
+				return response;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error fetching rental data: {ex.Message}");
+				return null;
+			}
+		}
 
-        public async Task ReturnCarAsync(Rental rental)
+		public async Task ReturnCarAsync(Rental rental)
 		{
 			var returnRequest = new ReturnCarRequest(rental, 0, 0);
-			var response = await _httpClient.PutAsJsonAsync<ReturnCarRequest>($"{_apiA}/api/Rental/rentals/returnCar/{rental.ID}", returnRequest);
+			var response = await _httpClient.PutAsJsonAsync<ReturnCarRequest>($"{_apiUrl}/api/Rental/rentals/returnCar/{rental.ID}", returnRequest);
 		}
 
 		public async Task AcceptCarReturn(int rentalId, string employeeEmail, string acceptationDescription, string carImage)
-        {
-            var acceptReturnRequest = new AcceptReturnRequest(employeeEmail, acceptationDescription, carImage);
-            var response = await _httpClient.PutAsJsonAsync<AcceptReturnRequest>($"{_apiA}/api/Rental/rentals/acceptReturn/{rentalId}", acceptReturnRequest);
-        }		
+		{
+			var acceptReturnRequest = new AcceptReturnRequest(employeeEmail, acceptationDescription, carImage);
+			var response = await _httpClient.PutAsJsonAsync<AcceptReturnRequest>($"{_apiUrl}/api/Rental/rentals/acceptReturn/{rentalId}", acceptReturnRequest);
+		}
 
 		public async Task<byte[]> GetImage(int rentalId)
-        {
+		{
 			try
 			{
-				var response = await _httpClient.GetFromJsonAsync<byte[]>($"{_apiA}/api/acceptations/carimage/{rentalId}"); 
+				var response = await _httpClient.GetFromJsonAsync<byte[]>($"{_apiUrl}/api/acceptations/carimage/{rentalId}");
 				return response;
 			}
 			catch (Exception ex)
@@ -273,6 +284,6 @@ namespace Browser_FrontEnd.Services
 				return null;
 			}
 
-        }
+		}
 	}
 }

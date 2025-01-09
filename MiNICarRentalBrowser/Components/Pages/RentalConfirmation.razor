@@ -1,6 +1,6 @@
 ﻿@page "/rentalconfirmation"
-@using Browser_FrontEnd.Services
-@inject RentalServicecs renatalService
+@using MiNICarRentalBrowser.Services.Car_Service
+@inject AggregatedCarService aggregatedCarService
 <h3>RentalConfirmation</h3>
 
 @code {
@@ -14,7 +14,7 @@
 
 		if (firstRender)
 		{
-			await renatalService.ConfirmOffer(offerId);
+			await aggregatedCarService.ConfirmOffer(offerId);
 		}
 	}
 }

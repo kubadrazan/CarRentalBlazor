@@ -1,13 +1,13 @@
 ﻿@page "/RentalDetailsClient/{rentalId:int}"
-@using Browser_FrontEnd.Services
 @using MiNICarRentalBrowser.Components.Components
 @using MiNICarRentalBrowser.Services
+@using MiNICarRentalBrowser.Services.Car_Service
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using SharedDataModels
 @using System.Security.Claims
 @rendermode InteractiveServer
-@inject RentalServicecs rentalService
+@inject AggregatedCarService aggregatedCarService
 @inject IUserService userService
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject IAuthorizationService AuthorizationService
@@ -62,7 +62,7 @@
 		}
 		await base.OnInitializedAsync();
 
-		_rental = await rentalService.GetRentalAsync(rentalId);
+		_rental = await aggregatedCarService.GetRentalAsync(rentalId);
 		var email = user.FindFirstValue(ClaimTypes.Email);
 		if (_rental != null)
 		{
@@ -70,7 +70,7 @@
 			{
 				navigation.NavigateTo("/home", true);
 			}
-			_car = await rentalService.GetCarDetailsAsync(_rental.CarID);
+			_car = await aggregatedCarService.GetCarDetailsAsync(_rental.CarID);
 		}
 
 		_isCarLoaded = true;
@@ -78,7 +78,7 @@
 	}
 	public async void ReturnAction()
 	{
-		await rentalService.ReturnCarAsync(_rental);
+		await aggregatedCarService.ReturnCarAsync(_rental);
 		navigation.NavigateTo(navigation.Uri, forceLoad: true);
 	}
 }
