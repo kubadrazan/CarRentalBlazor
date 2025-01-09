@@ -1,4 +1,4 @@
-﻿@using SharedDataModels.DTO
+﻿@using SharedDataModels
 
 <MudPaper Class="p-4" Style="max-width: 800px; height: 200px; margin: auto" Elevation="4">
     <MudGrid>
@@ -22,7 +22,7 @@
 @code {
 
     [Parameter]
-    public required SimpleCarDTO car { get; set; }
+    public required CarCache car { get; set; }
 
     [Parameter]
     public required string imgSrc { get; set; }

@@ -1,5 +1,6 @@
 using Azure.Identity;
 using Browser_FrontEnd.Services;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
@@ -10,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using MiNICarRentalBrowser.Components;
 using MiNICarRentalBrowser.Data;
 using MiNICarRentalBrowser.Services;
+using MiNICarRentalBrowser.Services.Car_Service;
 using MudBlazor.Services;
 
 namespace MiNICarRentalBrowser
@@ -58,9 +60,17 @@ namespace MiNICarRentalBrowser
 			builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
 			builder.Services.AddHttpContextAccessor();
 
+            builder.Services.AddScoped<ICarRepository, CarRepository>();
 
-			// Add services to the container.
-			builder.Services.AddRazorComponents()
+			builder.Services.AddHangfire(config =>
+			{
+				config.UseSqlServerStorage(builder.Configuration["UsersDBConnectionString"]);
+			});
+
+			builder.Services.AddHangfireServer();
+
+            // Add services to the container.
+            builder.Services.AddRazorComponents()
 				.AddInteractiveServerComponents();
 			builder.Services.AddMudServices();
 
@@ -72,6 +82,10 @@ namespace MiNICarRentalBrowser
 
 			builder.Services.AddScoped<RentalServicecs>();
 			builder.Services.AddScoped<IUserService, UserServices>();
+
+			builder.Services.AddScoped<ICarRental, CarRentalA>();
+            //builder.Services.AddScoped<ICarRental, CarRentalB>();
+            builder.Services.AddScoped<AggregatedCarService>();
 
 			var app = builder.Build();
 
@@ -93,8 +107,17 @@ namespace MiNICarRentalBrowser
 			app.UseAuthentication();
 			app.UseAuthorization();
 
-			app.MapRazorComponents<App>()
+			if (app.Environment.IsDevelopment())
+				app.UseHangfireDashboard();
+
+            app.MapRazorComponents<App>()
 				.AddInteractiveServerRenderMode();
+
+			RecurringJob.AddOrUpdate<AggregatedCarService>(
+				"update-car-data",
+				service => service.UpdateCarsInDBAsync(),
+                "*/30 * * * *"
+                );
 
 			app.Run();
 		}
