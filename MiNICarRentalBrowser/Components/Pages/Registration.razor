@@ -10,6 +10,7 @@
 @inject RentalServicecs rentalService
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject Services.IUserService UserService
+@inject TimeProvider timeProvider
 
 <style>
     .centered-top {
@@ -86,9 +87,9 @@
     private string _email = "";
     private string _firstName = "";
     private string _lastName = "";
-    private DateTime? _birthDate = DateTime.Today;
-    private DateTime? _drivingLicenseDate = DateTime.Today;
-    private DateTime _minDrivingLicenseDate = DateTime.Today;
+    private DateTime? _birthDate;
+    private DateTime? _drivingLicenseDate;
+    private DateTime _minDrivingLicenseDate;
 
     private bool _showAlert = false;
     private string _alertText = "";
@@ -96,6 +97,10 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+
+        _birthDate = timeProvider.GetLocalNow().DateTime;
+        _drivingLicenseDate = timeProvider.GetLocalNow().DateTime;
+        _minDrivingLicenseDate = timeProvider.GetLocalNow().DateTime;
 
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
@@ -146,7 +151,7 @@
             return;
         }
 
-        if (((DateTime)_birthDate).AddYears(18) > DateTime.Now)
+        if (((DateTime)_birthDate).AddYears(18) > timeProvider.GetLocalNow().DateTime)
         {
             await ShowAlert("You must be at least 18 years old", 5000);
             return;
