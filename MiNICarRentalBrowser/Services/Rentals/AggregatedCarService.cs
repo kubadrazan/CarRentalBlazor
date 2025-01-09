@@ -104,12 +104,12 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			return _carRentalServiceFactory.GetService(0).GetCarImage(Id);
 		}
 
-		public Task<int> GetRentalsCountAsync()
+		public Task<int> GetRentalsEmployeeCountAsync()
 		{
 			return _carRentalServiceFactory.GetService(0).GetRentalsCountAsync();
 		}
 
-		public Task<List<Rental>> GetRentalsAsync(int? pageInd, int pageSize = 15)
+		public Task<List<Rental>> GetRentalsEmployeeAsync(int? pageInd, int pageSize = 15)
 		{
 			return _carRentalServiceFactory.GetService(0).GetRentalsAsync(pageInd, pageSize);
 		}
