@@ -64,7 +64,11 @@ namespace MiNICarRentalBrowser
 
 			builder.Services.AddHangfire(config =>
 			{
+#if DEBUG
+				config.UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection"));
+#else
 				config.UseSqlServerStorage(builder.Configuration["UsersDBConnectionString"]);
+#endif
 			});
 
 			builder.Services.AddHangfireServer();
