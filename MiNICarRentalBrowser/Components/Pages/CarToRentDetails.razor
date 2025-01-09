@@ -1,4 +1,4 @@
-﻿@page "/CarToRentDetails/{carID:int}"
+﻿@page "/CarToRentDetails/{apiID:int}/{carID:int}"
 @using Browser_FrontEnd.Services
 @using MiNICarRentalBrowser.Components.Components
 @using Microsoft.AspNetCore.Authorization
@@ -32,7 +32,7 @@
 				@foreach (Offer offer in _offers)
 				{
 					<div class="offer-row">
-									<p><strong>Price Per Day: @Math.Round(offer.Price) zł</strong> Insurance @(offer.IsInsurance ? "Included" : "Not Included")</p>
+						<p><strong>Price Per Day: @Math.Round(offer.Price) zł</strong> Insurance @(offer.IsInsurance ? "Included" : "Not Included")</p>
 						<button @onclick="() => RentMeAction(offer.ID)" class="button">Rent Me</button>
 					</div>
 				}
@@ -53,6 +53,10 @@
 @code {
 	[Parameter]
 	public int carID { get; set; }
+
+	[Parameter]
+	public int apiID { get; set; }
+
 	private Car _car;
 
 	private bool _areOffersLoaded = false;
