@@ -12,7 +12,12 @@ namespace MiNICarRentalBrowser.Services.Car_Service
         public CarRentalA(IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _httpClient = httpClientFactory.CreateClient("ApiKeyClient");
-            _apiUrl = configuration.GetValue<string>("aApiUrl") ?? throw new Exception("No apiA Url in configuration file!");
+
+#if DEBUG
+            _apiUrl = configuration.GetValue<string>("ApiUrls:ApiBrowserA") ?? throw new Exception("No apiA Url in configuration file!");
+#else
+			_apiUrl = configuration.GetValue<string>("aApiUrl") ?? throw new Exception("No apiA Url in Azure key vault!");
+#endif
             _apiID = 0;
         }
 
