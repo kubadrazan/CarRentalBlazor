@@ -124,6 +124,8 @@ namespace MiniCarRentalAPI.Controllers
 				return NotFound();
 			}
 
+			if (car.Availability != Availability.AVAILABLE) return UnprocessableEntity();
+
 			car.Availability = Availability.NOT_AVAILABLE;
 
 			var rental = _rentalFactory.CreateRental(offer);
