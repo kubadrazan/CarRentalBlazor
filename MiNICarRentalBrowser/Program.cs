@@ -79,7 +79,8 @@ namespace MiNICarRentalBrowser
 			builder.Services.AddScoped<IUserService, UserServices>();
 
 			builder.Services.AddScoped<ICarRental, CarRentalA>();
-			builder.Services.AddScoped<AggregatedCarService>();
+            //builder.Services.AddScoped<ICarRental, CarRentalB>();
+            builder.Services.AddScoped<AggregatedCarService>();
 
 			var app = builder.Build();
 
@@ -101,7 +102,8 @@ namespace MiNICarRentalBrowser
 			app.UseAuthentication();
 			app.UseAuthorization();
 
-            app.UseHangfireDashboard();
+			if (app.Environment.IsDevelopment())
+				app.UseHangfireDashboard();
 
             app.MapRazorComponents<App>()
 				.AddInteractiveServerRenderMode();
@@ -111,6 +113,7 @@ namespace MiNICarRentalBrowser
 				service => service.UpdateCarsInDBAsync(),
                 "*/30 * * * *"
                 );
+
 			app.Run();
 		}
 	}

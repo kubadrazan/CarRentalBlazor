@@ -5,95 +5,96 @@
 @using Browser_FrontEnd.Services
 @using SharedDataModels
 @using SharedDataModels.DTO
-@inject RentalServicecs rentalService
+@using MiNICarRentalBrowser.Services.Car_Service
+@inject AggregatedCarService aggregatedCarService
 
 <style>
     .centered {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     }
 
 
     .centered-top {
-        position: absolute;
-        left: 50%;
-        transform: translate(-50%, 0);
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0);
     }
 
     img.home {
-        border-radius: 15px;
-        margin: 10px
+    border-radius: 15px;
+    margin: 10px
     }
 
     .home_btn {
-        margin-left: 40px;
-        margin-right: 40px;
+    margin-left: 40px;
+    margin-right: 40px;
     }
 
     .purple-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
-        border-color: #A64DB6;
-        border-width: 3px
+    border-color: #A64DB6;
+    border-width: 3px
     }
 
     .gray-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
-        border-color: #808080;
-        border-width: 3px
+    border-color: #808080;
+    border-width: 3px
     }
 </style>
 
 <MudContainer Style="justify-content: center">
     <MudCard Class="rounded-xl centered-top" Style="padding-top:20px;
     padding-left:50px; padding-right:50px; padding-bottom:20px;">
-            <MudStack Row="true">
-                <MudStack Style="width: 300px; height:300px; margin-top:50px; margin-right:20px"
-                          Justify="Justify.Center">
+        <MudStack Row="true">
+            <MudStack Style="width: 300px; height:300px; margin-top:50px; margin-right:20px"
+            Justify="Justify.Center">
+                <MudSelect @bind-Value="_brand"
+                TextChanged="BrandChanged"
+                Label="Brand"
+                Clearable="true"
+                Variant=Variant.Outlined
+                Style="margin-top:15px"
+                Class="purple-accents">
+                    @foreach (var state in _brands ?? new List<string>())
+                    {
+                        <MudSelectItem Value="state">@state</MudSelectItem>
+                    }
+                </MudSelect>
+
+                @if (String.IsNullOrEmpty(_brand))
+                {
+
                     <MudSelect @bind-Value="_brand"
-                               TextChanged="BrandChanged"
-                               Label="Brand"
-                               Clearable="true"
-                               Variant=Variant.Outlined
-                               Style="margin-top:15px"
-                               Class="purple-accents">
-                        @foreach (var state in _brands ?? new List<string>())
+                    Label="Model"
+                    Disabled="true"
+                    Variant=Variant.Outlined
+                    Style="margin-bottom:15px"
+                    Class="gray-accents">
+                    </MudSelect>
+                }
+                else
+                {
+                    <MudSelect @bind-Value="_model"
+                    Label="Model"
+                    Clearable="true"
+                    Variant=Variant.Outlined
+                    Style="margin-bottom:15px"
+                    Class="purple-accents">
+                        @foreach (var state in _models[_brand])
                         {
                             <MudSelectItem Value="state">@state</MudSelectItem>
                         }
                     </MudSelect>
+                }
 
-                    @if (String.IsNullOrEmpty(_brand))
-                    {
-
-                        <MudSelect @bind-Value="_brand"
-                                   Label="Model"
-                                   Disabled="true"
-                                   Variant=Variant.Outlined
-                                   Style="margin-bottom:15px"
-                                   Class="gray-accents">
-                        </MudSelect>
-                    }
-                    else
-                    {
-                        <MudSelect @bind-Value="_model"
-                                   Label="Model"
-                                   Clearable="true"
-                                   Variant=Variant.Outlined
-                                   Style="margin-bottom:15px"
-                                   Class="purple-accents">
-                            @foreach (var state in _models[_brand])
-                            {
-                                <MudSelectItem Value="state">@state</MudSelectItem>
-                            }
-                        </MudSelect>
-                    }
-
-                    <button @onclick=SearchCar class="button home_btn">Search</button>
-                </MudStack>
-
-                <img class="home d-none d-md-block" src="landing_page_car.jpg" height="400" />
+                <button @onclick=SearchCar class="button home_btn">Search</button>
             </MudStack>
-        </MudCard>
+
+            <img class="home d-none d-md-block" src="landing_page_car.jpg" height="400" />
+        </MudStack>
+    </MudCard>
 
 </MudContainer>
 
@@ -101,7 +102,7 @@
 {
     <MudCard Class="centered-top rounded-xl">
         <MudAlert Class="rounded-xl" Severity="Severity.Error" ShowCloseIcon="true"
-                  CloseIconClicked="(() => CloseAlert(true))">Car brand is required!</MudAlert>
+        CloseIconClicked="(() => CloseAlert(true))">Car brand is required!</MudAlert>
     </MudCard>
 }
 
@@ -118,8 +119,7 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-
-        List<BrandModelDTO> models = await rentalService.GetBrandsModelsNamesAsyc();
+        List<BrandModelDTO> models = await aggregatedCarService.GetBrandsModelsAsync();
         _models = new();
         _brands = new();
         foreach (var m in models)

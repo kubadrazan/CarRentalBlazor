@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SharedDataModels;
+using SharedDataModels.DTO;
 
 namespace MiNICarRentalBrowser.Data
 {
@@ -11,6 +12,8 @@ namespace MiNICarRentalBrowser.Data
         int GetFilteredCarsCount(List<string> brands, List<string> models);
         Task<List<string>> GetUniqueBrandsAsync();
         Task<List<string>> GetUniqueModelsAsync();
+        Task<List<BrandModelDTO>> GetBrandsModelsAsync();
+        Task<CarCache?> GetCarCacheAsync(int ID);
     }
 
     public class CarRepository : ICarRepository
@@ -90,7 +93,7 @@ namespace MiNICarRentalBrowser.Data
             {
                 var context = scope.ServiceProvider.GetRequiredService<UsersContext>();
                 return await context.CarsCache.Select(c => c.BrandName)
-                .Distinct().ToListAsync();
+                .Distinct().OrderBy(c => c).ToListAsync();
             }
         }
 
@@ -100,7 +103,27 @@ namespace MiNICarRentalBrowser.Data
             {
                 var context = scope.ServiceProvider.GetRequiredService<UsersContext>();
                 return await context.CarsCache.Select(c => c.ModelName)
-                .Distinct().ToListAsync();
+                .Distinct().OrderBy(c => c).ToListAsync();
+            }
+        }
+
+        public async Task<List<BrandModelDTO>> GetBrandsModelsAsync()
+        {
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<UsersContext>();
+                return await context.CarsCache.GroupBy(c => new { c.ModelName, c.BrandName })
+                    .Select(g => new BrandModelDTO { ModelName = g.Key.ModelName, BrandName = g.Key.BrandName })
+                    .OrderBy(c => c.BrandName).ThenBy(c => c.ModelName).ToListAsync();
+            }
+        }
+
+        public async Task<CarCache?> GetCarCacheAsync(int ID)
+        {
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<UsersContext>();
+                return await context.CarsCache.FindAsync(ID);
             }
         }
     }

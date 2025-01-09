@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MiNICarRentalBrowser.Data;
 using SharedDataModels;
+using SharedDataModels.DTO;
 
 namespace MiNICarRentalBrowser.Services.Car_Service
 {
@@ -58,6 +60,11 @@ namespace MiNICarRentalBrowser.Services.Car_Service
         public async Task<List<string>> GetUniqueModels()
         {
             return await _carRepository.GetUniqueModelsAsync();
+        }
+
+        public async Task<List<BrandModelDTO>> GetBrandsModelsAsync()
+        {
+            return await _carRepository.GetBrandsModelsAsync();
         }
     }
 }
