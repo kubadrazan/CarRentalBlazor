@@ -30,6 +30,7 @@ namespace MiNICarRentalBrowser
 			builder.Services.AddDbContext<UsersContext>(options =>
 				options.UseSqlServer(builder.Configuration["UsersDBConnectionString"]));
 #endif
+			builder.Services.AddSingleton(TimeProvider.System);
 
 			builder.Services.AddScoped<UserValidationService>();
 			builder.Services.AddScoped<EmployeeValidationService>();
