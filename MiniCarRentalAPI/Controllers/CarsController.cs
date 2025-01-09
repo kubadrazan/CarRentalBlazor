@@ -73,6 +73,7 @@ namespace MiniCarRentalAPI.Controllers
         {
 
             var models = await _context.Cars
+                .Where(c => c.Availability == Availability.AVAILABLE)
                 .Select(c => c.Model)
                 .Distinct()
                 .Include(b => b.Brand)
