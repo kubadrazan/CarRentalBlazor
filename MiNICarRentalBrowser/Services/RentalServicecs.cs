@@ -9,10 +9,11 @@ using System.Text;
 using Azure;
 using MiNICarRentalBrowser.Services;
 using Microsoft.AspNetCore.Components.Forms;
+using SharedDataModels.Requests;
 
 namespace Browser_FrontEnd.Services
 {
-	public class RentalServicecs
+    public class RentalServicecs
 	{
 		private readonly HttpClient _httpClient;
 		private readonly string _apiA;

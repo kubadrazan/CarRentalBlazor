@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SharedDataModels
+namespace SharedDataModels.Requests
 {
-	public class AcceptReturnRequest
-	{
+    public class AcceptReturnRequest
+    {
         public AcceptReturnRequest(string employeeEmail, string returnDescription, string base64EncodedCarImage)
         {
             EmployeeEmail = employeeEmail;
@@ -17,8 +17,8 @@ namespace SharedDataModels
 
         public string EmployeeEmail { get; set; }
 
-		public string ReturnDescription { get; set; }
+        public string ReturnDescription { get; set; }
 
         public string Base64EncodedCarImage { get; set; }
-	}
+    }
 }
