@@ -14,8 +14,8 @@ namespace SharedDataModels
 
         public string URL { get; set; }
 
-        public string PasswordSalt { get; set; }
+        public string ApiKeySalt { get; set; }
 
-        public string PasswordHash { get; set; }
+        public string ApiKeyHash { get; set; }
     }
 }
