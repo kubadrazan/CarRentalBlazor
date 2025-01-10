@@ -50,7 +50,7 @@ namespace MiniCarRentalAPI.Controllers
 			try
 			{
 				var Return = await _context.Returns.FirstOrDefaultAsync(r => r.RentalID == rentalId);
-				var Acceptation = await _context.Acceptations.FirstOrDefaultAsync(a => a.ReturnID == Return.ID);
+				var Acceptation = await _context.Acceptations.Include(a => a.Description).FirstOrDefaultAsync(a => a.ReturnID == Return.ID);
 				return Ok(Acceptation.Description);
 			}
 			catch (Exception ex)
