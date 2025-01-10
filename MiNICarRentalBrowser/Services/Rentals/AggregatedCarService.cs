@@ -80,7 +80,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 		}
 
 		public Task<string> ConfirmOffer(Guid offerId)
-		{ // TODO multipleApi
+		{ // TODO multipleApi: OfferCache needed 
 			return _carRentalServiceFactory.GetService(0).ConfirmOffer(offerId);
 		}
 
@@ -94,9 +94,9 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			return _carRentalServiceFactory.GetService(0).GetRentalAsync(rentalBrowser);
 		}
 
-		public Task<Rental> GetRentalAsync(int Id)
-		{ // TODO multipleApi
-			return _carRentalServiceFactory.GetService(0).GetRentalAsync(Id);
+		public Task<Rental> GetRentalAsync(int Id, int apiId)
+		{
+			return _carRentalServiceFactory.GetService(apiId).GetRentalAsync(Id);
 		}
 
 		public Task<byte[]> GetCarImage(int Id) 
@@ -105,7 +105,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 		}
 
 		public Task<int> GetRentalsCountAsync()
-		{ // TODO multipleApi
+		{ // TODO multipleApi - No Endpoint in BApi
 			return _carRentalServiceFactory.GetService(0).GetRentalsCountAsync();
 		}
 

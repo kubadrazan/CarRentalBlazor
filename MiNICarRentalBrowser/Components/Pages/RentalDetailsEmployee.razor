@@ -1,4 +1,4 @@
-﻿@page "/RentalDetailsEmployee/{rentalId:int}"
+﻿@page "/RentalDetailsEmployee/{apiID:int}/{rentalId:int}/"
 @using MiNICarRentalBrowser.Components.Components
 @using MiNICarRentalBrowser.Services
 @using MiNICarRentalBrowser.Services.Car_Service
@@ -45,6 +45,7 @@
 @code {
 	[Parameter]
 	public int rentalId { get; set; }
+	public int apiId { get; set; }
 	private Rental _rental { get; set; }
 	private Car _car;
 	private bool _isCarLoaded = false;
@@ -60,9 +61,9 @@
 		}
 		await base.OnInitializedAsync();
 
-		_rental = await aggregatedCarService.GetRentalAsync(rentalId);
+		_rental = await aggregatedCarService.GetRentalAsync(rentalId, apiId);
 		if (_rental != null)
-			_car = await aggregatedCarService.GetCarDetailsAsync(0, _rental.CarID); // TODO delete magic number
+			_car = await aggregatedCarService.GetCarDetailsAsync(_rental.SourceAPI, _rental.CarID);
 		_isCarLoaded = true;
 	}
 	public void AcceptReturnAction()

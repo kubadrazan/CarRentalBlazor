@@ -1,4 +1,4 @@
-﻿@page "/CarToRentDetails/{apiID:int}/{carID:int}"
+﻿@page "/CarToRentDetails/{apiID:int}/{HangfireCarID:int}"
 @using MiNICarRentalBrowser.Components.Components
 @using MiNICarRentalBrowser.Services.Car_Service
 @using Microsoft.AspNetCore.Authorization
@@ -32,7 +32,10 @@
 				@foreach (Offer offer in _offers)
 				{
 					<div class="offer-row">
-						<p><strong>Price Per Day: @Math.Round(offer.Price) zł</strong> Insurance @(offer.IsInsurance ? "Included" : "Not Included")</p>
+						<p>
+							<strong>Price Per Day: @Math.Round(offer.Price) zł</strong><br />
+							Insurance @(offer.IsInsurance ? "Included" : "Not Included")
+						</p>
 						<button @onclick="() => RentMeAction(offer.ID)" class="button">Rent Me</button>
 					</div>
 				}
@@ -52,7 +55,7 @@
 
 @code {
 	[Parameter]
-	public int carID { get; set; }
+	public int HangfireCarID { get; set; }
 
 	[Parameter]
 	public int apiID { get; set; }
@@ -67,10 +70,10 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await base.OnInitializedAsync();
-		_car = await aggregatedCarService.GetCarDetailsAsync(apiID, carID);
+		_car = await aggregatedCarService.GetCarDetailsAsync(apiID, HangfireCarID);
 		_isCarLoaded = true;
 
-		_offers = await aggregatedCarService.GetOffersAsync(apiID, carID);
+		_offers = await aggregatedCarService.GetOffersAsync(apiID, _car.ID);
 
 		_areOffersLoaded = true;
 	}
