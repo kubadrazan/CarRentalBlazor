@@ -8,8 +8,10 @@ using System.Threading.Tasks;
 
 namespace SharedDataModels.Factories
 {
-	public class OfferFactory
+	public class OfferFactory(TimeProvider timeProvider)
 	{
+		private const int OFFER_VALIDITY_TIME_MINS = 10;
+
 		public Offer CreateOffer(Car car, bool addInsurance)
 		{
 			return new Offer()
@@ -18,7 +20,7 @@ namespace SharedDataModels.Factories
 				CarId = car.ID,
 				IsInsurance = addInsurance,
 				Price = addInsurance ? car.InsurancePricePerDay : car.PricePerDay,
-				ExpirationDate = DateTime.Now.AddMinutes(10),
+				ExpirationDate = timeProvider.GetUtcNow().DateTime.AddMinutes(OFFER_VALIDITY_TIME_MINS),
 				UserEmail = null
 			};
 		}

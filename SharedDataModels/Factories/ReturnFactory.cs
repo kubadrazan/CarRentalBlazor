@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace SharedDataModels.Factories
 {
-	public class ReturnFactory
+	public class ReturnFactory(TimeProvider timeProvider)
 	{
 		public Return CreateReturn(int rentalId, float latitude, float longitude)
 		{
 			return new Return
 			{
-				ReturnDate = DateTime.Now,
+				ReturnDate = timeProvider.GetUtcNow().DateTime,
 				RentalID = rentalId,
                 Location = new Location { Latitude = latitude, Longitude = longitude }
             };
