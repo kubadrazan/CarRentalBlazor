@@ -3,7 +3,6 @@ using MiNICarRentalBrowser.Services.Car_Service;
 
 namespace MiNICarRentalBrowser.Services
 {
-
 	public class CarRentalServiceFactory
 	{
 		private readonly Dictionary<int, Func<ICarRental>> _serviceMap;

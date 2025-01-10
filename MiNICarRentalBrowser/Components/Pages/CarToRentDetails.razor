@@ -67,10 +67,10 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await base.OnInitializedAsync();
-		_car = await aggregatedCarService.GetCarDetailsAsync(carID);
+		_car = await aggregatedCarService.GetCarDetailsAsync(apiID, carID);
 		_isCarLoaded = true;
 
-		_offers = await aggregatedCarService.GetOffersAsync(carID);
+		_offers = await aggregatedCarService.GetOffersAsync(apiID, carID);
 
 		_areOffersLoaded = true;
 	}
@@ -82,7 +82,7 @@
 		if (user.Identity != null && user.Identity.IsAuthenticated)
 		{
 			var email = user.FindFirstValue(ClaimTypes.Email);
-			var result = await aggregatedCarService.ChooseOffer(offerID, email);
+			var result = await aggregatedCarService.ChooseOffer(apiID, offerID, email);
 			if (result == "Error")
 				navigation.NavigateTo("/error-page/");
 			navigation.NavigateTo("/check-mail");

@@ -70,7 +70,7 @@
 			{
 				navigation.NavigateTo("/home", true);
 			}
-			_car = await aggregatedCarService.GetCarDetailsAsync(_rental.CarID);
+			_car = await aggregatedCarService.GetCarDetailsAsync(0, _rental.CarID); // TODO add correct apiID
 		}
 
 		_isCarLoaded = true;
