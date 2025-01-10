@@ -80,7 +80,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 		}
 
 		public Task<string> ConfirmOffer(Guid offerId)
-		{
+		{ // TODO multipleApi: OfferCache needed 
 			return _carRentalServiceFactory.GetService(0).ConfirmOffer(offerId);
 		}
 
@@ -90,43 +90,43 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 		}
 
 		public Task<Rental> GetRentalAsync(RentalBrowser rentalBrowser)
-		{
+		{ // TODO Not Used??
 			return _carRentalServiceFactory.GetService(0).GetRentalAsync(rentalBrowser);
 		}
 
-		public Task<Rental> GetRentalAsync(int Id)
+		public Task<Rental> GetRentalAsync(int Id, int apiId)
 		{
-			return _carRentalServiceFactory.GetService(0).GetRentalAsync(Id);
+			return _carRentalServiceFactory.GetService(apiId).GetRentalAsync(Id);
 		}
 
-		public Task<byte[]> GetCarImage(int Id)
-		{
+		public Task<byte[]> GetCarImage(int Id) 
+		{ // TODO Not used??
 			return _carRentalServiceFactory.GetService(0).GetCarImage(Id);
 		}
 
 		public Task<int> GetRentalsCountAsync()
-		{
+		{ // TODO multipleApi - No Endpoint in BApi
 			return _carRentalServiceFactory.GetService(0).GetRentalsCountAsync();
 		}
 
 		public Task<List<Rental>> GetRentalsAsync(int? pageInd, int pageSize = 15)
-		{
+		{ // TODO multipleApi
 			return _carRentalServiceFactory.GetService(0).GetRentalsAsync(pageInd, pageSize);
 		}
 
 		public Task ReturnCarAsync(Rental rental)
 		{
-			return _carRentalServiceFactory.GetService(0).ReturnCarAsync(rental);
+			return _carRentalServiceFactory.GetService(rental.SourceAPI).ReturnCarAsync(rental);
 		}
 
 		public Task AcceptCarReturn(int rentalId, string employeeEmail, string acceptationDescription, string carImage)
-		{
+		{ // TODO multipleApi
 			return _carRentalServiceFactory.GetService(0).AcceptCarReturn(rentalId, employeeEmail, acceptationDescription, carImage);
 		}
 
-		public Task<byte[]> GetImage(int rentalId)
+		public Task<byte[]> GetImage(Rental rental)
 		{
-			return _carRentalServiceFactory.GetService(0).GetImage(rentalId);
+			return _carRentalServiceFactory.GetService(rental.SourceAPI).GetImage(rental.ID);
 		}
 	}
 }

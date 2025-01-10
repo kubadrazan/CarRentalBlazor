@@ -1,4 +1,4 @@
-﻿@page "/RentalDetailsClient/{rentalId:int}"
+﻿@page "/RentalDetailsClient/{apiID:int}/{rentalId:int}/"
 @using MiNICarRentalBrowser.Components.Components
 @using MiNICarRentalBrowser.Services
 @using MiNICarRentalBrowser.Services.Car_Service
@@ -46,6 +46,8 @@
 @code {
 	[Parameter]
 	public int rentalId { get; set; }
+	[Parameter]
+	public int apiId { get; set; }
 	private Rental _rental { get; set; }
 	private Car _car;
 
@@ -62,7 +64,7 @@
 		}
 		await base.OnInitializedAsync();
 
-		_rental = await aggregatedCarService.GetRentalAsync(rentalId);
+		_rental = await aggregatedCarService.GetRentalAsync(rentalId, apiId);
 		var email = user.FindFirstValue(ClaimTypes.Email);
 		if (_rental != null)
 		{
@@ -70,7 +72,7 @@
 			{
 				navigation.NavigateTo("/home", true);
 			}
-			_car = await aggregatedCarService.GetCarDetailsAsync(0, _rental.CarID); // TODO add correct apiID
+			_car = await aggregatedCarService.GetCarDetailsAsync(_rental.SourceAPI, _rental.CarID);
 		}
 
 		_isCarLoaded = true;
