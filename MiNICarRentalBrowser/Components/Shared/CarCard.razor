@@ -12,7 +12,7 @@
         <MudItem xs="5" sm="5">
             <div style="display: flex; flex-direction: column; align-items: flex-end; padding-right: 16px">
                 <MudImage Src=@imgSrc Style="width: 100px; height: 100px; object-fit: cover;" />
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="() => OnButtonClicked(car.ID)">@buttonText</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="() => OnButtonClicked(car.SourceApiID, car.CarID)">@buttonText</MudButton>
             </div>
         </MudItem>
     </MudGrid>
@@ -28,7 +28,7 @@
     public required string imgSrc { get; set; }
 
     [Parameter]
-    public required Action<int> OnButtonClicked { get; set; }
+    public required Action<int,int> OnButtonClicked { get; set; }
 
     [Parameter]
     public required string buttonText { get; set; }

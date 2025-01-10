@@ -20,8 +20,9 @@ namespace MiniCarRentalAPI.Controllers
 		private readonly ReturnFactory _returnFactory;
 		private readonly AcceptationFactory _acceptationFactory;
         private readonly AzureBlobService _azureBlobService;
+        private readonly TimeProvider _timeProvider;
 
-        public RentalController(CarRentalContext context, EmailService emailService, OfferFactory offerFactory, RentalFactory rentalFactory, ReturnFactory returnFactory, AcceptationFactory acceptationFactory, AzureBlobService azureBlobService)
+        public RentalController(CarRentalContext context, EmailService emailService, OfferFactory offerFactory, RentalFactory rentalFactory, ReturnFactory returnFactory, AcceptationFactory acceptationFactory, AzureBlobService azureBlobService, TimeProvider timeProvider)
 		{
 			_context = context;
 			_emailService = emailService;
@@ -30,7 +31,9 @@ namespace MiniCarRentalAPI.Controllers
 			_returnFactory = returnFactory;
 			_acceptationFactory = acceptationFactory;
 			_azureBlobService = azureBlobService;
-		}
+            _timeProvider = timeProvider;
+
+        }
 
 		[HttpGet("offers/{carId}")]
 		public async Task<IActionResult> GetCarOffers(int carId)
@@ -89,7 +92,10 @@ namespace MiniCarRentalAPI.Controllers
 				return NotFound();
 			}
 
-			var car = await _context.Cars.FirstOrDefaultAsync(c => c.ID == offer.CarId);
+			if (offer.ExpirationDate > _timeProvider.GetUtcNow())
+                return UnprocessableEntity();
+
+            var car = await _context.Cars.FirstOrDefaultAsync(c => c.ID == offer.CarId);
 
 			if (car == null)
 			{

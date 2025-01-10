@@ -17,17 +17,19 @@ namespace MiniCarRentalAPI.Services
 		private readonly EmailAddress _address;
 		private readonly SendGridMessage _message;
 		private readonly IConfiguration _configuration;
+		private readonly TimeProvider _timeProvider;
 		private readonly string _apiA;
 
-		public EmailService(IConfiguration configuration, IOptions<EmailServiceOptions> options, PdfGenerationService pdfGenerationService)
+		public EmailService(IConfiguration configuration, IOptions<EmailServiceOptions> options, PdfGenerationService pdfGenerationService, TimeProvider timeProvider)
 		{
 
 			_client = new SendGridClient(options.Value.APIKey);
 			_address = new EmailAddress("minicarrental@hotmail.com");
 			_pdfGenerationService = pdfGenerationService;
 			_configuration = configuration;
+			_timeProvider = timeProvider;
 #if DEBUG
-			_apiA = configuration.GetValue<string>("ApiUrls:ApiBrowserA") ?? throw new Exception("No apiA Url in configuration file!");
+			_apiA = configuration.GetValue<string>("BrowserUrls:BrowserA") ?? throw new Exception("No apiA Url in configuration file!");
 #else
 			_apiA = configuration.GetValue<string>("aApiUrl") ?? throw new Exception("No apiA Url in Azure key vault!");
 #endif
@@ -52,16 +54,17 @@ namespace MiniCarRentalAPI.Services
 		{
 			string templateId = "d-1875804a5f7349978f3f1daadee834ef";
 			var to = new EmailAddress(rental.UserEmail);
+			var localNow = _timeProvider.GetLocalNow().DateTime;
 			var message = MailHelper.CreateSingleTemplateEmail(_address, to, templateId, new
 			{
 				userName = rental.UserEmail,
 				prodYear = rental.Car.ProductionYear.ToString(),
 				brand = rental.Car.Model.Brand.Name,
 				model = rental.Car.Model.Name,
-				InvoiceNumber = "IN-" + DateTime.Now.ToString("yyyy-MM-dd-hhmmss"),
-				IssueDate = DateTime.Now.ToString(),
-				DueDate = DateTime.Now.AddDays(14).ToString(),
-				Amount = (rental.PricePerDay * (DateTime.Now - rental.RentDate).Days).ToString() + "$"
+				InvoiceNumber = "IN-" + localNow.ToString("yyyy-MM-dd-hhmmss"),
+				IssueDate = localNow.ToString(),
+				DueDate = localNow.AddDays(14).ToString(),
+				Amount = (rental.PricePerDay * (localNow - rental.RentDate.ToLocalTime()).Days).ToString() + "$"
 
 			});
 			message.AddAttachment("Invoice.pdf", Convert.ToBase64String(_pdfGenerationService.GenerateInvoice(rental)));

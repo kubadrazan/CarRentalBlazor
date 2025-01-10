@@ -69,14 +69,14 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			return await _carRepository.GetBrandsModelsAsync();
 		}
 
-		public Task<Car> GetCarDetailsAsync(int carId)
-		{// TODO multipleApi
-			return _carRentalServiceFactory.GetService(0).GetCarDetailsAsync(carId);
+		public Task<Car> GetCarDetailsAsync(int apiId, int carId)
+		{
+			return _carRentalServiceFactory.GetService(apiId).GetCarDetailsAsync(carId);
 		}
 
-		public Task<List<Offer>> GetOffersAsync(int carId, int apiId)
+		public async Task<List<Offer>> GetOffersAsync(int apiId, int carId)
 		{
-			return _carRentalServiceFactory.GetService(apiId).GetOffersAsync(carId);
+			return await _carRentalServiceFactory.GetService(apiId).GetOffersAsync(carId);
 		}
 
 		public Task<string> ConfirmOffer(Guid offerId)
@@ -84,9 +84,9 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			return _carRentalServiceFactory.GetService(0).ConfirmOffer(offerId);
 		}
 
-		public Task<string> ChooseOffer(int offerid, string emailAddress, int apiID)
-		{ 
-			return _carRentalServiceFactory.GetService(apiID).ChooseOffer(offerid, emailAddress);
+		public Task<string> ChooseOffer(int apiId, int offerid, string emailAddress)
+		{
+			return _carRentalServiceFactory.GetService(apiId).ChooseOffer(offerid, emailAddress);
 		}
 
 		public Task<Rental> GetRentalAsync(RentalBrowser rentalBrowser)

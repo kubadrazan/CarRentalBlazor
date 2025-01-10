@@ -5,7 +5,7 @@
         <MudItem xs="7">
             <div style="display: flex; flex-direction: column; align-items: flex-start; padding-left: 16px">
                 <MudText Typo="Typo.h5">@rental.Car.Model.Brand.Name @rental.Car.Model.Name</MudText>
-                <MudText Typo="Typo.body2" Class="my-1">Rented: @rental.RentDate.ToShortDateString()</MudText>
+                <MudText Typo="Typo.body2" Class="my-1">Rented: @rental.RentDate.ToLocalTime().ToShortDateString()</MudText>
                 @switch (rental.RentalStatus)
                 {
                     case RentalStatus.ACTIVE:
