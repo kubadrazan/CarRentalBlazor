@@ -213,8 +213,9 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 		{
 			try
 			{
-				var response = await _httpClient.GetFromJsonAsync<string>($"{_apiUrl}/api/acceptations/cardescription/{rentalId}");
-				return response;
+				var response = await _httpClient.GetFromJsonAsync<Description>($"{_apiUrl}/api/acceptations/cardescription/{rentalId}");
+				var content = response.Content;
+				return content;
 			}
 			catch (Exception ex)
 			{
