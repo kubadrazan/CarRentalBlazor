@@ -32,7 +32,7 @@
 				@foreach (Offer offer in _offers)
 				{
 					<div class="offer-row">
-									<p><strong>Price Per Day: @Math.Round(offer.Price) zł</strong> Insurance @(offer.IsInsurance ? "Included" : "Not Included")</p>
+						<p><strong>Price Per Day: @Math.Round(offer.Price) zł</strong> Insurance @(offer.IsInsurance ? "Included" : "Not Included")</p>
 						<button @onclick="() => RentMeAction(offer.ID)" class="button">Rent Me</button>
 					</div>
 				}
@@ -52,9 +52,9 @@
 
 @code {
 	[Parameter]
-	public int carID { get; set; }
+	public int carId { get; set; }
 	private Car _car;
-
+	private int _apiId = 0; // TODO
 	private bool _areOffersLoaded = false;
 	private bool _isCarLoaded = false;
 
@@ -63,10 +63,10 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await base.OnInitializedAsync();
-		_car = await aggregatedCarService.GetCarDetailsAsync(carID);
+		_car = await aggregatedCarService.GetCarDetailsAsync(carId);
 		_isCarLoaded = true;
 
-		_offers = await aggregatedCarService.GetOffersAsync(carID);
+		_offers = await aggregatedCarService.GetOffersAsync(carId, _apiId);
 
 		_areOffersLoaded = true;
 	}
@@ -78,7 +78,7 @@
 		if (user.Identity != null && user.Identity.IsAuthenticated)
 		{
 			var email = user.FindFirstValue(ClaimTypes.Email);
-			var result = await aggregatedCarService.ChooseOffer(offerID, email);
+			var result = await aggregatedCarService.ChooseOffer(offerID, email, _apiId);
 			if (result == "Error")
 				navigation.NavigateTo("/error-page/");
 			navigation.NavigateTo("/check-mail");
