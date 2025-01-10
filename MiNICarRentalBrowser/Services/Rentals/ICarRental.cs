@@ -20,5 +20,6 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 		Task ReturnCarAsync(Rental rental);
 		Task AcceptCarReturn(int rentalId, string employeeEmail, string acceptationDescription, string carImage);
 		Task<byte[]> GetImage(int rentalId);
+		Task<string> GetDescription(int rentalId);
 	}
 }
