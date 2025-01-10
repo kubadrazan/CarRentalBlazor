@@ -220,9 +220,9 @@
         return $"{string.Join(", ", selectedValues.Select(x => x))}";
     }
 
-    private void NavigateToCarDetails(int carId)
+    private void NavigateToCarDetails(int apiID, int carId)
     {
-        Navigation.NavigateTo($"/CarToRentDetails/{carId}");
+        Navigation.NavigateTo($"/CarToRentDetails/{apiID}/{carId}");
     }
 
     private void OnChipClose(MudChip<string> chip) =>

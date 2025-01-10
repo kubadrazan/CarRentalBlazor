@@ -62,7 +62,7 @@
 
 		_rental = await aggregatedCarService.GetRentalAsync(rentalId);
 		if (_rental != null)
-			_car = await aggregatedCarService.GetCarDetailsAsync(_rental.CarID);
+			_car = await aggregatedCarService.GetCarDetailsAsync(0, _rental.CarID); // TODO delete magic number
 		_isCarLoaded = true;
 	}
 	public void AcceptReturnAction()

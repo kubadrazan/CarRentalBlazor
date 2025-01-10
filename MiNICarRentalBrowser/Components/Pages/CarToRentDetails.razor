@@ -1,4 +1,4 @@
-﻿@page "/CarToRentDetails/{carID:int}"
+﻿@page "/CarToRentDetails/{apiID:int}/{carID:int}"
 @using MiNICarRentalBrowser.Components.Components
 @using MiNICarRentalBrowser.Services.Car_Service
 @using Microsoft.AspNetCore.Authorization
@@ -32,7 +32,7 @@
 				@foreach (Offer offer in _offers)
 				{
 					<div class="offer-row">
-									<p><strong>Price Per Day: @Math.Round(offer.Price) zł</strong> Insurance @(offer.IsInsurance ? "Included" : "Not Included")</p>
+						<p><strong>Price Per Day: @Math.Round(offer.Price) zł</strong> Insurance @(offer.IsInsurance ? "Included" : "Not Included")</p>
 						<button @onclick="() => RentMeAction(offer.ID)" class="button">Rent Me</button>
 					</div>
 				}
@@ -53,6 +53,10 @@
 @code {
 	[Parameter]
 	public int carID { get; set; }
+
+	[Parameter]
+	public int apiID { get; set; }
+
 	private Car _car;
 
 	private bool _areOffersLoaded = false;
@@ -63,10 +67,10 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await base.OnInitializedAsync();
-		_car = await aggregatedCarService.GetCarDetailsAsync(carID);
+		_car = await aggregatedCarService.GetCarDetailsAsync(apiID, carID);
 		_isCarLoaded = true;
 
-		_offers = await aggregatedCarService.GetOffersAsync(carID);
+		_offers = await aggregatedCarService.GetOffersAsync(apiID, carID);
 
 		_areOffersLoaded = true;
 	}
@@ -78,7 +82,7 @@
 		if (user.Identity != null && user.Identity.IsAuthenticated)
 		{
 			var email = user.FindFirstValue(ClaimTypes.Email);
-			var result = await aggregatedCarService.ChooseOffer(offerID, email);
+			var result = await aggregatedCarService.ChooseOffer(apiID, offerID, email);
 			if (result == "Error")
 				navigation.NavigateTo("/error-page/");
 			navigation.NavigateTo("/check-mail");
