@@ -43,6 +43,21 @@ namespace MiniCarRentalAPI.Controllers
 				return BadRequest(ex.Message);
 			}
 		}
+		// GET: api/acceptations/cardescription/{rentalId}
+		[HttpGet("cardescription/{rentalId}")]
+		public async Task<IActionResult> GetDescription(int rentalId)
+		{
+			try
+			{
+				var Return = await _context.Returns.FirstOrDefaultAsync(r => r.RentalID == rentalId);
+				var Acceptation = await _context.Acceptations.FirstOrDefaultAsync(a => a.ReturnID == Return.ID);
+				return Ok(Acceptation.Description);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+		}
 
 	}
 }

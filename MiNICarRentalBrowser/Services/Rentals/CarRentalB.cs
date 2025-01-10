@@ -60,6 +60,11 @@ namespace MiNICarRentalBrowser.Services.Car_Service
             return result;
         }
 
+		public Task<string> GetDescription(int rentalId)
+		{
+			throw new NotImplementedException();
+		}
+
 		public Task<byte[]> GetImage(int rentalId)
 		{
 			throw new NotImplementedException();

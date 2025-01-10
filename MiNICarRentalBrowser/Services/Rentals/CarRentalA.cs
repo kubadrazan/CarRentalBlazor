@@ -208,5 +208,19 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			}
 
 		}
+
+		public async Task<string> GetDescription(int rentalId)
+		{
+			try
+			{
+				var response = await _httpClient.GetFromJsonAsync<string>($"{_apiUrl}/api/acceptations/cardescription/{rentalId}");
+				return response;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error fetching rental data: {ex.Message}");
+				return null;
+			}
+		}
 	}
 }

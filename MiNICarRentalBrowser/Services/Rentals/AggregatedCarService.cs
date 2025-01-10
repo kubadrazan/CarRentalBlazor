@@ -128,5 +128,9 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 		{
 			return _carRentalServiceFactory.GetService(rental.SourceAPI).GetImage(rental.ID);
 		}
+		public Task<string> GetDescription(Rental rental)
+		{
+			return _carRentalServiceFactory.GetService(rental.SourceAPI).GetDescription(rental.ID);
+		}
 	}
 }

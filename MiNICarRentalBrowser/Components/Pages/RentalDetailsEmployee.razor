@@ -34,12 +34,13 @@
 			<p>Loading Rental Details...</p>
 		}
 	</div>
-	<div class="card">
-		@if (_rental != null && _rental.RentalStatus == RentalStatus.CLOSED)
-		{
+	@if (_rental != null && _rental.RentalStatus == RentalStatus.CLOSED)
+	{
+		<div class="card">
 			<CarImageDisplay rental="_rental" />
-		}
-	</div>
+			<AcceptationDescriptionDisplay rental="_rental" />
+		</div>
+	}
 </div>
 
 @code {
