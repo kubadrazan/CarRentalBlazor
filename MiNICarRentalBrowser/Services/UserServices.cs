@@ -65,7 +65,7 @@ namespace MiNICarRentalBrowser.Services
 			return await _context.Users.FirstOrDefaultAsync(u => u.Email == userMail);
 		}
 
-		public async Task AcceptOfferAsync(Rental rental)
+		public async Task AddRentalAsync(Rental rental)
 		{
             
             var rentalBrowser = new RentalBrowser()

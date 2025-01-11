@@ -6,7 +6,7 @@ namespace MiNICarRentalBrowser.Services
     {
         Task AddUserAsync(User user);
 
-        Task AcceptOfferAsync(Rental rental);
+        Task AddRentalAsync(Rental rental);
 
         Task<List<RentalBrowser>> GetUsersRentals(string email, int? pageInd, int pageSize = 15);
 

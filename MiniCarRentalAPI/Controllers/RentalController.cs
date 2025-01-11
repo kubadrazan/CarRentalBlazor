@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MiniCarRentalAPI.Data;
 using MiniCarRentalAPI.Services;
 using SharedDataModels;
@@ -55,66 +56,69 @@ namespace MiniCarRentalAPI.Controllers
 			return Ok(offers);
 		}
 
-		[HttpPut("offers/chooseOffer/{offerId}")]
-		public async Task<IActionResult> ChooseOffer(
-			 int offerId,
-			[FromBody] String emailAddress)
-		{
-			var offer = await _context.Offers.FirstOrDefaultAsync(f => f.ID == offerId);
-			if (offer == null)
-			{
-				return NotFound();
-			}
-			offer.UserEmail = emailAddress;
+        [HttpPut("offers/chooseOffer/{offerId}")]
+        public async Task<IActionResult> ChooseOffer(
+             int offerId,
+            [FromBody] String emailAddress)
+        {
+            var offer = await _context.Offers.FirstOrDefaultAsync(f => f.ID == offerId);
+            if (offer == null)
+            {
+                return NotFound();
+            }
 
-			_context.Offers.Update(offer);
-			await _context.SaveChangesAsync();
-
-			var car = await _context.Cars
-				.Include(c => c.Model)
-				.ThenInclude(m => m.Brand)
-				.FirstOrDefaultAsync(c => c.ID == offer.CarId);
-			
-			if(car.Availability != Availability.AVAILABLE) return UnprocessableEntity();
-
-			_emailService.SendConfirmationEmail(offer, car);
-
-			return Ok($"Sent offer {offer.OfferGuid} to  '{emailAddress}'.");
-		}
-
-		[HttpPut("offers/acceptOffer")]
-		public async Task<IActionResult> AcceptOffer([FromBody] Guid offerId)
-		{
-			var offer = await _context.Offers.FirstOrDefaultAsync(f => f.OfferGuid == offerId);
-
-			if (offer == null || offer.UserEmail is null)
-			{
-				return NotFound();
-			}
-
-			if (offer.ExpirationDate > _timeProvider.GetUtcNow())
+            if (offer.ExpirationDate < _timeProvider.GetUtcNow().DateTime || !offer.UserEmail.IsNullOrEmpty())
                 return UnprocessableEntity();
 
-            var car = await _context.Cars.FirstOrDefaultAsync(c => c.ID == offer.CarId);
+            offer.UserEmail = emailAddress;
 
-			if (car == null)
-			{
-				return NotFound();
-			}
+            _context.Offers.Update(offer);
 
-			if (car.Availability != Availability.AVAILABLE) return UnprocessableEntity();
+            var car = await _context.Cars
+                .Include(c => c.Model)
+                .ThenInclude(m => m.Brand)
+                .FirstOrDefaultAsync(c => c.ID == offer.CarId);
 
-			car.Availability = Availability.NOT_AVAILABLE;
+            if (car.Availability != Availability.AVAILABLE) return UnprocessableEntity();
 
-			var rental = _rentalFactory.CreateRental(offer);
+            _emailService.SendConfirmationEmail(offer, car);
 
-			_context.Rentals.Add(rental);
-			await _context.SaveChangesAsync();
+            var rental = _rentalFactory.CreateRental(offer);
 
-			return Ok(rental);
-		}
+            _context.Rentals.Add(rental);
+            await _context.SaveChangesAsync();
 
-		[HttpPut("rentals/returnCar/{rentalId}")]
+            return Ok(rental);
+        }
+
+        [HttpPut("offers/acceptOffer")]
+        public async Task<IActionResult> AcceptOffer([FromBody] Guid offerId)
+        {
+            var rental = await _context.Rentals.FirstOrDefaultAsync(r => r.OfferGuid == offerId);
+
+            if (rental == null || rental.UserEmail is null)
+            {
+                return NotFound();
+            }
+
+            var car = await _context.Cars.FirstOrDefaultAsync(c => c.ID == rental.CarID);
+
+            if (car == null)
+            {
+                return NotFound();
+            }
+
+            if (car.Availability != Availability.AVAILABLE) return UnprocessableEntity();
+
+            car.Availability = Availability.NOT_AVAILABLE;
+            rental.RentalStatus = RentalStatus.ACTIVE;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(rental);
+        }
+
+        [HttpPut("rentals/returnCar/{rentalId}")]
 		public async Task<IActionResult> ReturnCar(int rentalId,
 			[FromBody] ReturnCarRequest request)
 		{

@@ -6,12 +6,14 @@ namespace SharedDataModels
 {
     public enum RentalStatus
     {
-        ACTIVE, RETURNED, CLOSED
+        ACTIVE, RETURNED, CLOSED, NOT_ACCEPTED
     }
     public class Rental
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // change to none and replace with your own or smth
         public int ID { get; set; }
+
+        public Guid OfferGuid { get; set; }
 
         public RentalStatus RentalStatus { get; set; }
 
