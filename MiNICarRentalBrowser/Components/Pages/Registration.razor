@@ -162,8 +162,7 @@
                 FirstName = _firstName,
                 LastName = _lastName,
                 BirthDate = (DateTime)_birthDate,
-                DrivingLicenseObtainDate = (DateTime)_drivingLicenseDate,
-                Location = new Location { Latitude = 0, Longitude = 0 } // TODO zmienic
+                DrivingLicenseObtainDate = (DateTime)_drivingLicenseDate
             };
 
         await UserService.AddUserAsync(user);
