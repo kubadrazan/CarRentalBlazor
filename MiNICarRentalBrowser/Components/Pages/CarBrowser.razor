@@ -76,7 +76,7 @@
                             </MudSelect>
                         </MudItem>
                     </MudExpansionPanel>
-                    <MudExpansionPanel Text="Models" >
+                    <MudExpansionPanel Text="Models" Expanded="true">
                         <MudContainer Style="max-height: 700px; overflow-y: auto;">
                             @if (uniqueModels == null || uniqueBrands.Count == 0)
                             {
@@ -217,6 +217,8 @@
 
     private void OnPageChanged(int page)
     {
+        if (page == pageInd)
+            return;
         pageInd = page;
         if (uniqueModels.TryGetValue(selectedBrand, out List<string> list))
         {
