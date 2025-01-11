@@ -26,8 +26,6 @@ namespace SharedDataModels
         [DataType(DataType.Date)]
         public DateTime BirthDate { get; set; }
 
-        public Location Location { get; set; }
-
         [JsonIgnore]
         public ICollection<RentalBrowser> Rentals { get; set; }
     }

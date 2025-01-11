@@ -120,7 +120,7 @@ namespace MiniCarRentalAPI.Controllers
 
         [HttpPut("rentals/returnCar/{rentalId}")]
 		public async Task<IActionResult> ReturnCar(int rentalId,
-			[FromBody] ReturnCarRequest request)
+			[FromBody] string email)
 		{
 			var rental = await _context.Rentals.FirstOrDefaultAsync(r => r.ID == rentalId);
 
@@ -129,7 +129,12 @@ namespace MiniCarRentalAPI.Controllers
 				return NotFound();
 			}
 
-			var carReturn = _returnFactory.CreateReturn(rentalId, request.Latitude, request.Longitude);
+			if (rental.UserEmail != email)
+			{
+				return BadRequest();
+			}
+
+			var carReturn = _returnFactory.CreateReturn(rentalId);
 			rental.RentalStatus = RentalStatus.RETURNED;
 
 			_context.Returns.Add(carReturn);

@@ -183,8 +183,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 
 		public async Task ReturnCarAsync(Rental rental)
 		{
-			var returnRequest = new ReturnCarRequest(rental, 0, 0);
-			var response = await _httpClient.PutAsJsonAsync<ReturnCarRequest>($"{_apiUrl}/api/Rental/rentals/returnCar/{rental.ID}", returnRequest);
+			var response = await _httpClient.PutAsJsonAsync<string>($"{_apiUrl}/api/Rental/rentals/returnCar/{rental.ID}", rental.UserEmail);
 		}
 
 		public async Task AcceptCarReturn(int rentalId, string employeeEmail, string acceptationDescription, string carImage)

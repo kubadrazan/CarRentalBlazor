@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MiniCarRentalAPI.Data;
 
@@ -12,9 +13,11 @@ using MiniCarRentalAPI.Data;
 namespace MiniCarRentalAPI.Migrations
 {
     [DbContext(typeof(CarRentalContext))]
-    partial class CarRentalContextModelSnapshot : ModelSnapshot
+    [Migration("20250111183209_DeleteApisTable")]
+    partial class DeleteApisTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -225,9 +228,6 @@ namespace MiniCarRentalAPI.Migrations
                     b.Property<bool>("IsInsurance")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("OfferGuid")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<decimal>("PricePerDay")
                         .HasColumnType("money");
 
@@ -264,6 +264,17 @@ namespace MiniCarRentalAPI.Migrations
 
                     b.Property<DateTime>("ReturnDate")
                         .HasColumnType("datetime2");
+
+                    b.ComplexProperty<Dictionary<string, object>>("Location", "SharedDataModels.Return.Location#Location", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<float>("Latitude")
+                                .HasColumnType("real");
+
+                            b1.Property<float>("Longitude")
+                                .HasColumnType("real");
+                        });
 
                     b.HasKey("ID");
 
