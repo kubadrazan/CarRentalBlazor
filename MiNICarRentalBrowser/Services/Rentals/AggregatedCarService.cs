@@ -30,15 +30,11 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 
 		public async Task UpdateCarsInDBAsync()
 		{
-			using (var scope = _serviceProvider.CreateScope())
-			{
-				var carRepository = scope.ServiceProvider.GetRequiredService<ICarRepository>();
-				var cars = await GetAllCarsAsync();
-				await carRepository.UpdateCarsAsync(cars);
-			}
+			var cars = await GetAllCarsAsync();
+			_carRepository.UpdateCars(cars);
 		}
 
-		public async Task<List<CarCache>> GetFilteredCars(List<string> brands, List<string> models, int? pageInd = 1, int pageSize = 1)
+		public async Task<List<CarCache>> GetFilteredCars(string brand, List<string> models, int? pageInd = 1, int pageSize = 1)
 		{
 			if (pageInd == null)
 				pageInd = 1;
@@ -46,12 +42,12 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			if (pageInd < 1 || pageSize < 1)
 				throw new ArgumentOutOfRangeException();
 
-			return await _carRepository.GetFilteredCarsAsync(brands, models, (int)pageInd, pageSize);
+			return await _carRepository.GetFilteredCarsAsync(brand, models, (int)pageInd, pageSize);
 		}
 
-		public int GetFilteredCarsCount(List<string> brands, List<string> models)
+		public async Task<int> GetFilteredCarsCount(string brand, List<string> models)
 		{
-			return _carRepository.GetFilteredCarsCount(brands, models);
+			return await _carRepository.GetFilteredCarsCount(brand, models);
 		}
 
 		public async Task<List<string>> GetUniqueBrands()
@@ -128,6 +124,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 		{
 			return _carRentalServiceFactory.GetService(rental.SourceAPI).GetImage(rental.ID);
 		}
+
 		public Task<string> GetDescription(Rental rental)
 		{
 			return _carRentalServiceFactory.GetService(rental.SourceAPI).GetDescription(rental.ID);

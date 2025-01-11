@@ -163,8 +163,8 @@
         if (pageInd == null || pageInd < 0)
             pageInd = 1;
 
-        filteredCarsCount = aggregatedCarService.GetFilteredCarsCount(brandOptions.ToList(), modelOptions.ToList());
-        cars = await aggregatedCarService.GetFilteredCars(brandOptions.ToList(), modelOptions.ToList(), pageInd, pageSize);
+        filteredCarsCount = await aggregatedCarService.GetFilteredCarsCount(brandOptions.First(), modelOptions.ToList());
+        cars = await aggregatedCarService.GetFilteredCars(brandOptions.First(), modelOptions.ToList(), pageInd, pageSize);
 
         if (filteredCarsCount % pageSize == 0 && filteredCarsCount != 0)
             pagesCount = filteredCarsCount / pageSize;
