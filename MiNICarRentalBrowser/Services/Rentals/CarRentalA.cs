@@ -76,8 +76,6 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			try
 			{
 				var response = await _httpClient.PutAsJsonAsync<Guid>($"{_apiUrl}/api/Rental/offers/acceptOffer", offerId);
-				await _userService.AddRentalAsync(await response.Content.ReadFromJsonAsync<Rental>());
-
 				return await response.Content.ReadAsStringAsync();
 			}
 			catch (Exception ex)
@@ -96,8 +94,9 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 				if (!response.IsSuccessStatusCode)
 				{
 					return "Error";
-				}
-				return await response.Content.ReadAsStringAsync();
+                }
+                await _userService.AddRentalAsync(await response.Content.ReadFromJsonAsync<Rental>());
+                return await response.Content.ReadAsStringAsync();
 			}
 			catch (Exception ex)
 			{
