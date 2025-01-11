@@ -76,7 +76,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			try
 			{
 				var response = await _httpClient.PutAsJsonAsync<Guid>($"{_apiUrl}/api/Rental/offers/acceptOffer", offerId);
-				await _userService.AcceptOfferAsync(await response.Content.ReadFromJsonAsync<Rental>());
+				await _userService.AddRentalAsync(await response.Content.ReadFromJsonAsync<Rental>());
 
 				return await response.Content.ReadAsStringAsync();
 			}
