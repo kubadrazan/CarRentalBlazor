@@ -2,14 +2,18 @@
 {
 	public interface IApiKeyValidatorService
 	{
-		bool IsValidApiKey(string apiKey);
+		bool IsValidApiKey(string apiKey, string clientId);
 	}
-
 	public class ApiKeyValidatorService : IApiKeyValidatorService
 	{
-		public bool IsValidApiKey(string apiKey)
+		private readonly IConfiguration _configuration;
+		public ApiKeyValidatorService(IConfiguration configuration)
 		{
-			return apiKey == "1"; // TODO check if present in dbContext
+			_configuration = configuration;
+		}
+		public bool IsValidApiKey(string apiKey, string clientId)
+		{
+			return _configuration.GetValue<string>(clientId) == apiKey;
 		}
 	}
 }
