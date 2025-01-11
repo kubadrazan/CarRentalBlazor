@@ -24,7 +24,5 @@ namespace MiniCarRentalAPI.Data
         public DbSet<Acceptation> Acceptations { get; set; }
 
         public DbSet<Description> Descriptions { get; set; }
-
-        public DbSet<ApiEntity> ApiEntities { get; set; }
     }
 }
