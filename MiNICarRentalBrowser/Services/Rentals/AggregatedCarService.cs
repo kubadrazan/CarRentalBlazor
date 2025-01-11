@@ -60,7 +60,12 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			return await _carRepository.GetUniqueModelsAsync();
 		}
 
-		public async Task<List<BrandModelDTO>> GetBrandsModelsAsync()
+        public async Task<List<string>> GetUniqueModels(string brand)
+        {
+            return await _carRepository.GetUniqueModelsAsync(brand);
+        }
+
+        public async Task<List<BrandModelDTO>> GetBrandsModelsAsync()
 		{
 			return await _carRepository.GetBrandsModelsAsync();
 		}

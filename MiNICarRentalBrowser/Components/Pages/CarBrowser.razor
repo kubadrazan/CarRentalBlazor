@@ -14,34 +14,34 @@
             <MudPaper Class="pa-2" Outlined="true">
                 <MudStack Row="true" Wrap="Wrap.NoWrap" Spacing="1">
                     <MudItem>
-                        <MudSelect Style="width: 230px" MultiSelectionTextFunc="@(new Func<List<string>, string>(GetBrandsMultiSelectionText))" MultiSelection="true" @bind-SelectedValues="brandOptions" T="string" AdornmentIcon="@Icons.Material.Filled.Search"
+                        <MudSelect Style="width: 230px" @bind-Value=selectedBrand T="string" AdornmentIcon="@Icons.Material.Filled.Search"
                         AnchorOrigin="Origin.BottomCenter" Label="Brands" Variant="Variant.Outlined">
-                            @if (uniqueBrands != null)
+                            @if (uniqueBrands == null || uniqueBrands.Count == 0)
                             {
-                                @foreach (var brand in uniqueBrands)
-                                {
-                                    <MudSelectItem T="string" Value="@brand">@brand</MudSelectItem>
-                                }
+                                <p>Loading...</p>
                             }
                             else
                             {
-                                <p>Loading...</p>
+                                @foreach (var uBrand in uniqueBrands)
+                                {
+                                    <MudSelectItem T="string" Value="@uBrand">@uBrand</MudSelectItem>
+                                }
                             }
                         </MudSelect>
                     </MudItem>
                     <MudItem>
                         <MudSelect Style="width: 230px" MultiSelectionTextFunc="@(new Func<List<string>, string>(GetModelsMultiSelectionText))" MultiSelection="true" @bind-SelectedValues="modelOptions" T="string"
                         AdornmentIcon="@Icons.Material.Filled.Search" AnchorOrigin="Origin.BottomCenter" Label="Models" Variant="Variant.Outlined">
-                            @if (uniqueModels != null)
+                            @if (uniqueModels == null || uniqueModels.Count == 0)
                             {
-                                @foreach (var model in uniqueModels)
-                                {
-                                    <MudSelectItem T="string" Value="@model">@model</MudSelectItem>
-                                }
+                                <p>Loading...</p>
                             }
                             else
                             {
-                                <p>Loading...</p>
+                                @foreach (var model in uniqueModels[selectedBrand])
+                                {
+                                    <MudSelectItem T="string" Value="@model">@model</MudSelectItem>
+                                }
                             }
                         </MudSelect>
                     </MudItem>
@@ -59,44 +59,35 @@
                 <MudDivider Class="my-2" />
                 <MudExpansionPanels MultiExpansion="true" Outlined="false" Elevation="0">
                     <MudExpansionPanel Text="Brands" Expanded="true">
-                        @if (uniqueBrands != null)
-                        {
-                            @foreach (var brand in uniqueBrands)
-                            {
-                                <MudCheckBox T="bool" Label="@brand" Value="@brandOptions.Contains(brand)" ValueChanged="value => OnBrandSelectionChanged(brand, value)" />
-                            }
-                        }
-                        else
-                        {
-                            <p>Loading...</p>
-                        }
-                    </MudExpansionPanel>
-                    <MudExpansionPanel Text="Models">
-                        <MudStack Justify="Justify.Center" Class="mud-width-full">
-                            <MudSelect MultiSelectionTextFunc="@(new Func<List<string>, string>(GetModelsMultiSelectionText))" MultiSelection="true" @bind-SelectedValues="modelOptions" T="string"
-                            AdornmentIcon="@Icons.Material.Filled.Search" AnchorOrigin="Origin.BottomCenter" Label="Models" Variant="Variant.Outlined">
-                                @if (uniqueModels != null)
-                                {
-                                    @foreach (var model in uniqueModels)
-                                    {
-                                        <MudSelectItem T="string" Value="@model">@model</MudSelectItem>
-                                    }
-                                }
-                                else
+                        <MudItem>
+                            <MudSelect @bind-Value=selectedBrand T="string" AdornmentIcon="@Icons.Material.Filled.Search"
+                            AnchorOrigin="Origin.BottomCenter" Label="Brands" Variant="Variant.Outlined">
+                                @if (uniqueBrands == null || uniqueBrands.Count == 0)
                                 {
                                     <p>Loading...</p>
                                 }
-                            </MudSelect>
-                            <MudChipSet T="string" AllClosable="true" CheckMark="true" SelectionMode="SelectionMode.MultiSelection" OnClose="OnChipClose">
-                                @if (uniqueModels != null)
+                                else
                                 {
-                                    @foreach (var model in modelOptions)
+                                    @foreach (var uBrand in uniqueBrands)
                                     {
-                                        <MudChip Value="model" />
+                                        <MudSelectItem T="string" Value="@uBrand">@uBrand</MudSelectItem>
                                     }
                                 }
-                            </MudChipSet>
-                        </MudStack>
+                            </MudSelect>
+                        </MudItem>
+                    </MudExpansionPanel>
+                    <MudExpansionPanel Text="Models">
+                        @if (uniqueModels == null || uniqueBrands.Count == 0)
+                        {
+                            <p>Loading...</p>
+                        }
+                        else
+                        {
+                            @foreach (var model in uniqueModels[selectedBrand])
+                            {
+                                <MudCheckBox T="bool" Label="@model" Value="@modelOptions.Contains(model)" ValueChanged="value => OnModelSelectionChanged(model, value)" />
+                            }
+                        }
                     </MudExpansionPanel>
                 </MudExpansionPanels>
                 <MudButton Variant="Variant.Filled" Class="pa-2 mt-2 ml-auto" Color="Color.Primary" Style="display: block;" OnClick="ApplyFiltersButtonClick">
@@ -120,7 +111,7 @@
 @code {
     [Parameter]
     [SupplyParameterFromQuery(Name = "brand")]
-    public string[]? brands { get; set; }
+    public string? brand { get; set; }
 
     [Parameter]
     [SupplyParameterFromQuery(Name = "model")]
@@ -132,12 +123,12 @@
 
     private bool isLoading = false;
 
-    private IEnumerable<string> brandOptions { get; set; } = new HashSet<string>() { };
+    private string selectedBrand = string.Empty;
     private IEnumerable<string> modelOptions { get; set; } = new HashSet<string>() { };
 
     private List<CarCache> cars = new List<CarCache>();
     private List<string> uniqueBrands = new List<string>(); // Lista marek do selectBoxa
-    private List<string> uniqueModels = new List<string>(); // Lista modeli do selectBoxa
+    private Dictionary<string, List<string>> uniqueModels = new();
 
     private int pageSize = 5;
     private int pagesCount = 1;
@@ -145,8 +136,18 @@
 
     protected override async Task OnInitializedAsync()
     {
-        uniqueBrands = await aggregatedCarService.GetUniqueBrands();
-        uniqueModels = await aggregatedCarService.GetUniqueModels();
+        List<BrandModelDTO> bmDTO = await aggregatedCarService.GetBrandsModelsAsync();
+
+        foreach (var bm in bmDTO)
+        {
+            if (uniqueModels.ContainsKey(bm.BrandName))
+                uniqueModels[bm.BrandName].Add(bm.ModelName);
+            else
+            {
+                uniqueBrands.Add(bm.BrandName);
+                uniqueModels[bm.BrandName] = new() { bm.ModelName };
+            }
+        }
 
         await base.OnInitializedAsync();
     }
@@ -154,8 +155,13 @@
     protected override async Task OnParametersSetAsync()
     {
         isLoading = true;
-        if (brands != null)
-            brandOptions = new HashSet<string>(brands) { };
+
+        if ((brand == null || brand == string.Empty) && (uniqueBrands != null || uniqueBrands.Count != 0))
+            selectedBrand = uniqueBrands.First();
+        else if ((uniqueBrands == null || uniqueBrands.Count == 0) && (brand == null || brand == string.Empty))
+            selectedBrand = "BMW";
+        else
+            selectedBrand = brand;
 
         if (models != null)
             modelOptions = new HashSet<string>(models) { };
@@ -163,8 +169,8 @@
         if (pageInd == null || pageInd < 0)
             pageInd = 1;
 
-        filteredCarsCount = await aggregatedCarService.GetFilteredCarsCount(brandOptions.First(), modelOptions.ToList());
-        cars = await aggregatedCarService.GetFilteredCars(brandOptions.First(), modelOptions.ToList(), pageInd, pageSize);
+        filteredCarsCount = await aggregatedCarService.GetFilteredCarsCount(selectedBrand, modelOptions.ToList());
+        cars = await aggregatedCarService.GetFilteredCars(selectedBrand, modelOptions.ToList(), pageInd, pageSize);
 
         if (filteredCarsCount % pageSize == 0 && filteredCarsCount != 0)
             pagesCount = filteredCarsCount / pageSize;
@@ -181,52 +187,51 @@
     private void ApplyFiltersButtonClick()
     {
         pageInd = 1;
+        if (uniqueModels.TryGetValue(selectedBrand, out List<string> list))
+        {
+            modelOptions = modelOptions.Where(m => list.Contains(m));
+        }
         UpdateUrl();
     }
 
-    private void OnBrandSelectionChanged(string brand, bool state)
+    private void OnModelSelectionChanged(string model, bool state)
     {
         if (state)
         {
-            if (!brandOptions.Contains(brand))
+            if (!modelOptions.Contains(model))
             {
-                HashSet<string> hash = new HashSet<string>(brandOptions);
-                hash.Add(brand);
-                brandOptions = hash;
+                HashSet<string> hash = new HashSet<string>(modelOptions);
+                hash.Add(model);
+                modelOptions = hash;
             }
         }
         else
         {
-            HashSet<string> hash = new HashSet<string>(brandOptions);
-            hash.Remove(brand);
-            brandOptions = hash;
+            HashSet<string> hash = new HashSet<string>(modelOptions);
+            hash.Remove(model);
+            modelOptions = hash;
         }
-
     }
 
     private void OnPageChanged(int page)
     {
         pageInd = page;
+        if (uniqueModels.TryGetValue(selectedBrand, out List<string> list))
+        {
+            modelOptions = modelOptions.Where(m => list.Contains(m));
+        }
         UpdateUrl();
-    }
-
-    private string GetBrandsMultiSelectionText(List<string> selectedValues)
-    {
-        return $"{string.Join(", ", selectedValues.Select(x => x))}";
     }
 
     private string GetModelsMultiSelectionText(List<string> selectedValues)
     {
-        return $"{string.Join(", ", selectedValues.Select(x => x))}";
+        return $"{string.Join(", ", selectedValues.Where(s =>{if(uniqueModels.TryGetValue(selectedBrand, out List<string> list)){return list.Contains(s);}return false;}).Select(x => x))}";
     }
 
     private void NavigateToCarDetails(int apiID, int carId)
     {
         Navigation.NavigateTo($"/CarToRentDetails/{apiID}/{carId}");
     }
-
-    private void OnChipClose(MudChip<string> chip) =>
-        modelOptions = modelOptions.Where(x => x != chip.Value);
 
     private RenderFragment<object> RenderMyCard => item =>
     {
@@ -240,7 +245,8 @@
             <MudCardContent>
                 <MudText Typo="Typo.body1">Unknown item type</MudText>
             </MudCardContent>
-            </MudCard>;
+            </MudCard>
+    ;
         }
     };
 
@@ -257,10 +263,7 @@
         query.Add("pageSize",pageSize.ToString());
         query.Add("pageInd", pageInd.ToString());
 
-        foreach (var brand in brandOptions)
-        {
-            query.Add("brand", brand);
-        }
+        query.Add("brand", selectedBrand);
 
         foreach (var model in modelOptions)
         {
