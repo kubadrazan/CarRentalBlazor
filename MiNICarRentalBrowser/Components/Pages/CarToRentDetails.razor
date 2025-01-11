@@ -87,7 +87,10 @@
 			var email = user.FindFirstValue(ClaimTypes.Email);
 			var result = await aggregatedCarService.ChooseOffer(apiID, offerID, email);
 			if (result == "Error")
+			{
 				navigation.NavigateTo("/error-page/");
+				return;
+			}
 			navigation.NavigateTo("/check-mail");
 		}
 		else
