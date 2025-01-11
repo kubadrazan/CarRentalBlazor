@@ -67,7 +67,7 @@ namespace MiniCarRentalAPI.Controllers
                 return NotFound();
             }
 
-            if (offer.ExpirationDate > _timeProvider.GetUtcNow() || offer.UserEmail.IsNullOrEmpty())
+            if (offer.ExpirationDate < _timeProvider.GetUtcNow().DateTime || !offer.UserEmail.IsNullOrEmpty())
                 return UnprocessableEntity();
 
             offer.UserEmail = emailAddress;
