@@ -7,6 +7,7 @@ namespace MiniCarRentalAPI
 	{
 		private readonly RequestDelegate _next;
 		private const string ApiKeyHeaderName = "X-Api-Key";
+		private const string ApiClientIdHeaderName = "X-Client-Id";
 		private readonly IApiKeyValidatorService _apiKeyValidatorService;
 
 		public ApiAuthMiddleware(RequestDelegate next, IApiKeyValidatorService apiKeyValidatorService)
@@ -23,8 +24,14 @@ namespace MiniCarRentalAPI
 				await context.Response.WriteAsync("API Key is missing.");
 				return;
 			}
+			if (!context.Request.Headers.TryGetValue(ApiClientIdHeaderName, out var extractedClientId))
+			{
+				context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+				await context.Response.WriteAsync("Client Id is missing.");
+				return;
+			}
 
-			if (!_apiKeyValidatorService.IsValidApiKey(extractedApiKey))
+			if (!_apiKeyValidatorService.IsValidApiKey(extractedApiKey, extractedClientId))
 			{
 				context.Response.StatusCode = StatusCodes.Status403Forbidden;
 				await context.Response.WriteAsync("Invalid API Key.");

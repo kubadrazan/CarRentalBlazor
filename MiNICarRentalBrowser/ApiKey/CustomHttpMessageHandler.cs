@@ -14,9 +14,10 @@ namespace MiNICarRentalBrowser
 		protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
 		{
 			string baseUrl = request.RequestUri?.GetLeftPart(UriPartial.Authority) ?? throw new InvalidOperationException("Invalid request URI");
-			string apiKey = _apiKeyProvider.GetApiKeyAsync(baseUrl);
-
+			string apiKey  = _apiKeyProvider.GetApiKeyAsync(baseUrl);
+			string clientId = "MiNICarRentalBrowser";
 			request.Headers.Add("X-Api-Key", apiKey);
+			request.Headers.Add("X-Client-Id", clientId);
 
 			Console.WriteLine($"Request URI: {request.RequestUri}");
 
