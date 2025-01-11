@@ -57,7 +57,7 @@
             <MudPaper Elevation="1" Class="pa-4" Width="310px">
                 <MudText Typo="Typo.h6">Filters</MudText>
                 <MudDivider Class="my-2" />
-                <MudExpansionPanels MultiExpansion="true" Outlined="false" Elevation="0">
+                <MudExpansionPanels MultiExpansion="true" Outlined="false" Elevation="0" Dense="true">
                     <MudExpansionPanel Text="Brands" Expanded="true">
                         <MudItem>
                             <MudSelect @bind-Value=selectedBrand T="string" AdornmentIcon="@Icons.Material.Filled.Search"
@@ -76,18 +76,20 @@
                             </MudSelect>
                         </MudItem>
                     </MudExpansionPanel>
-                    <MudExpansionPanel Text="Models">
-                        @if (uniqueModels == null || uniqueBrands.Count == 0)
-                        {
-                            <p>Loading...</p>
-                        }
-                        else
-                        {
-                            @foreach (var model in uniqueModels[selectedBrand])
+                    <MudExpansionPanel Text="Models" >
+                        <MudContainer Style="max-height: 700px; overflow-y: auto;">
+                            @if (uniqueModels == null || uniqueBrands.Count == 0)
                             {
-                                <MudCheckBox T="bool" Label="@model" Value="@modelOptions.Contains(model)" ValueChanged="value => OnModelSelectionChanged(model, value)" />
+                                <p>Loading...</p>
                             }
-                        }
+                            else
+                            {
+                                @foreach (var model in uniqueModels[selectedBrand])
+                                {
+                                    <MudCheckBox T="bool" Label="@model" Value="@modelOptions.Contains(model)" ValueChanged="value => OnModelSelectionChanged(model, value)" />
+                                }
+                            }
+                        </MudContainer>
                     </MudExpansionPanel>
                 </MudExpansionPanels>
                 <MudButton Variant="Variant.Filled" Class="pa-2 mt-2 ml-auto" Color="Color.Primary" Style="display: block;" OnClick="ApplyFiltersButtonClick">
