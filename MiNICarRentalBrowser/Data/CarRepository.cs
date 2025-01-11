@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using SharedDataModels;
 using SharedDataModels.DTO;
+using StackExchange.Redis;
+using System.Text.Json;
 
 namespace MiNICarRentalBrowser.Data
 {
@@ -20,33 +22,39 @@ namespace MiNICarRentalBrowser.Data
     {
         private readonly UsersContext _context;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IDatabase _database;
 
-        public CarRepository(UsersContext context, IServiceProvider serviceProvider)
+        public CarRepository(UsersContext context, IServiceProvider serviceProvider, IDatabase database)
         {
             _context = context;
             _serviceProvider = serviceProvider;
+            _database = database;
         }
 
         public async Task UpdateCarsAsync(List<CarCache> cars)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-
-            try
+            TimeSpan expire = TimeSpan.FromMinutes(30);
+            IBatch batch = _database.CreateBatch();
+            foreach (var car in cars)
             {
-                _context.CarsCache.RemoveRange(_context.CarsCache);
+                if (car.CarID % 13 == 0 && car.CarID < 3000)
+                {
+                    string carKey = $"Car:{car.CarID}:{car.SourceApiID}";
+                    string value = JsonSerializer.Serialize(car);
+                    batch.StringSetAsync(carKey, value, expire);
 
-                await _context.SaveChangesAsync();
+                    string brandsKey = "Brands";
+                    batch.SetAddAsync(brandsKey, car.BrandName);
 
-                await _context.CarsCache.AddRangeAsync(cars);
+                    string brandKey = $"Brand:{car.BrandName}";
+                    batch.SetAddAsync(brandKey, car.ModelName);
 
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
+                    string modelKey = $"Model:{car.BrandName}:{car.ModelName}";
+                    batch.SetAddAsync(modelKey, carKey);
+                }
             }
-            catch
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
+                
+            batch.Execute();
         }
 
         public async Task<List<CarCache>> GetFilteredCarsAsync(List<string> brands, List<string> models, int pageInd = 1, int pageSize = 1)
