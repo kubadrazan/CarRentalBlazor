@@ -1,130 +1,249 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Win32.SafeHandles;
+using Newtonsoft.Json;
 using SharedDataModels;
 using SharedDataModels.DTO;
+using StackExchange.Redis;
+using System.Text.Json;
+using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
 namespace MiNICarRentalBrowser.Data
 {
     public interface ICarRepository
     {
-        Task UpdateCarsAsync(List<CarCache> cars);
-        Task<List<CarCache>> GetFilteredCarsAsync(List<string> brands, List<string> models, int pageInd = 1, int pageSize = 1);
-        int GetFilteredCarsCount(List<string> brands, List<string> models);
+        Task InsertCars(List<CarCache> cars);
+        Task<List<CarCache>> GetFilteredCarsAsync(string brands, List<string> models, int pageInd = 1, int pageSize = 1);
+        Task<int> GetFilteredCarsCount(string brand, List<string> models);
         Task<List<string>> GetUniqueBrandsAsync();
         Task<List<string>> GetUniqueModelsAsync();
+        Task<List<string>> GetUniqueModelsAsync(string brand);
         Task<List<BrandModelDTO>> GetBrandsModelsAsync();
-        Task<CarCache?> GetCarCacheAsync(int ID);
+        Task<CarCache?> GetCarCacheAsync(int apiID, int ID);
     }
 
     public class CarRepository : ICarRepository
     {
-        private readonly UsersContext _context;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IDatabase _database;
 
-        public CarRepository(UsersContext context, IServiceProvider serviceProvider)
+        public CarRepository(IServiceProvider serviceProvider, IDatabase database)
         {
-            _context = context;
             _serviceProvider = serviceProvider;
+            _database = database;
         }
 
-        public async Task UpdateCarsAsync(List<CarCache> cars)
+        private async Task WaitForData()
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-
-            try
+            for (int i = 0; i < 5; i++)
             {
-                _context.CarsCache.RemoveRange(_context.CarsCache);
-
-                await _context.SaveChangesAsync();
-
-                await _context.CarsCache.AddRangeAsync(cars);
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-            }
-            catch
-            {
-                await transaction.RollbackAsync();
-                throw;
+                if (await AreCarsAvailable())
+                    return;
+                await Task.Delay(4000);
             }
         }
 
-        public async Task<List<CarCache>> GetFilteredCarsAsync(List<string> brands, List<string> models, int pageInd = 1, int pageSize = 1)
+        public async Task<bool> AreCarsAvailable()
         {
-            using (var scope = _serviceProvider.CreateScope())
-            {
-                var context = scope.ServiceProvider.GetRequiredService<UsersContext>();
-                var query = context.CarsCache.AsQueryable();
-
-                if (brands != null && brands.Any())
-                    query = query.Where(car => brands.Contains(car.BrandName));
-
-                if (models != null && models.Any())
-                    query = query.Where(car => models.Contains(car.ModelName));
-
-                query = query.OrderBy(car => car.CarID);
-                query = query.Skip((pageInd - 1) * pageSize);
-                query = query.Take(pageSize);
-
-                return await query.ToListAsync();
-            }
+            return await _database.KeyExistsAsync("UpToDate");
         }
 
-        public int GetFilteredCarsCount(List<string> brands, List<string> models)
+        public async Task InsertCars(List<CarCache> cars)
         {
-            using (var scope = _serviceProvider.CreateScope())
+            if (await AreCarsAvailable())
             {
-                var context = scope.ServiceProvider.GetRequiredService<UsersContext>();
-                var query = context.CarsCache.AsQueryable();
-
-                if (brands != null && brands.Any())
-                    query = query.Where(car => brands.Contains(car.BrandName));
-
-                if (models != null && models.Any())
-                    query = query.Where(car => models.Contains(car.ModelName));
-
-                return query.Count();
+                await _database.KeyDeleteAsync("UpToDate");
+                await DeleteSets();
             }
+
+            TimeSpan expire = TimeSpan.FromMinutes(30);
+            IBatch batch = _database.CreateBatch();
+            foreach (var car in cars)
+            {
+                string carKey = $"CarCache:{car.SourceApiID}:{car.CarID}";
+                string carValue = JsonConvert.SerializeObject(car);
+                batch.StringSetAsync(carKey, carValue, expire);
+
+                string brandsKey = "Brands";
+                batch.SetAddAsync(brandsKey, car.BrandName);
+                batch.KeyExpireAsync(brandsKey, expire);
+
+                string brandKey = $"Models:{car.BrandName}";
+                batch.SetAddAsync(brandKey, car.ModelName);
+                batch.KeyExpireAsync(brandKey, expire);
+
+                string modelKey = $"Cars:{car.BrandName}:{car.ModelName}";
+                batch.SetAddAsync(modelKey, carKey);
+                batch.KeyExpireAsync(modelKey, expire);
+            }
+            await _database.StringSetAsync("UpToDate", "Cars", expire);
+            batch.Execute();
+        }
+
+        private async Task DeleteSets()
+        {
+            var batch = _database.CreateBatch();
+
+            var brandKeys = await _database.SetMembersAsync("Brands");
+
+            foreach (var brandKey in brandKeys)
+            {
+                string brandName = brandKey.ToString();
+
+                var modelKeys = await _database.SetMembersAsync($"Models:{brandName}");
+
+                foreach (var modelKey in modelKeys)
+                {
+                    string modelName = modelKey.ToString();
+
+                    batch.KeyDeleteAsync($"Cars:{brandName}:{modelName}");
+                }
+                batch.KeyDeleteAsync($"Models:{brandName}");
+            }
+            batch.KeyDeleteAsync("Brands");
+
+            batch.Execute();
+        }
+
+        public async Task<List<CarCache>> GetFilteredCarsAsync(string brand, List<string> models, int pageInd = 1, int pageSize = 1)
+        {
+            if (!await AreCarsAvailable())
+                await WaitForData();
+            List<CarCache> cars = new List<CarCache>();
+
+            if (models == null || models.Count == 0)
+            {
+                string brandModelsSet = $"Models:{brand}";
+                var set = await _database.SetMembersAsync(brandModelsSet);
+                models = set.Select(s => s.ToString()).ToList();
+            }
+
+            string modelsSetKeyPrefix = $"Cars:{brand}:";
+            foreach (var model in models)
+            {
+                string modelSetKey = modelsSetKeyPrefix + model;
+                var carKeys = await _database.SetMembersAsync(modelSetKey);
+
+                var task = carKeys.Select(carKey => _database.StringGetAsync(carKey.ToString()));
+                var carValues = await Task.WhenAll(task);
+
+                foreach (var carValue in carValues)
+                {
+                    if (!carValue.IsNullOrEmpty)
+                    {
+                        var car = JsonConvert.DeserializeObject<CarCache>(carValue);
+                        if (car != null)
+                        {
+                            cars.Add(car);
+                        }
+                    }
+                }
+            }
+
+            var query = cars.AsQueryable();
+            query = query.OrderBy(c => c.CarID).Skip((pageInd - 1) * pageSize).Take(pageSize);
+
+            return query.ToList();
+        }
+
+        public async Task<int> GetFilteredCarsCount(string brand, List<string> models)
+        {
+            if (!await AreCarsAvailable())
+                await WaitForData();
+            string modelsSetKeyPrefix = $"Cars:{brand}:";
+            long res = 0;
+
+            if (models == null || models.Count == 0)
+            {
+                string brandModelsSet = $"Models:{brand}";
+                var set = await _database.SetMembersAsync(brandModelsSet);
+                models = set.Select(s => s.ToString()).ToList();
+            }
+
+            var tasks = models.Select(s => _database.SetLengthAsync(modelsSetKeyPrefix + s));
+            var tasksResult = await Task.WhenAll(tasks);
+            res += tasksResult.Sum();
+
+            return (int)res;
         }
 
         public async Task<List<string>> GetUniqueBrandsAsync()
         {
-            using (var scope = _serviceProvider.CreateScope())
-            {
-                var context = scope.ServiceProvider.GetRequiredService<UsersContext>();
-                return await context.CarsCache.Select(c => c.BrandName)
-                .Distinct().OrderBy(c => c).ToListAsync();
-            }
+            if (!await AreCarsAvailable())
+                await WaitForData();
+            string brandsSetKey = "Brands";
+
+            var brands = await _database.SetMembersAsync(brandsSetKey);
+
+            return brands.Select(b => b.ToString()).OrderBy(b => b).ToList();
         }
 
         public async Task<List<string>> GetUniqueModelsAsync()
         {
-            using (var scope = _serviceProvider.CreateScope())
+            if (!await AreCarsAvailable())
+                await WaitForData();
+            List<string> brands = await GetUniqueBrandsAsync();
+            List<string> models = new List<string>();
+
+            foreach (var brand in brands)
             {
-                var context = scope.ServiceProvider.GetRequiredService<UsersContext>();
-                return await context.CarsCache.Select(c => c.ModelName)
-                .Distinct().OrderBy(c => c).ToListAsync();
+                string brandKey = $"Models:{brand}";
+                var res = await _database.SetMembersAsync(brandKey);
+                models.AddRange(res.Select(b => b.ToString()));
             }
+
+            return models.OrderBy(m => m).ToList();
+        }
+
+        public async Task<List<string>> GetUniqueModelsAsync(string brand)
+        {
+            if (!await AreCarsAvailable())
+                await WaitForData();
+            string brandKey = $"Models:{brand}";
+            var res = await _database.SetMembersAsync(brandKey);
+            return res.Select(b => b.ToString()).OrderBy(m => m).ToList();
         }
 
         public async Task<List<BrandModelDTO>> GetBrandsModelsAsync()
         {
-            using (var scope = _serviceProvider.CreateScope())
+            if (!await AreCarsAvailable())
+                await WaitForData();
+            var brandModelGroups = new List<BrandModelDTO>();
+
+            var brandKeys = await _database.SetMembersAsync("Brands");
+
+            foreach (var brandKey in brandKeys)
             {
-                var context = scope.ServiceProvider.GetRequiredService<UsersContext>();
-                return await context.CarsCache.GroupBy(c => new { c.ModelName, c.BrandName })
-                    .Select(g => new BrandModelDTO { ModelName = g.Key.ModelName, BrandName = g.Key.BrandName })
-                    .OrderBy(c => c.BrandName).ThenBy(c => c.ModelName).ToListAsync();
+                string brandName = brandKey.ToString();
+
+                var modelKeys = await _database.SetMembersAsync($"Models:{brandName}");
+
+                foreach (var modelKey in modelKeys)
+                {
+                    string modelName = modelKey.ToString();
+
+                    brandModelGroups.Add(new BrandModelDTO
+                    {
+                        BrandName = brandName,
+                        ModelName = modelName
+                    });
+                }
             }
+
+            return brandModelGroups
+                .OrderBy(bm => bm.BrandName)
+                .ThenBy(bm => bm.ModelName)
+                .ToList();
         }
 
-        public async Task<CarCache?> GetCarCacheAsync(int ID)
+        public async Task<CarCache?> GetCarCacheAsync(int apiID, int ID)
         {
-            using (var scope = _serviceProvider.CreateScope())
-            {
-                var context = scope.ServiceProvider.GetRequiredService<UsersContext>();
-                return await context.CarsCache.FindAsync(ID);
-            }
+            if (!await AreCarsAvailable())
+                await WaitForData();
+            var jsonCar = await _database.StringGetAsync($"CarChache:{apiID}:{ID}");
+            if (jsonCar.IsNullOrEmpty)
+                return null;
+            return JsonConvert.DeserializeObject<CarCache>(jsonCar);
         }
     }
 }

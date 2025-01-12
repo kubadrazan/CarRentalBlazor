@@ -7,12 +7,14 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Azure.StackExchangeRedis;
 using MiNICarRentalBrowser.ApiKey;
 using MiNICarRentalBrowser.Components;
 using MiNICarRentalBrowser.Data;
 using MiNICarRentalBrowser.Services;
 using MiNICarRentalBrowser.Services.Car_Service;
 using MudBlazor.Services;
+using StackExchange.Redis;
 
 namespace MiNICarRentalBrowser
 {
@@ -32,7 +34,20 @@ namespace MiNICarRentalBrowser
 #endif
 			builder.Services.AddSingleton(TimeProvider.System);
 
-			builder.Services.AddScoped<UserValidationService>();
+			// Redis
+			var configurationOptions = ConfigurationOptions
+				.Parse($"{builder.Configuration["redisCacheHostName"]}:6380")
+				.ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential())
+				.GetAwaiter().GetResult();
+            var connectionMultiplexer = ConnectionMultiplexer.Connect(configurationOptions);
+			IDatabase database = connectionMultiplexer.GetDatabase();
+
+			builder.Services.AddSingleton(database);
+			builder.Services.AddSingleton(connectionMultiplexer);
+
+			builder.Services.AddSingleton<CacheManager>();
+
+            builder.Services.AddScoped<UserValidationService>();
 			builder.Services.AddScoped<EmployeeValidationService>();
 
 			// Google Authentication
