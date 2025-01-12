@@ -6,7 +6,7 @@ namespace SharedDataModels
 {
     public enum RentalStatus
     {
-        ACTIVE, RETURNED, CLOSED, NOT_ACCEPTED
+        ACTIVE = 0, RETURNED = 1, CLOSED = 2, NOT_ACCEPTED = 3
     }
     public class Rental
     {
