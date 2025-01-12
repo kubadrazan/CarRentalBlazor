@@ -31,7 +31,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 		public async Task UpdateCarsInDBAsync()
 		{
 			var cars = await GetAllCarsAsync();
-			_carRepository.UpdateCars(cars);
+			await _carRepository.InsertCars(cars);
 		}
 
 		public async Task<List<CarCache>> GetFilteredCars(string brand, List<string> models, int? pageInd = 1, int pageSize = 1)
@@ -67,7 +67,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 
         public async Task<List<BrandModelDTO>> GetBrandsModelsAsync()
 		{
-			return await _carRepository.GetBrandsModelsAsync();
+            return await _carRepository.GetBrandsModelsAsync();
 		}
 
 		public Task<Car> GetCarDetailsAsync(int apiId, int carId)
