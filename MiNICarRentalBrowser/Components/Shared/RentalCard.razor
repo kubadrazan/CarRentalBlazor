@@ -27,7 +27,7 @@
             </div>
         </MudItem>
         <MudItem xs="5" Style="display: flex; flex-direction: column; justify-content: flex-end; padding-right: 16px">
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="() => OnButtonClicked(rentalID)">See rental details</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="() => OnButtonClicked(apiID, rentalID)">See rental details</MudButton>
         </MudItem>
     </MudGrid>
 </MudPaper>
@@ -40,5 +40,8 @@
     public required int rentalID { get; set; }
 
     [Parameter]
-    public required Action<int> OnButtonClicked { get; set; }
+    public required int apiID { get; set; }
+
+    [Parameter]
+    public required Action<int,int> OnButtonClicked { get; set; }
 }

@@ -44,9 +44,9 @@
 
     private int pagesCount = 1;
 
-    private void NavigateToRentalDetails(int rentalID)
+    private void NavigateToRentalDetails(int apiId, int rentalID)
     {
-        Navigation.NavigateTo($"/RentalDetailsClient/{rentalID}", true);
+        Navigation.NavigateTo($"/RentalDetailsClient/{apiId}/{rentalID}", true);
     }
 
     protected override async Task OnInitializedAsync()
@@ -105,7 +105,7 @@
         if (item is (Rental rental, int ID))
         {
             return@<MiNICarRentalBrowser.Components.Shared.RentalCard rental="@rental" 
-                            rentalID="rental.ID" OnButtonClicked="NavigateToRentalDetails"/>;
+                            rentalID="rental.ID" apiID="rental.SourceAPI" OnButtonClicked="NavigateToRentalDetails"/>;
         }
         else
         {
