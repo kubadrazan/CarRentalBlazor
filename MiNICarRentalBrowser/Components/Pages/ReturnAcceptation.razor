@@ -2,6 +2,7 @@
 @attribute [Authorize(Policy = "RegisteredPolicy")]
 
 @using MiNICarRentalBrowser.Services.Car_Service
+@using MiNICarRentalBrowser.Services.Rentals
 @using MudBlazor
 @using System.Threading
 @using Microsoft.AspNetCore.Authorization
@@ -11,6 +12,7 @@
 @inject NavigationManager Navigation
 @inject AggregatedCarService rentalService
 @inject AuthenticationStateProvider authenticationStateProvider
+@inject IRentalAdminService rentalAdminService
 @inject Services.IUserService UserService
 
 <style>
@@ -150,7 +152,7 @@
             await stream.ReadAsync(buf);
         }
 
-        await rentalService.AcceptCarReturn(rentalId, email, _descriptionText, Convert.ToBase64String(buf));
+        await rentalAdminService.AcceptCarReturn(rentalId, email, _descriptionText, Convert.ToBase64String(buf));
         Navigation.NavigateTo($"/RentalDetailsEmployee/{rentalId}");
     }
 }

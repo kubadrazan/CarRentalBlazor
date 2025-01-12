@@ -17,18 +17,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
             _apiUrl = string.Empty;
             _apiID = 1;
         }
-
-		public Task AcceptCarReturn(int rentalId, string employeeEmail, string acceptationDescription, string carImage)
-		{
-			throw new NotImplementedException();
-		}
-
 		public Task<string> ChooseOffer(int offerid, string emailAddress)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<string> ConfirmOffer(Guid offerId)
 		{
 			throw new NotImplementedException();
 		}
@@ -38,7 +27,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			throw new NotImplementedException();
 		}
 
-		public Task<byte[]> GetCarImage(int Id)
+		public Task<byte[]> GetCarImage(int rentalId)
 		{
 			throw new NotImplementedException();
 		}
@@ -65,32 +54,12 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			throw new NotImplementedException();
 		}
 
-		public Task<byte[]> GetImage(int rentalId)
-		{
-			throw new NotImplementedException();
-		}
-
 		public Task<List<Offer>> GetOffersAsync(int carId)
 		{
 			throw new NotImplementedException();
 		}
 
-		public Task<Rental> GetRentalAsync(RentalBrowser rentalBrowser)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<Rental> GetRentalAsync(int Id)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<List<Rental>> GetRentalsAsync(int? pageInd, int pageSize = 15)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<int> GetRentalsCountAsync()
+		public Task<Rental> GetRentalAsync(int rentalId)
 		{
 			throw new NotImplementedException();
 		}
@@ -99,6 +68,5 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 		{
 			throw new NotImplementedException();
 		}
-
 	}
 }
