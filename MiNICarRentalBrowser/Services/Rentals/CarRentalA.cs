@@ -105,6 +105,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 				throw;
 			}
 		}
+
 		public async Task<Rental> GetRentalAsync(int rentalId, string email)
 		{
 			try
@@ -118,6 +119,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 				return null;
 			}
 		}
+
 		public async Task<int> GetRentalsCountAsync()
 		{
 			try

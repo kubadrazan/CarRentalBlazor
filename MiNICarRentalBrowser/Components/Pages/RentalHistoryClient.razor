@@ -88,7 +88,7 @@
                 Rental rental;
                 foreach (var rent in rentalsBrowser)
                 {
-                    rental = await rentalService.GetRentalAsync(rent.ID, rent.ApiID, email);
+                    rental = await rentalService.GetRentalAsync(rent.ApiID, rent.SourceApiID, email);
 
                     if (rental != null)
                         rentals.Add((rental, rent.ID));
