@@ -64,9 +64,9 @@
 			navigation.NavigateTo("/", true);
 		}
 		await base.OnInitializedAsync();
-
-		_rental = await aggregatedCarService.GetRentalAsync(rentalId, apiId);
 		var email = user.FindFirstValue(ClaimTypes.Email);
+
+		_rental = await aggregatedCarService.GetRentalAsync(rentalId, apiId, email);
 		if (_rental != null)
 		{
 			if (email != _rental.UserEmail)
