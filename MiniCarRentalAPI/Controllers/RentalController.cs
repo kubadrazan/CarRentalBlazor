@@ -195,7 +195,6 @@ namespace MiniCarRentalAPI.Controllers
 			{
 				return NotFound();
 			}
-			await _context.SaveChangesAsync();
 
 			return Ok(rental);
 		}
