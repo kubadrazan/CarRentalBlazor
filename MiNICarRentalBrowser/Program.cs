@@ -45,6 +45,8 @@ namespace MiNICarRentalBrowser
 			builder.Services.AddSingleton(database);
 			builder.Services.AddSingleton(connectionMultiplexer);
 
+			builder.Services.AddSingleton<CacheManager>();
+
             builder.Services.AddScoped<UserValidationService>();
 			builder.Services.AddScoped<EmployeeValidationService>();
 

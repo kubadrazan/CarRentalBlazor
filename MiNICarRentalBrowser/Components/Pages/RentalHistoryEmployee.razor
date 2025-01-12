@@ -54,7 +54,7 @@
     {
         await base.OnInitializedAsync();
 
-        rentalsCount = await rentalService.GetRentalsCountAsync();
+        rentalsCount = await rentalService.GetEmployeeRentalsCountAsync();
         if (rentalsCount % pageSize == 0 && rentalsCount != 0)
             pagesCount = rentalsCount / pageSize;
         else
@@ -67,7 +67,7 @@
         await base.OnParametersSetAsync();
         if (pageInd == null || pageInd < 1 || pageInd > pagesCount)
             pageInd = 1;
-        rentals = await rentalService.GetRentalsAsync(pageInd, pageSize);
+        rentals = await rentalService.GetEmployeeRentalsAsync(pageInd, pageSize);
         isLoading = false;
     }
 

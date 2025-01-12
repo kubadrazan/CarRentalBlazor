@@ -6,19 +6,21 @@ using SharedDataModels.DTO;
 
 namespace MiNICarRentalBrowser.Services.Car_Service
 {
-	public class AggregatedCarService
+    public class AggregatedCarService
 	{
 		private readonly List<ICarRental> _carRentals;
 		private readonly ICarRepository _carRepository;
 		private readonly IServiceProvider _serviceProvider;
 		private readonly CarRentalServiceFactory _carRentalServiceFactory;
+		private readonly CacheManager _cacheManager;
 
-		public AggregatedCarService(IEnumerable<ICarRental> carRentals, ICarRepository carRepository, IServiceProvider serviceProvider, CarRentalServiceFactory carRentalServiceFactory)
+		public AggregatedCarService(IEnumerable<ICarRental> carRentals, ICarRepository carRepository, IServiceProvider serviceProvider, CarRentalServiceFactory carRentalServiceFactory, CacheManager cacheManager)
 		{
 			_carRentals = carRentals.ToList();
 			_carRepository = carRepository;
 			_serviceProvider = serviceProvider;
 			_carRentalServiceFactory = carRentalServiceFactory;
+			_cacheManager = cacheManager;
 		}
 
 		public async Task<List<CarCache>> GetAllCarsAsync()
@@ -70,9 +72,18 @@ namespace MiNICarRentalBrowser.Services.Car_Service
             return await _carRepository.GetBrandsModelsAsync();
 		}
 
-		public Task<Car> GetCarDetailsAsync(int apiId, int carId)
+		public async Task<Car?> GetCarDetailsAsync(int apiId, int carId)
 		{
-			return _carRentalServiceFactory.GetService(apiId).GetCarDetailsAsync(carId);
+			var car =  await _cacheManager.GetDetailedCar(apiId, carId);
+			if (car != null)
+				return car;
+
+			car = await _carRentalServiceFactory.GetService(apiId).GetCarDetailsAsync(carId);
+
+			if (car != null)
+				await _cacheManager.SetDetailedCar(apiId, car);
+
+            return car;
 		}
 
 		public async Task<List<Offer>> GetOffersAsync(int apiId, int carId)
@@ -105,13 +116,13 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			return _carRentalServiceFactory.GetService(0).GetCarImage(Id);
 		}
 
-		public Task<int> GetRentalsCountAsync()
-		{ // TODO multipleApi - No Endpoint in BApi
+		public Task<int> GetEmployeeRentalsCountAsync()
+		{
 			return _carRentalServiceFactory.GetService(0).GetRentalsCountAsync();
 		}
 
-		public Task<List<Rental>> GetRentalsAsync(int? pageInd, int pageSize = 15)
-		{ // TODO multipleApi
+		public Task<List<Rental>> GetEmployeeRentalsAsync(int? pageInd, int pageSize = 15)
+		{
 			return _carRentalServiceFactory.GetService(0).GetRentalsAsync(pageInd, pageSize);
 		}
 
