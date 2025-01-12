@@ -110,6 +110,7 @@ namespace MiNICarRentalBrowser
             builder.Services.AddScoped<IRentalAdminService, CarRentalA>();
             //builder.Services.AddScoped<ICarRental, CarRentalB>();
             builder.Services.AddScoped<AggregatedCarService>();
+			builder.Services.AddScoped<IRentalAdminService, CarRentalA>();
 
             var app = builder.Build();
 
