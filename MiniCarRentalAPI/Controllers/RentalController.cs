@@ -200,7 +200,20 @@ namespace MiniCarRentalAPI.Controllers
 			return Ok(rental);
 		}
 
-		[HttpGet("rentals/count")]
+		[HttpGet("rentalStatus/{rentalId}")]
+        public async Task<IActionResult> GetRentalStatus(int rentalId)
+        {
+            var rental = await _context.Rentals.FirstOrDefaultAsync(r => r.ID == rentalId);
+
+            if (rental == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(rental.RentalStatus);
+        }
+
+        [HttpGet("rentals/count")]
 		public async Task<IActionResult> GetRentalsCount()
 		{
 			var query = _context.Rentals.AsQueryable();
