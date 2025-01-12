@@ -9,8 +9,6 @@ namespace SharedDataModels
 {
     public class CarCache
     {
-        public int ID { get; set; }
-
         public int CarID { get; set; }
 
         public string BrandName { get; set; }
@@ -18,9 +16,6 @@ namespace SharedDataModels
         public string ModelName { get; set; }
 
         public int ProductionYear { get; set; }
-
-        [DataType(DataType.DateTime)]
-        public DateTime DownloadedDate { get; set; }
 
         public int SourceApiID { get; set; }
     }
