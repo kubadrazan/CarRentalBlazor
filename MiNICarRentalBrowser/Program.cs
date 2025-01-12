@@ -15,6 +15,7 @@ using MiNICarRentalBrowser.Services;
 using MiNICarRentalBrowser.Services.Car_Service;
 using MudBlazor.Services;
 using StackExchange.Redis;
+using MiNICarRentalBrowser.Services.Rentals;
 
 namespace MiNICarRentalBrowser
 {
@@ -106,6 +107,7 @@ namespace MiNICarRentalBrowser
             builder.Services.AddScoped<CarRentalA>();
             //builder.Services.AddScoped<CarRentalB>();
             builder.Services.AddScoped<ICarRental, CarRentalA>();
+            builder.Services.AddScoped<IRentalAdminService, CarRentalA>();
             //builder.Services.AddScoped<ICarRental, CarRentalB>();
             builder.Services.AddScoped<AggregatedCarService>();
 
