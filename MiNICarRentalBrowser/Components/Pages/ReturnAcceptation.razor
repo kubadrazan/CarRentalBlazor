@@ -153,6 +153,6 @@
         }
 
         await rentalAdminService.AcceptCarReturn(rentalId, email, _descriptionText, Convert.ToBase64String(buf));
-        Navigation.NavigateTo($"/RentalDetailsEmployee/{rentalId}");
+        Navigation.NavigateTo($"/RentalDetailsEmployee/{0}/{rentalId}");
     }
 }
