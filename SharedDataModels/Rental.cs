@@ -10,7 +10,7 @@ namespace SharedDataModels
     }
     public class Rental
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // change to none and replace with your own or smth
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
 
         public Guid OfferGuid { get; set; }
@@ -23,8 +23,8 @@ namespace SharedDataModels
         public int CarID { get; set; }
 
         [EmailAddress(ErrorMessage = "Invalid email address format.")]
-        public string UserEmail { get; set; } // TODO zaktualizowac email?, id tokenu?
-        public int SourceAPI {  get; set; } // TODO don't know what here, ENUM????
+        public string UserEmail { get; set; }
+        public int SourceAPI {  get; set; }
 
         [DataType(DataType.Currency)]
         [Column(TypeName = "money")]
