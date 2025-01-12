@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MiNICarRentalBrowser.Data;
+using MiNICarRentalBrowser.Services.Rentals;
 using SharedDataModels;
 using SharedDataModels.DTO;
 
@@ -78,55 +79,21 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 		{
 			return await _carRentalServiceFactory.GetService(apiId).GetOffersAsync(carId);
 		}
-
-		public Task<string> ConfirmOffer(Guid offerId)
-		{ // TODO multipleApi: OfferCache needed 
-			return _carRentalServiceFactory.GetService(0).ConfirmOffer(offerId);
-		}
-
 		public Task<string> ChooseOffer(int apiId, int offerid, string emailAddress)
 		{
 			return _carRentalServiceFactory.GetService(apiId).ChooseOffer(offerid, emailAddress);
 		}
-
-		public Task<Rental> GetRentalAsync(RentalBrowser rentalBrowser)
-		{ // TODO Not Used??
-			return _carRentalServiceFactory.GetService(0).GetRentalAsync(rentalBrowser);
-		}
-
-		public Task<Rental> GetRentalAsync(int Id, int apiId)
+		public Task<Rental> GetRentalAsync(int rentalId, int apiId)
 		{
-			return _carRentalServiceFactory.GetService(apiId).GetRentalAsync(Id);
+			return _carRentalServiceFactory.GetService(apiId).GetRentalAsync(rentalId);
 		}
-
-		public Task<byte[]> GetCarImage(int Id) 
-		{ // TODO Not used??
-			return _carRentalServiceFactory.GetService(0).GetCarImage(Id);
-		}
-
-		public Task<int> GetRentalsCountAsync()
-		{ // TODO multipleApi - No Endpoint in BApi
-			return _carRentalServiceFactory.GetService(0).GetRentalsCountAsync();
-		}
-
-		public Task<List<Rental>> GetRentalsAsync(int? pageInd, int pageSize = 15)
-		{ // TODO multipleApi
-			return _carRentalServiceFactory.GetService(0).GetRentalsAsync(pageInd, pageSize);
-		}
-
 		public Task ReturnCarAsync(Rental rental)
 		{
 			return _carRentalServiceFactory.GetService(rental.SourceAPI).ReturnCarAsync(rental);
 		}
-
-		public Task AcceptCarReturn(int rentalId, string employeeEmail, string acceptationDescription, string carImage)
-		{ // TODO multipleApi
-			return _carRentalServiceFactory.GetService(0).AcceptCarReturn(rentalId, employeeEmail, acceptationDescription, carImage);
-		}
-
-		public Task<byte[]> GetImage(Rental rental)
+		public Task<byte[]> GetCarImage(Rental rental)
 		{
-			return _carRentalServiceFactory.GetService(rental.SourceAPI).GetImage(rental.ID);
+			return _carRentalServiceFactory.GetService(rental.SourceAPI).GetCarImage(rental.ID);
 		}
 		public Task<string> GetDescription(Rental rental)
 		{
