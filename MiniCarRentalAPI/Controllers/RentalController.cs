@@ -184,7 +184,23 @@ namespace MiniCarRentalAPI.Controllers
 			return Ok(acceptation);
 		}
 
-		[HttpGet("rentals/{rentalId}")]
+		[HttpGet("rentals/{rentalId}/{email}")]
+		public async Task<IActionResult> GetRental(int rentalId, string email)
+		{
+			var rental = await _context.Rentals.Include(r => r.Car).Include(r => r.Car.Model)
+				.Include(r => r.Car.Model.Brand)
+				.FirstOrDefaultAsync(r => r.ID == rentalId && r.UserEmail == email);
+
+			if (rental == null)
+			{
+				return NotFound();
+			}
+			await _context.SaveChangesAsync();
+
+			return Ok(rental);
+		}
+
+		[HttpGet("rentals/admin/{rentalId}")]
 		public async Task<IActionResult> GetRental(int rentalId)
 		{
 			var rental = await _context.Rentals.Include(r => r.Car).Include(r => r.Car.Model)

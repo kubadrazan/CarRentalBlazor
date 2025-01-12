@@ -105,11 +105,11 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 				throw;
 			}
 		}
-		public async Task<Rental> GetRentalAsync(int rentalId)
+		public async Task<Rental> GetRentalAsync(int rentalId, string email)
 		{
 			try
 			{
-				var response = await _httpClient.GetFromJsonAsync<Rental>($"{_apiUrl}/api/rental/rentals/{rentalId}");
+				var response = await _httpClient.GetFromJsonAsync<Rental>($"{_apiUrl}/api/rental/rentals/{rentalId}/{email}");
 				return response;
 			}
 			catch (Exception ex)
@@ -185,6 +185,20 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 				var response = await _httpClient.GetFromJsonAsync<Description>($"{_apiUrl}/api/acceptations/cardescription/{rentalId}");
 				var content = response.Content;
 				return content;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error fetching rental data: {ex.Message}");
+				return null;
+			}
+		}
+
+		public async Task<Rental> GetRentalAdminAsync(int rentalId)
+		{
+			try
+			{
+				var response = await _httpClient.GetFromJsonAsync<Rental>($"{_apiUrl}/api/rental/rentals/admin/{rentalId}");
+				return response;
 			}
 			catch (Exception ex)
 			{

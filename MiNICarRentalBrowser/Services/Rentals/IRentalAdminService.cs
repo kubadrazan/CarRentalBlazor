@@ -8,5 +8,7 @@ namespace MiNICarRentalBrowser.Services.Rentals
 		Task AcceptCarReturn(int rentalId, string employeeEmail, string acceptationDescription, string carImage);
 		Task<string> ConfirmOffer(Guid offerId);
 		Task<int> GetRentalsCountAsync();
+		Task<Rental> GetRentalAdminAsync(int rentalId);
+
 	}
 }

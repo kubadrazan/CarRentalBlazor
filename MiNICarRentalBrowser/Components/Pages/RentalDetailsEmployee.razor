@@ -2,6 +2,7 @@
 @using MiNICarRentalBrowser.Components.Components
 @using MiNICarRentalBrowser.Services
 @using MiNICarRentalBrowser.Services.Car_Service
+@using MiNICarRentalBrowser.Services.Rentals
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using SharedDataModels
@@ -11,6 +12,7 @@
 @inject IUserService userService
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject IAuthorizationService AuthorizationService
+@inject IRentalAdminService rentalAdminService
 @inject NavigationManager navigation
 
 <div class="container">
@@ -63,7 +65,7 @@
 		}
 		await base.OnInitializedAsync();
 
-		_rental = await aggregatedCarService.GetRentalAsync(rentalId, apiId);
+		_rental = await rentalAdminService.GetRentalAdminAsync(rentalId);
 		if (_rental != null)
 			_car = await aggregatedCarService.GetCarDetailsAsync(_rental.SourceAPI, _rental.CarID);
 		_isCarLoaded = true;
