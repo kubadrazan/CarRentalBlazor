@@ -116,12 +116,12 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			return _carRentalServiceFactory.GetService(0).GetCarImage(Id);
 		}
 
-		public Task<int> GetEmployeeRentalsCountAsync()
+		public Task<int> GetRentalsCountAsync()
 		{
 			return _carRentalServiceFactory.GetService(0).GetRentalsCountAsync();
 		}
 
-		public Task<List<Rental>> GetEmployeeRentalsAsync(int? pageInd, int pageSize = 15)
+		public Task<List<Rental>> GetRentalsAsync(int? pageInd, int pageSize = 15)
 		{
 			return _carRentalServiceFactory.GetService(0).GetRentalsAsync(pageInd, pageSize);
 		}
