@@ -1,6 +1,8 @@
 ﻿using SharedDataModels.DTO.APIB_DTO;
 using SharedDataModels.DTO;
 using SharedDataModels;
+using Newtonsoft.Json;
+using MiNICarRentalBrowser.Extensions;
 
 namespace MiNICarRentalBrowser.Services.Car_Service
 {
@@ -33,10 +35,9 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 
 		public async Task<Car> GetCarDetailsAsync(int carId)
 		{
-			throw new NotImplementedException();
 			try
 			{
-				var car = await _httpClient.GetFromJsonAsync<apiBCarDTO>($"{_apiUrl}/api/car/get/{carId}");
+				var car = await _httpClient.GetFromJsonAsync<apiBCarDTO>($"{_apiUrl}/car/getcar/{carId}");
 				var result = new Car() { ID = car.id, Model = new Model() { Name = car.carModel, Brand = new Brand() { Name = car.carBrand } }, ProductionYear = 1990 };
 				return result;
 			}
@@ -54,7 +55,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 
 		public async Task<List<CarCache>> GetCarsAsync()
 		{
-			var response = await _httpClient.GetFromJsonAsync<List<apiBCarDTO>>($"{_apiUrl}/api/Car/Get");
+			var response = await _httpClient.GetFromJsonAsync<List<apiBCarDTO>>($"{_apiUrl}/Car/Get");
 
 			List<CarCache> result = new List<CarCache>();
 			// TODO add mapper
@@ -74,14 +75,24 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			return null;
 		}
 
-		public async Task<List<Offer>> GetOffersAsync(int carId)
+		public async Task<List<Offer>> GetOffersAsync(int carId, User? user)
 		{
-			// TODO: Implement this method
-			throw new NotImplementedException();
+
+			if (user == null)
+			{
+				user = new User() { BirthDate = DateTime.Now.AddYears(-20), DrivingLicenseObtainDate = DateTime.Now.AddYears(-2) };
+			}
 			try
 			{
-				var response = await _httpClient.GetFromJsonAsync<List<Offer>>($"{_apiUrl}/api/car/createoffer/{carId}/OtherData");
-				return response;
+				List<Offer> result = new List<Offer>();
+				var offerRequest = new apiBOfferRequestDTO() { Age = user.BirthDate.YearsElapsed(), DriversLicenceDuration = user.DrivingLicenseObtainDate.YearsElapsed(), CarId = carId, Start = DateTime.Now, Return = DateTime.Now.AddDays(1), ExtraInfo = ""};
+				var response = await _httpClient.PostAsJsonAsync<apiBOfferRequestDTO>($"{_apiUrl}/car/createoffer", offerRequest);
+				var jsonResponse = await response.Content.ReadAsStringAsync();
+				var responseDto = JsonConvert.DeserializeObject<apiBOfferDTO>(jsonResponse);
+				result.Add(new Offer() { ID = responseDto.Id, Price = responseDto.PriceDay, CarId = carId, IsInsurance = false });
+				result.Add(new Offer() { ID = responseDto.Id, Price = responseDto.PriceDay + responseDto.PriceInsurance, CarId = carId, IsInsurance = false });
+
+				return result;
 			}
 			catch (Exception ex)
 			{
@@ -92,12 +103,11 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 
 		public async Task<Rental> GetRentalAsync(int rentalId, string email)
 		{
-			// TODO: Implement this method
-			throw new NotImplementedException();
+
 			try
 			{
-				var response = await _httpClient.GetFromJsonAsync<List<Rental>>($"{_apiUrl}/api/car/getmyrents/{email}/");
-				return response.Where(r => r.ID == rentalId).FirstOrDefault();
+				var response = await _httpClient.GetFromJsonAsync<Rental>($"{_apiUrl}/car/GetRent/{rentalId}");
+				return response;
 			}
 			catch (Exception ex)
 			{

@@ -97,6 +97,7 @@ namespace MiNICarRentalBrowser
 
 			builder.Services.AddSingleton<ApiKeyProvider>();
             builder.Services.AddTransient<AApiHttpMessageHandler>();
+            builder.Services.AddTransient<BApiHttpMessageHandler>();
 
             builder.Services.AddHttpClient("AApiHttpClient")
 					.AddHttpMessageHandler<AApiHttpMessageHandler>();
@@ -107,9 +108,11 @@ namespace MiNICarRentalBrowser
 			builder.Services.AddTransient<CarRentalServiceFactory>();
 
             builder.Services.AddScoped<CarRentalA>();
-            //builder.Services.AddScoped<CarRentalB>();
-            builder.Services.AddScoped<ICarRental, CarRentalA>();
-            builder.Services.AddScoped<IRentalAdminService, CarRentalA>();
+			builder.Services.AddScoped<CarRentalB>();
+			//builder.Services.AddScoped<CarRentalB>();
+			builder.Services.AddScoped<ICarRental, CarRentalA>();
+			builder.Services.AddScoped<ICarRental, CarRentalB>();
+			builder.Services.AddScoped<IRentalAdminService, CarRentalA>();
             //builder.Services.AddScoped<ICarRental, CarRentalB>();
             builder.Services.AddScoped<AggregatedCarService>();
 

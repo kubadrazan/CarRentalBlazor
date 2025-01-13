@@ -1,5 +1,6 @@
 ﻿@page "/CarToRentDetails/{apiID:int}/{HangfireCarID:int}"
 @using MiNICarRentalBrowser.Components.Components
+@using MiNICarRentalBrowser.Services
 @using MiNICarRentalBrowser.Services.Car_Service
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
@@ -9,6 +10,7 @@
 @inject AggregatedCarService aggregatedCarService
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject NavigationManager navigation
+@inject IUserService userService
 <div class="container">
 	<div class="card">
 		<h3>Car Details</h3>
@@ -72,27 +74,39 @@
 
 	private bool _areOffersLoaded = false;
 	private bool _isCarLoaded = false;
+	private ClaimsPrincipal _user;
 
 	private List<Offer> _offers;
 
 	protected override async Task OnInitializedAsync()
 	{
 		await base.OnInitializedAsync();
+		var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+		_user = authState.User;
 		_car = await aggregatedCarService.GetCarDetailsAsync(apiID, HangfireCarID);
 		_isCarLoaded = true;
+		if (_car != null)
+		{
+			if (_user.Identity != null && _user.Identity.IsAuthenticated)
+			{
+				var email = _user.FindFirstValue(ClaimTypes.Email);
+				User userDB = await userService.GetUserAsync(email);
+				_offers = await aggregatedCarService.GetOffersAsync(apiID, _car.ID, userDB);
+			}
+			else
+				_offers = await aggregatedCarService.GetOffersAsync(apiID, _car.ID);
 
-		_offers = await aggregatedCarService.GetOffersAsync(apiID, _car.ID);
-
+		}
+		else
+			_offers = new();
 		_areOffersLoaded = true;
 	}
 
 	public async Task RentMeAction(int offerID)
 	{
-		var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
-		var user = authState.User;
-		if (user.Identity != null && user.Identity.IsAuthenticated)
+		if (_user.Identity != null && _user.Identity.IsAuthenticated)
 		{
-			var email = user.FindFirstValue(ClaimTypes.Email);
+			var email = _user.FindFirstValue(ClaimTypes.Email);
 			var result = await aggregatedCarService.ChooseOffer(apiID, offerID, email);
 			if (result == "Error")
 			{
