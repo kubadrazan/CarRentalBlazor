@@ -229,9 +229,11 @@ namespace MiniCarRentalAPI.Controllers
         }
 
         [HttpGet("rentals/count")]
-		public async Task<IActionResult> GetRentalsCount()
+		public IActionResult GetRentalsCount()
 		{
 			var query = _context.Rentals.AsQueryable();
+
+			query = query.Where(r => r.RentalStatus != RentalStatus.NOT_ACCEPTED);
 
 			return Ok(query.Count());
 		}
@@ -247,6 +249,7 @@ namespace MiniCarRentalAPI.Controllers
 			var query = _context.Rentals.AsQueryable();
 			List<Rental>? rentals;
 
+			query = query.Where(r => r.RentalStatus != RentalStatus.NOT_ACCEPTED);
 			query = query.OrderByDescending(r => r.ID);
 			query = query.Skip((pageInd - 1) * pageSize);
 			rentals = await query.Include(r => r.Car).Include(r => r.Car.Model).
