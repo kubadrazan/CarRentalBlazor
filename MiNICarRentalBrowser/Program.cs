@@ -113,6 +113,7 @@ namespace MiNICarRentalBrowser
 
 			builder.Services.AddSingleton<BrowserUriService>();
             builder.Services.AddTransient<BrandModelParserService>();
+            builder.Services.AddSingleton<ImageFileService>();
 
             var app = builder.Build();
 

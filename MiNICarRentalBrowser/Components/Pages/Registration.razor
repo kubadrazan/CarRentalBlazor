@@ -10,30 +10,6 @@
 @inject Services.IUserService UserService
 @inject TimeProvider timeProvider
 
-<style>
-    .centered-top {
-        position: absolute;
-        left: 50%;
-        transform: translate(-50%, 0);
-    }
-
-    .reg_btn {
-        margin-left: 40px;
-        margin-right: 40px;
-        margin-top: 40px;
-    }
-
-    .purple-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
-        border-color: #A64DB6;
-        border-width: 3px
-    }
-
-    .gray-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
-        border-color: #808080;
-        border-width: 3px
-    }
-</style>
-
 <MudThemeProvider Theme="MyCustomTheme" />
 <MudContainer Style="justify-content: center">
     <MudCard Class="rounded-xl centered-top" Style="padding-top:20px;
@@ -103,15 +79,6 @@
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         var email = user.FindFirstValue(ClaimTypes.Email);
-        if (email is null)
-        {
-            // todo cos
-        }
-
-        if (user.Identity != null && user.Identity.IsAuthenticated)
-        {
-            // todo pozniej pomyslimy
-        }
 
         _email = email ?? "";
         _firstName = user.FindFirstValue(ClaimTypes.GivenName) ?? "";
@@ -195,3 +162,27 @@
         _showAlert = !value;
     }
 }
+
+<style>
+    .centered-top {
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%, 0);
+    }
+
+    .reg_btn {
+        margin-left: 40px;
+        margin-right: 40px;
+        margin-top: 40px;
+    }
+
+    .purple-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
+        border-color: #A64DB6;
+        border-width: 3px
+    }
+
+    .gray-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
+        border-color: #808080;
+        border-width: 3px
+    }
+</style>
