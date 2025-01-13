@@ -12,7 +12,6 @@ namespace SharedDataModels.Factories
 		{
 			return new Rental
 			{
-				RentDate = timeProvider.GetUtcNow().DateTime,
 				OfferGuid = offer.OfferGuid,
 				CarID = offer.CarId,
 				UserEmail = offer.UserEmail,
