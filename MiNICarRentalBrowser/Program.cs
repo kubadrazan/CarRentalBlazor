@@ -111,6 +111,9 @@ namespace MiNICarRentalBrowser
             //builder.Services.AddScoped<ICarRental, CarRentalB>();
             builder.Services.AddScoped<AggregatedCarService>();
 
+			builder.Services.AddSingleton<BrowserUriService>();
+            builder.Services.AddTransient<BrandModelParserService>();
+
             var app = builder.Build();
 
 			// Configure the HTTP request pipeline.

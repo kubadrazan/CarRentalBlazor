@@ -1,50 +1,17 @@
 ﻿@page "/"
-@using MudBlazor
+
 @using System.Threading
-@inject NavigationManager Navigation
 @using SharedDataModels
 @using SharedDataModels.DTO
+@using MiNICarRentalBrowser.Services
 @using MiNICarRentalBrowser.Services.Car_Service
 @inject AggregatedCarService aggregatedCarService
-
-<style>
-    .centered {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    }
-
-
-    .centered-top {
-    position: absolute;
-    left: 50%;
-    transform: translate(-50%, 0);
-    }
-
-    img.home {
-    border-radius: 15px;
-    margin: 10px
-    }
-
-    .home_btn {
-    margin-left: 40px;
-    margin-right: 40px;
-    }
-
-    .purple-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
-    border-color: #A64DB6;
-    border-width: 3px
-    }
-
-    .gray-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
-    border-color: #808080;
-    border-width: 3px
-    }
-</style>
+@inject BrowserUriService browserUriService
+@inject BrandModelParserService brandModelParser
+@inject NavigationManager Navigation
 
 <MudContainer Style="justify-content: center">
-    <MudCard Class="rounded-xl centered-top" Style="padding-top:20px;
+    <MudCard Class="centered-top rounded-xl" Style="padding-top:20px;
     padding-left:50px; padding-right:50px; padding-bottom:20px;">
         <MudStack Row="true">
             <MudStack Style="width: 300px; height:300px; margin-top:50px; margin-right:20px"
@@ -110,27 +77,16 @@
     private string? _model;
     private bool _showBrandAlert = false;
 
-    // todo add for smaller screens
-
     private List<string> _brands;
     private Dictionary<string, List<string>> _models;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        List<BrandModelDTO> models = await aggregatedCarService.GetBrandsModelsAsync();
+        List<BrandModelDTO> brandModels = await aggregatedCarService.GetBrandsModelsAsync();
         _models = new();
         _brands = new();
-        foreach (var m in models)
-        {
-            if (_models.ContainsKey(m.BrandName))
-                _models[m.BrandName].Add(m.ModelName);
-            else
-            {
-                _brands.Add(m.BrandName);
-                _models[m.BrandName] = new() { m.ModelName };
-            }
-        }
+        brandModelParser.ParseBrandsModels(brandModels, _brands, _models);
     }
 
     protected async Task BrandChanged(string newValue)
@@ -149,13 +105,7 @@
         {
             _showBrandAlert = false;
             var uri = Navigation.ToAbsoluteUri("/car-browser");
-            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
-            query.Add("brand", _brand);
-            if (!String.IsNullOrEmpty(_model))
-                query.Add("model", _model);
-
-            var newUri = $"{uri.GetLeftPart(UriPartial.Path)}?{query}";
-            Navigation.NavigateTo(newUri);
+            var newUri = browserUriService.AddCarBrandModelToUri(uri, _brand, _model);
             Navigation.NavigateTo(newUri);
         }
     }
@@ -172,3 +122,31 @@
         _showBrandAlert = !value;
     }
 }
+
+<style>
+
+    .centered {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+
+    .centered-top {
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%, 0);
+    }
+
+    .purple-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
+        border-color: #A64DB6;
+        border-width: 3px
+    }
+
+    .gray-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
+        border-color: #808080;
+        border-width: 3px
+    }
+
+</style>

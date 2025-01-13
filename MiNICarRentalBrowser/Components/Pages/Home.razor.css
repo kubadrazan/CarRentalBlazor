@@ -1,3 +1,10 @@
-﻿body {
-    background: red;
+﻿
+img.home {
+    border-radius: 15px;
+    margin: 10px
+}
+
+.home_btn {
+    margin-left: 40px;
+    margin-right: 40px;
 }
