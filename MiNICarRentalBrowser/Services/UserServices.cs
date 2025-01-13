@@ -8,13 +8,15 @@ namespace MiNICarRentalBrowser.Services
 	public class UserServices : IUserService
 	{
 		private readonly UsersContext _context;
+        private readonly CacheManager _cacheManager;
 
-		public UserServices(UsersContext context)
-		{
-			_context = context;
-		}
+        public UserServices(UsersContext context, CacheManager cacheManager)
+        {
+            _context = context;
+            _cacheManager = cacheManager;
+        }
 
-		public async Task AddUserAsync(User user)
+        public async Task AddUserAsync(User user)
 		{
 			_context.Users.Add(user);
 			await _context.SaveChangesAsync();
@@ -62,7 +64,16 @@ namespace MiNICarRentalBrowser.Services
 
 		public async Task<User> GetUserAsync(string userMail)
 		{
-			return await _context.Users.FirstOrDefaultAsync(u => u.Email == userMail);
+			var user = await _cacheManager.GetUserAsync(userMail);
+			if (user != null)
+				return user;
+
+			user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userMail);
+
+			if (user != null)
+				await _cacheManager.SetUserAsync(user);
+
+            return user;
 		}
 
 		public async Task AddRentalAsync(Rental rental)
