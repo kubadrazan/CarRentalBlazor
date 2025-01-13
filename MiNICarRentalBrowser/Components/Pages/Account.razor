@@ -1,0 +1,48 @@
+﻿@page "/Account"
+@using MiNICarRentalBrowser.Components.Components
+@using MiNICarRentalBrowser.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
+@using SharedDataModels
+@using System.Security.Claims
+
+@inject IUserService userService
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject NavigationManager navigation
+
+<div class="container">
+	<div class="card">
+		<h1>Account</h1>
+		@if (_user != null)
+		{
+			<UserDisplay _user="_user" />
+		}
+		else
+		{
+			<p>Loading account data</p>
+		}
+	</div>
+</div>
+
+
+@code {
+	private User _user;
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+
+		var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+		var user = authState.User;
+
+		string email = user.FindFirstValue(ClaimTypes.Email) ?? "";
+		if (email != "")
+			_user = await userService.GetUserAsync(email);
+		else
+		{
+			navigation.NavigateTo("/error-page/");
+			return;
+		}
+	}
+
+
+}

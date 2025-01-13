@@ -5,73 +5,73 @@ using System;
 
 namespace MiNICarRentalBrowser.Services
 {
-    public class UserServices : IUserService
-    {
-        private readonly UsersContext _context;
+	public class UserServices : IUserService
+	{
+		private readonly UsersContext _context;
 
-        public UserServices(UsersContext context)
-        {
-            _context = context;
-        }
-
-        public async Task AddUserAsync(User user)
-        {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task<List<RentalBrowser>> GetUsersRentals(string email, int? pageInd, int pageSize = 15)
-        {
-            if (pageInd == null || pageSize < 1 || pageInd < 1)
-                return new List<RentalBrowser>();
-
-            User? user = _context.Users.Where(user => user.Email == email).FirstOrDefault();
-
-            if (user == null)
-                return new List<RentalBrowser>();
-
-            var query = _context.Rentals.AsQueryable();
-
-            query = query.Where(rental => user.ID == rental.UserID);
-
-            query = query.OrderByDescending(rental => rental.ID);
-
-            return await query.Skip(((int)pageInd - 1) * pageSize).Take(pageSize).ToListAsync();
-        }
-
-        public async Task<RentalBrowser> GetRentalBrowserAsync(int rentalBrowserId)
-        {
-            return await _context.Rentals.FirstOrDefaultAsync(r => r.ID == rentalBrowserId);
+		public UserServices(UsersContext context)
+		{
+			_context = context;
 		}
 
-        public int GetUsersRentalsCount(string email)
-        {
-            int count = 0;
+		public async Task AddUserAsync(User user)
+		{
+			_context.Users.Add(user);
+			await _context.SaveChangesAsync();
+		}
 
-            User? user = _context.Users.Where(user => user.Email == email).FirstOrDefault();
+		public async Task<List<RentalBrowser>> GetUsersRentalsAsync(string email, int? pageInd, int pageSize = 15)
+		{
+			if (pageInd == null || pageSize < 1 || pageInd < 1)
+				return new List<RentalBrowser>();
 
-            if (user == null)
-                return count;
+			User? user = await GetUserAsync(email);
 
-            var query = _context.Rentals.AsQueryable();
+			if (user == null)
+				return new List<RentalBrowser>();
 
-            query = query.Where(rental => user.ID == rental.UserID);
+			var query = _context.Rentals.AsQueryable();
 
-            return query.Count();
-        }
+			query = query.Where(rental => user.ID == rental.UserID);
 
-		public async Task<User> GetUser(string userMail)
+			query = query.OrderByDescending(rental => rental.ID);
+
+			return await query.Skip(((int)pageInd - 1) * pageSize).Take(pageSize).ToListAsync();
+		}
+
+		public async Task<RentalBrowser> GetRentalBrowserAsync(int rentalBrowserId)
+		{
+			return await _context.Rentals.FirstOrDefaultAsync(r => r.ID == rentalBrowserId);
+		}
+
+		public int GetUsersRentalsCount(string email)
+		{
+			int count = 0;
+
+			User? user = _context.Users.Where(user => user.Email == email).FirstOrDefault();
+
+			if (user == null)
+				return count;
+
+			var query = _context.Rentals.AsQueryable();
+
+			query = query.Where(rental => user.ID == rental.UserID);
+
+			return query.Count();
+		}
+
+		public async Task<User> GetUserAsync(string userMail)
 		{
 			return await _context.Users.FirstOrDefaultAsync(u => u.Email == userMail);
 		}
 
 		public async Task AddRentalAsync(Rental rental)
 		{
-            
-            var rentalBrowser = new RentalBrowser()
-            {
-                ApiID = rental.ID, // todo change for our api 
-                UserID = (await GetUser(rental.UserEmail)).ID
+
+			var rentalBrowser = new RentalBrowser()
+			{
+				ApiID = rental.ID, // todo change for our api 
+				UserID = (await GetUserAsync(rental.UserEmail)).ID
 			};
 			_context.Rentals.Add(rentalBrowser);
 			await _context.SaveChangesAsync();

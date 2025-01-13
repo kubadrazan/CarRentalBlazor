@@ -9,39 +9,43 @@
 @layout MainLayout
 
 <MudLayout>
-    <MudAppBar Color="Color.Primary" Fixed="false" Elevation="1">
-        <MudButton DropShadow="false" Href="/" Color="Color.Inherit" Style="display: inline-flex; align-items: center; justify-content: left">
-            <MudText Typo="Typo.h5" Class="ml-3" Style="display: inline-flex">MiNICarRental</MudText>
-        </MudButton>
-        <MudSpacer />
-        <MudMenu Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" AriaLabel="Open menu">
-            <MudMenuItem Icon="@Icons.Material.Filled.AccountCircle" IconSize="Size.Large">Account</MudMenuItem>
-            <MudMenuItem OnClick="historyButtonOnClick" Icon="@Icons.Material.Filled.History" IconSize="Size.Large">Rental history</MudMenuItem>
-            <MudMenuItem OnClick="logOutButtonOnClick" Icon="@Icons.Material.Filled.Logout" IconSize="Size.Large">Logout</MudMenuItem>
-        </MudMenu>
-    </MudAppBar>
+	<MudAppBar Color="Color.Primary" Fixed="false" Elevation="1">
+		<MudButton DropShadow="false" Href="/" Color="Color.Inherit" Style="display: inline-flex; align-items: center; justify-content: left">
+			<MudText Typo="Typo.h5" Class="ml-3" Style="display: inline-flex">MiNICarRental</MudText>
+		</MudButton>
+		<MudSpacer />
+		<MudMenu Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" AriaLabel="Open menu">
+			<MudMenuItem OnClick="accountButtonOnClick" Icon="@Icons.Material.Filled.AccountCircle" IconSize="Size.Large">Account</MudMenuItem>
+			<MudMenuItem OnClick="historyButtonOnClick" Icon="@Icons.Material.Filled.History" IconSize="Size.Large">Rental history</MudMenuItem>
+			<MudMenuItem OnClick="logOutButtonOnClick" Icon="@Icons.Material.Filled.Logout" IconSize="Size.Large">Logout</MudMenuItem>
+		</MudMenu>
+	</MudAppBar>
 
-    <MudMainContent Style="padding-top: 20px;">
-        @Body
-    </MudMainContent>
+	<MudMainContent Style="padding-top: 20px;">
+		@Body
+	</MudMainContent>
 </MudLayout>
 
 @code {
-    private void logOutButtonOnClick()
-    {
-        Navigation.NavigateTo("/logout", forceLoad: true);
-    }
+	private void logOutButtonOnClick()
+	{
+		Navigation.NavigateTo("/logout", forceLoad: true);
+	}
+	private void accountButtonOnClick()
+	{
+		Navigation.NavigateTo("/Account", forceLoad: true);
+	}
 
-    private async Task historyButtonOnClick()
-    {
-        bool IsEmployee;
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-        IsEmployee = (await AuthorizationService.AuthorizeAsync(user, "EmployeePolicy")).Succeeded;
+	private async Task historyButtonOnClick()
+	{
+		bool IsEmployee;
+		var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+		var user = authState.User;
+		IsEmployee = (await AuthorizationService.AuthorizeAsync(user, "EmployeePolicy")).Succeeded;
 
-        if (IsEmployee)
-            Navigation.NavigateTo("/rentalhistory-employee", forceLoad: true);
-        else
-            Navigation.NavigateTo("/rentalhistory-client", forceLoad: true);
-    }
+		if (IsEmployee)
+			Navigation.NavigateTo("/rentalhistory-employee", forceLoad: true);
+		else
+			Navigation.NavigateTo("/rentalhistory-client", forceLoad: true);
+	}
 }
