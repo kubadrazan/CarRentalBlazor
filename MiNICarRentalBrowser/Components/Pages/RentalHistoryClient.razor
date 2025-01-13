@@ -82,7 +82,7 @@
 
             if (pageInd == null || pageInd < 1 || pageInd > pagesCount)
                 pageInd = 1;
-            List<RentalBrowser> rentalsBrowser = await userService.GetUsersRentals(email, pageInd, pageSize);
+            List<RentalBrowser> rentalsBrowser = await userService.GetUsersRentalsAsync(email, pageInd, pageSize);
             if (rentalsBrowser.Count != 0)
             {
                 Rental rental;
