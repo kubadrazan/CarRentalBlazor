@@ -17,7 +17,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 
 		public CarRentalA(IHttpClientFactory httpClientFactory, IConfiguration configuration, IUserService userService)
 		{
-			_httpClient = httpClientFactory.CreateClient("ApiKeyClient");
+			_httpClient = httpClientFactory.CreateClient("AApiHttpClient");
 			_apiID = 0;
 #if DEBUG
 			_apiUrl = configuration.GetValue<string>("ApiUrls:ApiRentalA") ?? throw new Exception("No ApiRentalA Url in configuration file!");

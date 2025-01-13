@@ -12,9 +12,8 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 
 		public CarRentalB(IHttpClientFactory httpClientFactory, IConfiguration configuration)
 		{
-			_httpClient = httpClientFactory.CreateClient("ApiKeyClient");
-			//_apiUrl = configuration.GetValue<string>("bApiUrl") ?? throw new Exception("No apiA Url in configuration file!");
-			_apiUrl = string.Empty;
+			_httpClient = httpClientFactory.CreateClient("BApiHttpClient");
+			_apiUrl = configuration.GetValue<string>("bApiUrl") ?? throw new Exception("No apiB Url!");
 			_apiID = 1;
 		}
 		public async Task<string> ChooseOffer(int offerid, string emailAddress)
