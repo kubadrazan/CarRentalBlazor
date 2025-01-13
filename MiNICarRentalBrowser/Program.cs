@@ -96,10 +96,12 @@ namespace MiNICarRentalBrowser
 			builder.Services.AddMudServices();
 
 			builder.Services.AddSingleton<ApiKeyProvider>();
-            builder.Services.AddTransient<CustomHttpMessageHandler>();
+            builder.Services.AddTransient<AApiHttpMessageHandler>();
 
-            builder.Services.AddHttpClient("ApiKeyClient")
-					.AddHttpMessageHandler<CustomHttpMessageHandler>();
+            builder.Services.AddHttpClient("AApiHttpClient")
+					.AddHttpMessageHandler<AApiHttpMessageHandler>();
+			builder.Services.AddHttpClient("BApiHttpClient")
+					.AddHttpMessageHandler<BApiHttpMessageHandler>();
 
 			builder.Services.AddScoped<IUserService, UserServices>();
 			builder.Services.AddTransient<CarRentalServiceFactory>();
