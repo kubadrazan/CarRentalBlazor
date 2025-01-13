@@ -1,25 +1,22 @@
 ﻿@using SharedDataModels
 @using System.Globalization
-<div class="card">
-	<h3>Car Details</h3>
-	@if (car != null)
-	{
-		<p><strong>Brand:</strong> @car.Model.Brand.Name</p>
-		<p><strong>Model:</strong> @car.Model.Name</p>
-		<p><strong>Production Year:</strong> @car.ProductionYear</p>
-		<p><strong>Doors:</strong> @car.DoorsNumber</p>
-		<p><strong>Transmission:</strong> @car.Transmission</p>
-		<p><strong>Colour:</strong> @char.ToUpper(car.Colour[0])@car.Colour.Substring(1)</p>
-		<p><strong>Drive:</strong> @car.Drive</p>
-		<p><strong>FuelType:</strong> @car.FuelType</p>
-		<p><strong>HorsePower:</strong> @car.HorsePower HP</p>
-		<p><strong>Location: </strong><a href=@_searchAddress>@car.Location.Latitude, @car.Location.Longitude</a></p>
-	}
-	else
-	{
-		<p>No Data</p>
-	}
-</div>
+@if (car != null)
+{
+	<p><strong>Brand:</strong> @car.Model.Brand.Name</p>
+	<p><strong>Model:</strong> @car.Model.Name</p>
+	<p><strong>Production Year:</strong> @car.ProductionYear</p>
+	<p><strong>Doors:</strong> @car.DoorsNumber</p>
+	<p><strong>Transmission:</strong> @car.Transmission</p>
+	<p><strong>Colour:</strong> @char.ToUpper(car.Colour[0])@car.Colour.Substring(1)</p>
+	<p><strong>Drive:</strong> @car.Drive</p>
+	<p><strong>FuelType:</strong> @car.FuelType</p>
+	<p><strong>HorsePower:</strong> @car.HorsePower HP</p>
+	<p><strong>Location: </strong><a href=@_searchAddress>@car.Location.Latitude, @car.Location.Longitude</a></p>
+}
+else
+{
+	<p>No Data</p>
+}
 @code {
 	[Parameter]
 	public required Car car { get; set; }
