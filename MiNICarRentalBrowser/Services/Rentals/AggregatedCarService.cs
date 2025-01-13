@@ -87,9 +87,9 @@ namespace MiNICarRentalBrowser.Services.Car_Service
             return car;
 		}
 
-		public async Task<List<Offer>> GetOffersAsync(int apiId, int carId)
+		public async Task<List<Offer>> GetOffersAsync(int apiId, int carId, User? user = null)
 		{
-			return await _carRentalServiceFactory.GetService(apiId).GetOffersAsync(carId);
+			return await _carRentalServiceFactory.GetService(apiId).GetOffersAsync(carId, user);
 		}
 
 		public Task<string> ChooseOffer(int apiId, int offerid, string emailAddress)

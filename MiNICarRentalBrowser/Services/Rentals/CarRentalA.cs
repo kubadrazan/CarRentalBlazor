@@ -58,7 +58,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			}
 		}
 
-		public async Task<List<Offer>> GetOffersAsync(int carId)
+		public async Task<List<Offer>> GetOffersAsync(int carId, User? user)
 		{
 			try
 			{
