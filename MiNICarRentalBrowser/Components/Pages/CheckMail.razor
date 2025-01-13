@@ -1,7 +1,44 @@
 ﻿@page "/check-mail"
 
-<h3>Confirmation</h3>
-Sprawdz maila
-@code {
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider authenticationStateProvider
 
+<div class="container">
+    <MudText Typo="Typo.h3" Color="Color.Surface" Align="Align.Center"
+             Style="padding-left: 20%;padding-right: 20%; padding-top: 30px">
+        Check your email: @userEmail to confirm rental
+    </MudText>
+
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@OnButtonClick" style="margin-top:10px">
+        Go back to main page
+    </MudButton>
+</div>
+
+@code {
+    public string userEmail = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        userEmail = user.FindFirstValue(ClaimTypes.Email) ?? "";
+    }
+
+    public void OnButtonClick()
+    {
+        Navigation.NavigateTo("/", true);
+    }
 }
+
+
+<style>
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+
