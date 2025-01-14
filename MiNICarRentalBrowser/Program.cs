@@ -160,10 +160,10 @@ namespace MiNICarRentalBrowser
 			builder.Services.AddScoped<IUserService, UserServices>();
 			builder.Services.AddTransient<CarRentalServiceFactory>();
 
-            //builder.Services.AddScoped<CarRentalA>();
+            builder.Services.AddScoped<CarRentalA>();
 			builder.Services.AddScoped<CarRentalB>();
 
-			//builder.Services.AddScoped<ICarRental, CarRentalA>();
+			builder.Services.AddScoped<ICarRental, CarRentalA>();
 			builder.Services.AddScoped<ICarRental, CarRentalB>();
 			builder.Services.AddScoped<IRentalAdminService, CarRentalA>();
 
