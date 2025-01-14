@@ -44,9 +44,9 @@
 
     private int pagesCount = 1;
 
-    private void NavigateToRentalDetails(int rentalID)
+    private void NavigateToRentalDetails(int apiId, int rentalID)
     {
-        Navigation.NavigateTo($"/RentalDetailsClient/{rentalID}", true);
+        Navigation.NavigateTo($"/RentalDetailsClient/{apiId}/{rentalID}", true);
     }
 
     protected override async Task OnInitializedAsync()
@@ -82,13 +82,14 @@
 
             if (pageInd == null || pageInd < 1 || pageInd > pagesCount)
                 pageInd = 1;
-            List<RentalBrowser> rentalsBrowser = await userService.GetUsersRentals(email, pageInd, pageSize);
+            List<RentalBrowser> rentalsBrowser = await userService.GetUsersRentalsAsync(email, pageInd, pageSize);
             if (rentalsBrowser.Count != 0)
             {
                 Rental rental;
                 foreach (var rent in rentalsBrowser)
                 {
-                    rental = await rentalService.GetRentalAsync(rent.ApiID);
+                    rental = await rentalService.GetRentalAsync(rent.ApiID, rent.SourceApiID, email);
+
                     if (rental != null)
                         rentals.Add((rental, rent.ID));
                 }
@@ -104,7 +105,7 @@
         if (item is (Rental rental, int ID))
         {
             return@<MiNICarRentalBrowser.Components.Shared.RentalCard rental="@rental" 
-                            rentalID="rental.ID" OnButtonClicked="NavigateToRentalDetails"/>;
+                            rentalID="rental.ID" apiID="rental.SourceAPI" OnButtonClicked="NavigateToRentalDetails"/>;
         }
         else
         {

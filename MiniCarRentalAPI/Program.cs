@@ -27,9 +27,16 @@ namespace MiniCarRentalAPI
 				c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
 				{
 					In = ParameterLocation.Header,
-					Name = "X-Api-Key", 
+					Name = "X-Api-Key",
 					Type = SecuritySchemeType.ApiKey,
 					Description = "API key needed to access the endpoints"
+				});
+				c.AddSecurityDefinition("ClientId", new OpenApiSecurityScheme
+				{
+					In = ParameterLocation.Header,
+					Name = "X-Client-Id",
+					Type = SecuritySchemeType.ApiKey,
+					Description = "Client Id needed to access the endpoints"
 				});
 
 				c.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -44,12 +51,23 @@ namespace MiniCarRentalAPI
 							}
 						},
 						new string[] {}
+					},
+					{
+						new OpenApiSecurityScheme
+						{
+							Reference = new OpenApiReference
+							{
+								Type = ReferenceType.SecurityScheme,
+								Id = "ClientId"
+							}
+						},
+						new string[] {}
 					}
 				});
 			});
 
-            // AzureKeyVault
-            builder.Configuration.AddAzureKeyVault(new Uri(builder.Configuration.GetValue<string>("KeyVault:https")), new DefaultAzureCredential());
+			// AzureKeyVault
+			builder.Configuration.AddAzureKeyVault(new Uri(builder.Configuration.GetValue<string>("KeyVault:https")), new DefaultAzureCredential());
 
 #if DEBUG
 			builder.Services.AddDbContext<CarRentalContext>(options =>
@@ -61,19 +79,20 @@ namespace MiniCarRentalAPI
 			builder.Services.Configure<JsonOptions>(options =>
 				options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 			builder.Services.Configure<EmailServiceOptions>(options => options.APIKey = builder.Configuration["SendGridApiKey"]);
-            builder.Services.Configure<AzureBlobServiceOptions>(options => options.ConnectionString = builder.Configuration["AzureBlobConnectionString"]);
-            builder.Services.AddTransient<EmailService>();
+			builder.Services.Configure<AzureBlobServiceOptions>(options => options.ConnectionString = builder.Configuration["AzureBlobConnectionString"]);
+			builder.Services.AddSingleton(TimeProvider.System);
+			builder.Services.AddTransient<EmailService>();
 			builder.Services.AddTransient<AcceptationFactory>();
 			builder.Services.AddTransient<OfferFactory>();
 			builder.Services.AddTransient<ReturnFactory>();
 			builder.Services.AddTransient<RentalFactory>();
 			builder.Services.AddTransient<PdfGenerationService>();
-            builder.Services.AddTransient<AzureBlobService>();
+			builder.Services.AddTransient<AzureBlobService>();
 
-            builder.Services.AddTransient<IApiKeyValidatorService, ApiKeyValidatorService>();
+			builder.Services.AddTransient<IApiKeyValidatorService, ApiKeyValidatorService>();
 
 
-            var app = builder.Build();
+			var app = builder.Build();
 
 			if (app.Environment.IsDevelopment())
 			{

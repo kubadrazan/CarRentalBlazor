@@ -1,4 +1,5 @@
-﻿using SharedDataModels;
+﻿using MiNICarRentalBrowser.Services.Rentals;
+using SharedDataModels;
 using SharedDataModels.DTO;
 using SharedDataModels.Requests;
 using System.Net.Http;
@@ -7,7 +8,7 @@ using System.Text.Json;
 
 namespace MiNICarRentalBrowser.Services.Car_Service
 {
-	public class CarRentalA : ICarRental //Our api
+	public class CarRentalA : ICarRental, IRentalAdminService
 	{
 		private readonly HttpClient _httpClient;
 		private readonly string _apiUrl;
@@ -16,7 +17,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 
 		public CarRentalA(IHttpClientFactory httpClientFactory, IConfiguration configuration, IUserService userService)
 		{
-			_httpClient = httpClientFactory.CreateClient("ApiKeyClient");
+			_httpClient = httpClientFactory.CreateClient("AApiHttpClient");
 			_apiID = 0;
 #if DEBUG
 			_apiUrl = configuration.GetValue<string>("ApiUrls:ApiRentalA") ?? throw new Exception("No ApiRentalA Url in configuration file!");
@@ -57,7 +58,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			}
 		}
 
-		public async Task<List<Offer>> GetOffersAsync(int carId)
+		public async Task<List<Offer>> GetOffersAsync(int carId, User? user)
 		{
 			try
 			{
@@ -76,8 +77,6 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			try
 			{
 				var response = await _httpClient.PutAsJsonAsync<Guid>($"{_apiUrl}/api/Rental/offers/acceptOffer", offerId);
-				await _userService.AcceptOfferAsync(await response.Content.ReadFromJsonAsync<Rental>());
-
 				return await response.Content.ReadAsStringAsync();
 			}
 			catch (Exception ex)
@@ -96,8 +95,9 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 				if (!response.IsSuccessStatusCode)
 				{
 					return "Error";
-				}
-				return await response.Content.ReadAsStringAsync();
+                }
+                await _userService.AddRentalAsync(await response.Content.ReadFromJsonAsync<Rental>());
+                return await response.Content.ReadAsStringAsync();
 			}
 			catch (Exception ex)
 			{
@@ -106,39 +106,11 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			}
 		}
 
-		public async Task<Rental> GetRentalAsync(RentalBrowser rentalBrowser)
+		public async Task<Rental> GetRentalAsync(int rentalId, string email)
 		{
 			try
 			{
-				var response = await _httpClient.GetFromJsonAsync<Rental>($"{_apiUrl}/api/rentals/{rentalBrowser.ID}");
-				return response;
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"Error fetching rental data: {ex.Message}");
-				return null;
-			}
-		}
-
-		public async Task<Rental> GetRentalAsync(int Id)
-		{
-			try
-			{
-				var response = await _httpClient.GetFromJsonAsync<Rental>($"{_apiUrl}/api/rental/rentals/{Id}");
-				return response;
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"Error fetching rental data: {ex.Message}");
-				return null;
-			}
-		}
-
-		public async Task<byte[]> GetCarImage(int Id)
-		{
-			try
-			{
-				var response = await _httpClient.GetFromJsonAsync<byte[]>($"{_apiUrl}/api/acceptations/carimage/{Id}");
+				var response = await _httpClient.GetFromJsonAsync<Rental>($"{_apiUrl}/api/rental/rentals/{rentalId}/{email}");
 				return response;
 			}
 			catch (Exception ex)
@@ -184,8 +156,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 
 		public async Task ReturnCarAsync(Rental rental)
 		{
-			var returnRequest = new ReturnCarRequest(rental, 0, 0);
-			var response = await _httpClient.PutAsJsonAsync<ReturnCarRequest>($"{_apiUrl}/api/Rental/rentals/returnCar/{rental.ID}", returnRequest);
+			var response = await _httpClient.PutAsJsonAsync<string>($"{_apiUrl}/api/Rental/rentals/returnCar/{rental.ID}", rental.UserEmail);
 		}
 
 		public async Task AcceptCarReturn(int rentalId, string employeeEmail, string acceptationDescription, string carImage)
@@ -194,7 +165,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			var response = await _httpClient.PutAsJsonAsync<AcceptReturnRequest>($"{_apiUrl}/api/Rental/rentals/acceptReturn/{rentalId}", acceptReturnRequest);
 		}
 
-		public async Task<byte[]> GetImage(int rentalId)
+		public async Task<byte[]> GetCarImage(int rentalId)
 		{
 			try
 			{
@@ -207,6 +178,35 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 				return null;
 			}
 
+		}
+
+		public async Task<string> GetDescription(int rentalId)
+		{
+			try
+			{
+				var response = await _httpClient.GetFromJsonAsync<Description>($"{_apiUrl}/api/acceptations/cardescription/{rentalId}");
+				var content = response.Content;
+				return content;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error fetching rental data: {ex.Message}");
+				return null;
+			}
+		}
+
+		public async Task<Rental> GetRentalAdminAsync(int rentalId)
+		{
+			try
+			{
+				var response = await _httpClient.GetFromJsonAsync<Rental>($"{_apiUrl}/api/rental/rentals/admin/{rentalId}");
+				return response;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error fetching rental data: {ex.Message}");
+				return null;
+			}
 		}
 	}
 }

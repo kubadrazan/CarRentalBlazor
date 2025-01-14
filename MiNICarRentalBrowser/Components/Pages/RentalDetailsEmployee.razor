@@ -1,7 +1,8 @@
-﻿@page "/RentalDetailsEmployee/{rentalId:int}"
+﻿@page "/RentalDetailsEmployee/{apiID:int}/{rentalId:int}/"
 @using MiNICarRentalBrowser.Components.Components
 @using MiNICarRentalBrowser.Services
 @using MiNICarRentalBrowser.Services.Car_Service
+@using MiNICarRentalBrowser.Services.Rentals
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using SharedDataModels
@@ -11,14 +12,21 @@
 @inject IUserService userService
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject IAuthorizationService AuthorizationService
+@inject IRentalAdminService rentalAdminService
 @inject NavigationManager navigation
 
 <div class="container">
-
-	@if (_isCarLoaded)
-	{
-		<CarDisplay car="_car" />
-	}
+	<div class="card">
+		<h3>Car Details</h3>
+		@if (_isCarLoaded)
+		{
+			<CarDisplay car="_car" />
+		}
+		else
+		{
+			<MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+		}
+	</div>
 	<div class="card">
 		@if (_isCarLoaded)
 		{
@@ -31,20 +39,23 @@
 		}
 		else
 		{
-			<p>Loading Rental Details...</p>
+			<MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
 		}
 	</div>
-	<div class="card">
-		@if (_rental != null && _rental.RentalStatus == RentalStatus.CLOSED)
-		{
+	@if (_rental != null && _rental.RentalStatus == RentalStatus.CLOSED)
+	{
+		<div class="card">
 			<CarImageDisplay rental="_rental" />
-		}
-	</div>
+			<AcceptationDescriptionDisplay rental="_rental" />
+		</div>
+	}
 </div>
 
 @code {
 	[Parameter]
 	public int rentalId { get; set; }
+	[Parameter]
+	public int apiId { get; set; }
 	private Rental _rental { get; set; }
 	private Car _car;
 	private bool _isCarLoaded = false;
@@ -60,9 +71,9 @@
 		}
 		await base.OnInitializedAsync();
 
-		_rental = await aggregatedCarService.GetRentalAsync(rentalId);
+		_rental = await rentalAdminService.GetRentalAdminAsync(rentalId);
 		if (_rental != null)
-			_car = await aggregatedCarService.GetCarDetailsAsync(_rental.CarID);
+			_car = await aggregatedCarService.GetCarDetailsAsync(_rental.SourceAPI, _rental.CarID);
 		_isCarLoaded = true;
 	}
 	public void AcceptReturnAction()

@@ -8,30 +8,7 @@
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject Services.IUserService UserService
-
-<style>
-    .centered-top {
-        position: absolute;
-        left: 50%;
-        transform: translate(-50%, 0);
-    }
-
-    .reg_btn {
-        margin-left: 40px;
-        margin-right: 40px;
-        margin-top: 40px;
-    }
-
-    .purple-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
-        border-color: #A64DB6;
-        border-width: 3px
-    }
-
-    .gray-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
-        border-color: #808080;
-        border-width: 3px
-    }
-</style>
+@inject TimeProvider timeProvider
 
 <MudThemeProvider Theme="MyCustomTheme" />
 <MudContainer Style="justify-content: center">
@@ -84,9 +61,9 @@
     private string _email = "";
     private string _firstName = "";
     private string _lastName = "";
-    private DateTime? _birthDate = DateTime.Today;
-    private DateTime? _drivingLicenseDate = DateTime.Today;
-    private DateTime _minDrivingLicenseDate = DateTime.Today;
+    private DateTime? _birthDate;
+    private DateTime? _drivingLicenseDate;
+    private DateTime _minDrivingLicenseDate;
 
     private bool _showAlert = false;
     private string _alertText = "";
@@ -95,18 +72,13 @@
     {
         await base.OnInitializedAsync();
 
+        _birthDate = timeProvider.GetLocalNow().DateTime;
+        _drivingLicenseDate = timeProvider.GetLocalNow().DateTime;
+        _minDrivingLicenseDate = timeProvider.GetLocalNow().DateTime;
+
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         var email = user.FindFirstValue(ClaimTypes.Email);
-        if (email is null)
-        {
-            // todo cos
-        }
-
-        if (user.Identity != null && user.Identity.IsAuthenticated)
-        {
-            // todo pozniej pomyslimy
-        }
 
         _email = email ?? "";
         _firstName = user.FindFirstValue(ClaimTypes.GivenName) ?? "";
@@ -144,7 +116,7 @@
             return;
         }
 
-        if (((DateTime)_birthDate).AddYears(18) > DateTime.Now)
+        if (((DateTime)_birthDate).AddYears(18) > timeProvider.GetLocalNow().DateTime)
         {
             await ShowAlert("You must be at least 18 years old", 5000);
             return;
@@ -157,8 +129,7 @@
                 FirstName = _firstName,
                 LastName = _lastName,
                 BirthDate = (DateTime)_birthDate,
-                DrivingLicenseObtainDate = (DateTime)_drivingLicenseDate,
-                Location = new Location { Latitude = 0, Longitude = 0 } // TODO zmienic
+                DrivingLicenseObtainDate = (DateTime)_drivingLicenseDate
             };
 
         await UserService.AddUserAsync(user);
@@ -191,3 +162,27 @@
         _showAlert = !value;
     }
 }
+
+<style>
+    .centered-top {
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%, 0);
+    }
+
+    .reg_btn {
+        margin-left: 40px;
+        margin-right: 40px;
+        margin-top: 40px;
+    }
+
+    .purple-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
+        border-color: #A64DB6;
+        border-width: 3px
+    }
+
+    .gray-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
+        border-color: #808080;
+        border-width: 3px
+    }
+</style>

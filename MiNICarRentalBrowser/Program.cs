@@ -7,12 +7,15 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Azure.StackExchangeRedis;
 using MiNICarRentalBrowser.ApiKey;
 using MiNICarRentalBrowser.Components;
 using MiNICarRentalBrowser.Data;
 using MiNICarRentalBrowser.Services;
 using MiNICarRentalBrowser.Services.Car_Service;
 using MudBlazor.Services;
+using StackExchange.Redis;
+using MiNICarRentalBrowser.Services.Rentals;
 
 namespace MiNICarRentalBrowser
 {
@@ -30,8 +33,22 @@ namespace MiNICarRentalBrowser
 			builder.Services.AddDbContext<UsersContext>(options =>
 				options.UseSqlServer(builder.Configuration["UsersDBConnectionString"]));
 #endif
+			builder.Services.AddSingleton(TimeProvider.System);
 
-			builder.Services.AddScoped<UserValidationService>();
+			// Redis
+			var configurationOptions = ConfigurationOptions
+				.Parse($"{builder.Configuration["redisCacheHostName"]}:6380")
+				.ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential())
+				.GetAwaiter().GetResult();
+            var connectionMultiplexer = ConnectionMultiplexer.Connect(configurationOptions);
+			IDatabase database = connectionMultiplexer.GetDatabase();
+
+			builder.Services.AddSingleton(database);
+			builder.Services.AddSingleton(connectionMultiplexer);
+
+			builder.Services.AddSingleton<CacheManager>();
+
+            builder.Services.AddScoped<UserValidationService>();
 			builder.Services.AddScoped<EmployeeValidationService>();
 
 			// Google Authentication
@@ -79,19 +96,31 @@ namespace MiNICarRentalBrowser
 			builder.Services.AddMudServices();
 
 			builder.Services.AddSingleton<ApiKeyProvider>();
-            builder.Services.AddTransient<CustomHttpMessageHandler>();
+            builder.Services.AddTransient<AApiHttpMessageHandler>();
+            builder.Services.AddTransient<BApiHttpMessageHandler>();
 
-            builder.Services.AddHttpClient("ApiKeyClient")
-					.AddHttpMessageHandler<CustomHttpMessageHandler>();
+            builder.Services.AddHttpClient("AApiHttpClient")
+					.AddHttpMessageHandler<AApiHttpMessageHandler>();
+			builder.Services.AddHttpClient("BApiHttpClient")
+					.AddHttpMessageHandler<BApiHttpMessageHandler>();
 
 			builder.Services.AddScoped<IUserService, UserServices>();
 			builder.Services.AddTransient<CarRentalServiceFactory>();
 
+            builder.Services.AddScoped<CarRentalA>();
+			builder.Services.AddScoped<CarRentalB>();
+			//builder.Services.AddScoped<CarRentalB>();
 			builder.Services.AddScoped<ICarRental, CarRentalA>();
+			builder.Services.AddScoped<ICarRental, CarRentalB>();
+			builder.Services.AddScoped<IRentalAdminService, CarRentalA>();
             //builder.Services.AddScoped<ICarRental, CarRentalB>();
-            builder.Services.AddScoped<Services.Car_Service.AggregatedCarService>();
+            builder.Services.AddScoped<AggregatedCarService>();
 
-			var app = builder.Build();
+			builder.Services.AddSingleton<BrowserUriService>();
+            builder.Services.AddTransient<BrandModelParserService>();
+            builder.Services.AddSingleton<ImageFileService>();
+
+            var app = builder.Build();
 
 			// Configure the HTTP request pipeline.
 			if (!app.Environment.IsDevelopment())

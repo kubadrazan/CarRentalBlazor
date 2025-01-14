@@ -1,7 +1,9 @@
 ﻿@page "/acceptReturn/{rentalId:int}"
 @attribute [Authorize(Policy = "RegisteredPolicy")]
 
+@using MiNICarRentalBrowser.Services
 @using MiNICarRentalBrowser.Services.Car_Service
+@using MiNICarRentalBrowser.Services.Rentals
 @using MudBlazor
 @using System.Threading
 @using Microsoft.AspNetCore.Authorization
@@ -11,26 +13,9 @@
 @inject NavigationManager Navigation
 @inject AggregatedCarService rentalService
 @inject AuthenticationStateProvider authenticationStateProvider
+@inject IRentalAdminService rentalAdminService
 @inject Services.IUserService UserService
-
-<style>
-    .centered-top {
-        position: absolute;
-        left: 50%;
-        transform: translate(-50%, 0);
-    }
-
-    .accept_btn {
-        margin-left: 40px;
-        margin-right: 40px;
-        margin-top: 20px;
-    }
-
-    .purple-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
-        border-color: #A64DB6;
-        border-width: 3px
-    }
-</style>
+@inject ImageFileService imageFileService
 
 <MudThemeProvider Theme="MyCustomTheme" />
 <MudContainer Style="justify-content: center">
@@ -115,12 +100,8 @@
 
             if (imageFileTypes.Contains(extensionName))
             {
-                var resizedFile = await file.RequestImageFileAsync(file.ContentType, 300, 300);
-                var buf = new byte[resizedFile.Size];
-                using (var stream = resizedFile.OpenReadStream())
-                {
-                    await stream.ReadAsync(buf);
-                }
+                var buf = await imageFileService.LoadBrowserFileTOBuffAsync(file);
+
                 _base64data = $"data:image/png;base64,{Convert.ToBase64String(buf)}";
                 _carImage = file;
                 _isLoaded = true;
@@ -143,14 +124,29 @@
 
         string email = user.FindFirstValue(ClaimTypes.Email) ?? "";
 
-        var resizedFile = await _carImage.RequestImageFileAsync(_carImage.ContentType, 300, 300);
-        var buf = new byte[resizedFile.Size];
-        using (var stream = resizedFile.OpenReadStream())
-        {
-            await stream.ReadAsync(buf);
-        }
+        var buf = await imageFileService.LoadBrowserFileTOBuffAsync(_carImage);
 
-        await rentalService.AcceptCarReturn(rentalId, email, _descriptionText, Convert.ToBase64String(buf));
-        Navigation.NavigateTo($"/RentalDetailsEmployee/{rentalId}");
+        await rentalAdminService.AcceptCarReturn(rentalId, email, _descriptionText, Convert.ToBase64String(buf));
+        Navigation.NavigateTo($"/RentalDetailsEmployee/{0}/{rentalId}");
     }
 }
+
+
+<style>
+    .centered-top {
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%, 0);
+    }
+
+    .accept_btn {
+        margin-left: 40px;
+        margin-right: 40px;
+        margin-top: 20px;
+    }
+
+    .purple-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
+        border-color: #A64DB6;
+        border-width: 3px
+    }
+</style>

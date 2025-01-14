@@ -1,24 +1,27 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MiNICarRentalBrowser.Data;
+using MiNICarRentalBrowser.Services.Rentals;
 using SharedDataModels;
 using SharedDataModels.DTO;
 
 namespace MiNICarRentalBrowser.Services.Car_Service
 {
-	public class AggregatedCarService
+    public class AggregatedCarService
 	{
 		private readonly List<ICarRental> _carRentals;
 		private readonly ICarRepository _carRepository;
 		private readonly IServiceProvider _serviceProvider;
 		private readonly CarRentalServiceFactory _carRentalServiceFactory;
+		private readonly CacheManager _cacheManager;
 
-		public AggregatedCarService(IEnumerable<ICarRental> carRentals, ICarRepository carRepository, IServiceProvider serviceProvider, CarRentalServiceFactory carRentalServiceFactory)
+		public AggregatedCarService(IEnumerable<ICarRental> carRentals, ICarRepository carRepository, IServiceProvider serviceProvider, CarRentalServiceFactory carRentalServiceFactory, CacheManager cacheManager)
 		{
 			_carRentals = carRentals.ToList();
 			_carRepository = carRepository;
 			_serviceProvider = serviceProvider;
 			_carRentalServiceFactory = carRentalServiceFactory;
+			_cacheManager = cacheManager;
 		}
 
 		public async Task<List<CarCache>> GetAllCarsAsync()
@@ -30,15 +33,11 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 
 		public async Task UpdateCarsInDBAsync()
 		{
-			using (var scope = _serviceProvider.CreateScope())
-			{
-				var carRepository = scope.ServiceProvider.GetRequiredService<ICarRepository>();
-				var cars = await GetAllCarsAsync();
-				await carRepository.UpdateCarsAsync(cars);
-			}
+			var cars = await GetAllCarsAsync();
+			await _carRepository.InsertCars(cars);
 		}
 
-		public async Task<List<CarCache>> GetFilteredCars(List<string> brands, List<string> models, int? pageInd = 1, int pageSize = 1)
+		public async Task<List<CarCache>> GetFilteredCars(string brand, List<string> models, int? pageInd = 1, int pageSize = 1)
 		{
 			if (pageInd == null)
 				pageInd = 1;
@@ -46,12 +45,12 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			if (pageInd < 1 || pageSize < 1)
 				throw new ArgumentOutOfRangeException();
 
-			return await _carRepository.GetFilteredCarsAsync(brands, models, (int)pageInd, pageSize);
+			return await _carRepository.GetFilteredCarsAsync(brand, models, (int)pageInd, pageSize);
 		}
 
-		public int GetFilteredCarsCount(List<string> brands, List<string> models)
+		public async Task<int> GetFilteredCarsCount(string brand, List<string> models)
 		{
-			return _carRepository.GetFilteredCarsCount(brands, models);
+			return await _carRepository.GetFilteredCarsCount(brand, models);
 		}
 
 		public async Task<List<string>> GetUniqueBrands()
@@ -64,69 +63,58 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			return await _carRepository.GetUniqueModelsAsync();
 		}
 
-		public async Task<List<BrandModelDTO>> GetBrandsModelsAsync()
+        public async Task<List<string>> GetUniqueModels(string brand)
+        {
+            return await _carRepository.GetUniqueModelsAsync(brand);
+        }
+
+        public async Task<List<BrandModelDTO>> GetBrandsModelsAsync()
 		{
-			return await _carRepository.GetBrandsModelsAsync();
+            return await _carRepository.GetBrandsModelsAsync();
 		}
 
-		public Task<Car> GetCarDetailsAsync(int carId)
+		public async Task<Car?> GetCarDetailsAsync(int apiId, int carId)
 		{
-			return _carRentalServiceFactory.GetService(0).GetCarDetailsAsync(carId);
+			var car =  await _cacheManager.GetDetailedCar(apiId, carId);
+			if (car != null)
+				return car;
+
+			car = await _carRentalServiceFactory.GetService(apiId).GetCarDetailsAsync(carId);
+
+			if (car != null)
+				await _cacheManager.SetDetailedCar(apiId, car);
+
+            return car;
 		}
 
-		public Task<List<Offer>> GetOffersAsync(int carId)
+		public async Task<List<Offer>> GetOffersAsync(int apiId, int carId, User? user = null)
 		{
-			return _carRentalServiceFactory.GetService(0).GetOffersAsync(carId);
+			return await _carRentalServiceFactory.GetService(apiId).GetOffersAsync(carId, user);
 		}
 
-		public Task<string> ConfirmOffer(Guid offerId)
+		public Task<string> ChooseOffer(int apiId, int offerid, string emailAddress)
 		{
-			return _carRentalServiceFactory.GetService(0).ConfirmOffer(offerId);
+			return _carRentalServiceFactory.GetService(apiId).ChooseOffer(offerid, emailAddress);
 		}
 
-		public Task<string> ChooseOffer(int offerid, string emailAddress)
+		public Task<Rental> GetRentalAsync(int rentalId, int apiId, string email)
 		{
-			return _carRentalServiceFactory.GetService(0).ChooseOffer(offerid, emailAddress);
-		}
-
-		public Task<Rental> GetRentalAsync(RentalBrowser rentalBrowser)
-		{
-			return _carRentalServiceFactory.GetService(0).GetRentalAsync(rentalBrowser);
-		}
-
-		public Task<Rental> GetRentalAsync(int Id)
-		{
-			return _carRentalServiceFactory.GetService(0).GetRentalAsync(Id);
-		}
-
-		public Task<byte[]> GetCarImage(int Id)
-		{
-			return _carRentalServiceFactory.GetService(0).GetCarImage(Id);
-		}
-
-		public Task<int> GetRentalsEmployeeCountAsync()
-		{
-			return _carRentalServiceFactory.GetService(0).GetRentalsCountAsync();
-		}
-
-		public Task<List<Rental>> GetRentalsEmployeeAsync(int? pageInd, int pageSize = 15)
-		{
-			return _carRentalServiceFactory.GetService(0).GetRentalsAsync(pageInd, pageSize);
+			return _carRentalServiceFactory.GetService(apiId).GetRentalAsync(rentalId, email);
 		}
 
 		public Task ReturnCarAsync(Rental rental)
 		{
-			return _carRentalServiceFactory.GetService(0).ReturnCarAsync(rental);
+			return _carRentalServiceFactory.GetService(rental.SourceAPI).ReturnCarAsync(rental);
 		}
 
-		public Task AcceptCarReturn(int rentalId, string employeeEmail, string acceptationDescription, string carImage)
+		public Task<byte[]> GetCarImage(Rental rental)
 		{
-			return _carRentalServiceFactory.GetService(0).AcceptCarReturn(rentalId, employeeEmail, acceptationDescription, carImage);
+			return _carRentalServiceFactory.GetService(rental.SourceAPI).GetCarImage(rental.ID);
 		}
 
-		public Task<byte[]> GetImage(int rentalId)
+		public Task<string> GetDescription(Rental rental)
 		{
-			return _carRentalServiceFactory.GetService(0).GetImage(rentalId);
+			return _carRentalServiceFactory.GetService(rental.SourceAPI).GetDescription(rental.ID);
 		}
 	}
 }

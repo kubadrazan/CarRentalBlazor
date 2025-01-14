@@ -10,8 +10,11 @@ namespace MiniCarRentalAPI.Data
         }
 
         public DbSet<Car> Cars { get; set; }
+
         public DbSet<Model> Models { get; set; }
+
         public DbSet<Brand> Brands { get; set; }
+
         public DbSet<Rental> Rentals { get; set; }
 
         public DbSet<Offer> Offers { get; set; }
@@ -21,6 +24,5 @@ namespace MiniCarRentalAPI.Data
         public DbSet<Acceptation> Acceptations { get; set; }
 
         public DbSet<Description> Descriptions { get; set; }
-
     }
 }
