@@ -209,7 +209,7 @@ namespace MiniCarRentalAPI.Controllers
 			return Ok(rental);
 		}
 
-        [HttpGet("allRentals/{email}")]
+        [HttpGet("rentals/allRentals/{email}")]
         public async Task<IActionResult> GetAllRental(string email)
         {
             var rental = await _context.Rentals.Include(r => r.Car).Include(r => r.Car.Model)
