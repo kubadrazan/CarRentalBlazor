@@ -1,0 +1,47 @@
+﻿@page "/rentalconfirmation"
+@using MiNICarRentalBrowser.Services.Car_Service
+@using MiNICarRentalBrowser.Services.Rentals
+@inject IRentalAdminService rentalAdminService
+@inject NavigationManager Navigation
+
+<div class="container">
+	<MudText Typo="Typo.h3" Color="Color.Surface" Align="Align.Center"
+			 Style="padding-left: 20%;padding-right: 20%; padding-top: 30px">
+		Rental is confirmed
+	</MudText>
+
+	<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@OnButtonClick" style="margin-top:10px">
+		Go back to main page
+	</MudButton>
+</div>
+
+
+@code {
+	[Parameter]
+	[SupplyParameterFromQuery(Name = "offer_id")]
+	public Guid offerId { get; set; }
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		await base.OnAfterRenderAsync(firstRender);
+
+		if (firstRender)
+		{
+			await rentalAdminService.ConfirmOffer(offerId);
+		}
+	}
+
+	public void OnButtonClick()
+	{
+		Navigation.NavigateTo("/", true);
+	}
+}
+
+<style>
+	.container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+</style>

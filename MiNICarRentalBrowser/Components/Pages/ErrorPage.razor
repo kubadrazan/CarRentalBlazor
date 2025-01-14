@@ -1,0 +1,59 @@
+﻿@page "/error-page/{StatusCode:int}"
+
+@rendermode RenderMode.InteractiveServer
+@inject NavigationManager Navigation
+
+<PageTitle>@heading</PageTitle>
+<p><MudText Typo="Typo.h2" Color="Color.Error" Align="Align.Center">@heading</MudText></p>
+
+<div class="container">
+    <div class="item">
+        @if (is404)
+        {
+            <MudText Typo="Typo.subtitle1" Color="Color.Error">The page u are looking for is no longer available :-(</MudText>
+        }
+        else
+        {
+            <MudText Typo="Typo.subtitle1" Color="Color.Surface">You have encountered an error</MudText>
+        }
+    </div>
+
+    <div class="item">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@OnButtonClick">Go back to main page</MudButton>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int StatusCode { get; set; }
+
+    private bool is404;
+    private string? heading;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        is404 = StatusCode == 404;
+
+        heading = is404 ? "Error 404 | Page Not Found" : $"Error {StatusCode}";
+    }
+
+    public void OnButtonClick()
+    {
+        Navigation.NavigateTo("/", true);
+    }
+}
+
+<style>
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .item {
+        padding: 20px;
+    }
+</style>

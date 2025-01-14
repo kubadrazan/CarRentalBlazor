@@ -1,0 +1,31 @@
+﻿@using SharedDataModels
+@using System.Globalization
+@if (car != null)
+{
+	<p><strong>Brand:</strong> @car.Model.Brand.Name</p>
+	<p><strong>Model:</strong> @car.Model.Name</p>
+	<p><strong>Production Year:</strong> @car.ProductionYear</p>
+	<p><strong>Doors:</strong> @(car.DoorsNumber != null ? car.DoorsNumber : "No Data")</p>
+	<p><strong>Transmission:</strong> @(car.Transmission != null ? car.Transmission : "No Data")</p>
+	<p><strong>Colour:</strong>  @(car.Colour != null ? char.ToUpper(car.Colour[0]) + car.Colour.Substring(1) : "No Data")</p>
+	<p><strong>Drive:</strong> @(car.Drive != null ? car.Drive : "No Data")</p>
+	<p><strong>FuelType:</strong> @(car.FuelType != null ? car.FuelType : "No Data")</p>
+	<p><strong>HorsePower:</strong> @(car.HorsePower != null ? car.HorsePower + "HP" : "No Data")</p>
+	<p><strong>Location: </strong>@(car.Location != null? (MarkupString)$"<a href=\"{_searchAddress}\">{car.Location.Latitude}, {car.Location.Longitude}</a>": "No Data")</p>
+}
+else
+{
+	<p>No Data</p>
+}
+@code {
+	[Parameter]
+	public required Car car { get; set; }
+
+	private string _searchAddress { get; set; }
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+		if (car != null && car.Location != null)
+			_searchAddress = $"https://www.google.com/maps/search/?api=1&query={car.Location.Latitude.ToString(CultureInfo.InvariantCulture)},{car.Location.Longitude.ToString(CultureInfo.InvariantCulture)}";
+	}
+}

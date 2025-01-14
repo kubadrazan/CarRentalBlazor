@@ -1,0 +1,35 @@
+﻿@using SharedDataModels
+
+<MudPaper Class="p-4" Style="max-width: 800px; height: 200px; margin: auto" Elevation="4">
+    <MudGrid>
+        <MudItem xs="7" sm="7">
+            <div style="display: flex; flex-direction: column; align-items: flex-start; padding-left: 16px">
+                <MudText Typo="Typo.h5">@car.BrandName @car.ModelName</MudText>
+                <MudText Typo="Typo.body2" Class="my-1">Production year: @car.ProductionYear</MudText>
+                <MudText Typo="Typo.body2" Class="my-1">No mileage limit</MudText>
+            </div>
+        </MudItem>
+        <MudItem xs="5" sm="5">
+            <div style="display: flex; flex-direction: column; align-items: flex-end; padding-right: 16px">
+                <MudImage Src=@imgSrc Style="width: 100px; height: 100px; object-fit: cover;" />
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="() => OnButtonClicked(car.SourceApiID, car.CarID)">@buttonText</MudButton>
+            </div>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+
+@code {
+
+    [Parameter]
+    public required CarCache car { get; set; }
+
+    [Parameter]
+    public required string imgSrc { get; set; }
+
+    [Parameter]
+    public required Action<int,int> OnButtonClicked { get; set; }
+
+    [Parameter]
+    public required string buttonText { get; set; }
+}

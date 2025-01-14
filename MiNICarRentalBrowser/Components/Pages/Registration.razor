@@ -1,0 +1,188 @@
+﻿@page "/registration"
+@using MudBlazor
+@using System.Threading
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@using SharedDataModels
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject Services.IUserService UserService
+@inject TimeProvider timeProvider
+
+<MudThemeProvider Theme="MyCustomTheme" />
+<MudContainer Style="justify-content: center">
+    <MudCard Class="rounded-xl centered-top" Style="padding-top:20px;
+    padding-left:50px; padding-right:50px; padding-bottom:20px;">
+        <MudStack Style="width: 300px;" Justify="Justify.Center">
+            <MudTextField @bind-Value="_email" Label="Email" ReadOnly="true" Variant="Variant.Outlined" Class="purple-accents" />
+
+            <MudTextField @bind-Value="_firstName" Label="First Name" Variant="Variant.Outlined" Class="purple-accents"
+                          MaxLength="50" InputMode="InputMode.text" InputType="InputType.Text" />
+
+            <MudTextField @bind-Value="_lastName" Label="Last Name" Variant="Variant.Outlined" Class="purple-accents"
+                          MaxLength="50" InputMode="InputMode.text" InputType="InputType.Text" />
+
+            <MudDatePicker Label="Birth date" @bind-Date="_birthDate" Placeholder="Select Date"
+                           PickerVariant="PickerVariant.Dialog" Color="Color.Secondary" Rounded="true"
+                           Style="margin-top: 20px;" Editable=true ImmediateText=true
+                           TextChanged="BirthDatePickerTextChanged" />
+
+            <MudDatePicker Label="Driving license obtain date" @bind-Date="_drivingLicenseDate" Placeholder="Select Date"
+                           PickerVariant="PickerVariant.Dialog" Color="Color.Secondary" Rounded="true"
+                           Style="margin-top: 20px;" Editable=true ImmediateText=true
+                           MinDate="_minDrivingLicenseDate" />
+
+
+            <button @onclick=Register class="button reg_btn">Register</button>
+        </MudStack>
+    </MudCard>
+
+</MudContainer>
+
+@if (_showAlert)
+{
+    <MudCard Class="centered-top rounded-xl">
+        <MudAlert Class="rounded-xl" Severity="Severity.Error" ShowCloseIcon="true"
+                  CloseIconClicked="(() => CloseAlert(true))">@_alertText</MudAlert>
+    </MudCard>
+}
+
+@code {
+    MudTheme MyCustomTheme = new MudTheme()
+        {
+            PaletteLight = new PaletteLight()
+            {
+                Secondary = Colors.Purple.Lighten1
+            }
+        };
+    private const int MIN_YEARS_OBTAIN_DRIVING_LICNESE = 16;
+
+    private string _email = "";
+    private string _firstName = "";
+    private string _lastName = "";
+    private DateTime? _birthDate;
+    private DateTime? _drivingLicenseDate;
+    private DateTime _minDrivingLicenseDate;
+
+    private bool _showAlert = false;
+    private string _alertText = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        _birthDate = timeProvider.GetLocalNow().DateTime;
+        _drivingLicenseDate = timeProvider.GetLocalNow().DateTime;
+        _minDrivingLicenseDate = timeProvider.GetLocalNow().DateTime;
+
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var email = user.FindFirstValue(ClaimTypes.Email);
+
+        _email = email ?? "";
+        _firstName = user.FindFirstValue(ClaimTypes.GivenName) ?? "";
+        _lastName = user.FindFirstValue(ClaimTypes.Surname) ?? "";
+        if (user.FindFirstValue(ClaimTypes.DateOfBirth) is not null)
+        {
+            _birthDate = DateTime.Parse(user.FindFirstValue(ClaimTypes.DateOfBirth)!);
+            _minDrivingLicenseDate = _birthDate.Value.AddYears(MIN_YEARS_OBTAIN_DRIVING_LICNESE);
+        }
+    }
+
+    private async Task Register()
+    {
+        if (String.IsNullOrEmpty(_firstName))
+        {
+            await ShowAlert("Enter first name", 5000);
+            return;
+        }
+
+        if (String.IsNullOrEmpty(_lastName))
+        {
+            await ShowAlert("Enter last name", 5000);
+            return;
+        }
+
+        if (_birthDate is null)
+        {
+            await ShowAlert("Choose birth date", 5000);
+            return;
+        }
+
+        if (_drivingLicenseDate is null)
+        {
+            await ShowAlert("Choose driving license obtain date", 5000);
+            return;
+        }
+
+        if (((DateTime)_birthDate).AddYears(18) > timeProvider.GetLocalNow().DateTime)
+        {
+            await ShowAlert("You must be at least 18 years old", 5000);
+            return;
+        }
+
+
+        User user = new User
+            {
+                Email = _email,
+                FirstName = _firstName,
+                LastName = _lastName,
+                BirthDate = (DateTime)_birthDate,
+                DrivingLicenseObtainDate = (DateTime)_drivingLicenseDate
+            };
+
+        await UserService.AddUserAsync(user);
+
+        Navigation.NavigateTo("/");
+        StateHasChanged();
+    }
+
+    private void BirthDatePickerTextChanged(string value)
+    {
+        if (!String.IsNullOrEmpty(value))
+        {
+            _birthDate = DateTime.Parse(value);
+            _minDrivingLicenseDate = _birthDate!.Value.AddYears(MIN_YEARS_OBTAIN_DRIVING_LICNESE);
+        }
+    }
+
+    public async Task ShowAlert(string text, int delay)
+    {
+        _alertText = text;
+        _showAlert = true;
+        StateHasChanged();
+        await Task.Delay(delay);
+        CloseAlert(true);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void CloseAlert(bool value)
+    {
+        _showAlert = !value;
+    }
+}
+
+<style>
+    .centered-top {
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%, 0);
+    }
+
+    .reg_btn {
+        margin-left: 40px;
+        margin-right: 40px;
+        margin-top: 40px;
+    }
+
+    .purple-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
+        border-color: #A64DB6;
+        border-width: 3px
+    }
+
+    .gray-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
+        border-color: #808080;
+        border-width: 3px
+    }
+</style>

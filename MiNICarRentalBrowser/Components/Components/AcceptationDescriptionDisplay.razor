@@ -1,0 +1,24 @@
+﻿@using MiNICarRentalBrowser.Services.Car_Service
+@using SharedDataModels
+@using System.Globalization
+@inject AggregatedCarService renatalService
+<h3>Employee Description</h3>
+@if (_description != null)
+{
+	<p>@_description</p>
+}
+
+@code {
+	[Parameter]
+	public required Rental rental { get; set; }
+
+	private string _description { get; set; }
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+		if (rental != null)
+		{
+			_description = await renatalService.GetDescription(rental);
+		}
+	}
+}

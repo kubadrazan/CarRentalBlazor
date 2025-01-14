@@ -1,0 +1,152 @@
+﻿@page "/acceptReturn/{rentalId:int}"
+@attribute [Authorize(Policy = "RegisteredPolicy")]
+
+@using MiNICarRentalBrowser.Services
+@using MiNICarRentalBrowser.Services.Car_Service
+@using MiNICarRentalBrowser.Services.Rentals
+@using MudBlazor
+@using System.Threading
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@using SharedDataModels
+@inject NavigationManager Navigation
+@inject AggregatedCarService rentalService
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject IRentalAdminService rentalAdminService
+@inject Services.IUserService UserService
+@inject ImageFileService imageFileService
+
+<MudThemeProvider Theme="MyCustomTheme" />
+<MudContainer Style="justify-content: center">
+    <MudCard Class="rounded-xl centered-top" Style="padding-top:20px;
+    padding-left:50px; padding-right:50px; padding-bottom:20px;">
+        <MudStack Style="width: 300px;" Justify="Justify.Center">
+            <MudText Style="width: 300px; text-align: center;" Typo="Typo.h4">Input data</MudText>
+
+            <MudTextField T="string" Label="Description" Variant="Variant.Outlined" @bind-Value="@_descriptionText"
+                          Class="purple-accents" Lines="5" MaxLength="500" />
+
+            <MudStack Style="width: 300px;" Row="true" AlignItems="AlignItems.Center">
+                <MudFileUpload T="IBrowserFile" Context="fileInput" Accept=".png, .jpg" FilesChanged="LoadFile" MaximumFileCount="1"
+                               Style="position: absolute; margin-top: 220px;
+                                left: 50%; transform: translate(-50%, 0);">
+                    <ActivatorContent>
+                        <MudFab Color="Color.Secondary"
+                                StartIcon="@Icons.Material.Filled.Image"
+                                Label="Load picture" />
+                    </ActivatorContent>
+                </MudFileUpload>
+
+                @if (_isLoading)
+                {
+                    <MudCard Style="width: 300px; height: 300px" Elevation="25" Class="rounded-lg">
+                        <MudCardContent>
+                            <MudText Align="Align.Center">Uploading...</MudText>
+                        </MudCardContent>
+                    </MudCard>
+                }
+                else if (_isLoaded)
+                {
+                    <MudImage Src="@_base64data" Width="300" Height="300" Alt="Image of car" Elevation="25" Class="rounded-lg" />
+                }
+                else
+                {
+                    <MudCard Style="width: 300px; height: 300px" Elevation="25" Class="rounded-lg">
+                        <MudCardContent>
+                            <MudText Align="Align.Center">No File</MudText>
+                        </MudCardContent>
+                    </MudCard>
+                }
+            </MudStack>
+
+            <button @onclick=AcceptReturn class="button accept_btn">Accept return</button>
+        </MudStack>
+    </MudCard>
+
+</MudContainer>
+
+@code {
+    MudTheme MyCustomTheme = new MudTheme()
+        {
+            PaletteLight = new PaletteLight()
+            {
+                Secondary = Colors.Purple.Lighten1
+            }
+        };
+
+    [Parameter]
+    public int rentalId { get; set; }
+
+    private string _descriptionText = "";
+    private string _base64data = "";
+    private bool _isLoading = false;
+    private bool _isLoaded = false;
+    private IBrowserFile? _carImage = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
+    private async Task LoadFile(IBrowserFile file)
+    {
+        _isLoading = true;
+
+        try
+        {
+            var extensionName = Path.GetExtension(file.Name);
+            var imageFileTypes = new List<string>() { ".png", ".jpg", ".jpeg" };
+
+            if (imageFileTypes.Contains(extensionName))
+            {
+                var buf = await imageFileService.LoadBrowserFileTOBuffAsync(file);
+
+                _base64data = $"data:image/png;base64,{Convert.ToBase64String(buf)}";
+                _carImage = file;
+                _isLoaded = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"File: {file.Name} Error: {ex.Message}");
+        }
+
+        _isLoading = false;
+    }
+
+    private async Task AcceptReturn()
+    {
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (String.IsNullOrEmpty(user.FindFirstValue(ClaimTypes.Email)) || _carImage is null)
+            return;
+
+        string email = user.FindFirstValue(ClaimTypes.Email) ?? "";
+
+        var buf = await imageFileService.LoadBrowserFileTOBuffAsync(_carImage);
+
+        await rentalAdminService.AcceptCarReturn(rentalId, email, _descriptionText, Convert.ToBase64String(buf));
+        Navigation.NavigateTo($"/RentalDetailsEmployee/{0}/{rentalId}");
+    }
+}
+
+
+<style>
+    .centered-top {
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%, 0);
+    }
+
+    .accept_btn {
+        margin-left: 40px;
+        margin-right: 40px;
+        margin-top: 20px;
+    }
+
+    .purple-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
+        border-color: #A64DB6;
+        border-width: 3px
+    }
+</style>

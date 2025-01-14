@@ -1,0 +1,94 @@
+﻿@page "/RentalDetailsClient/{apiID:int}/{rentalId:int}/"
+@using MiNICarRentalBrowser.Components.Components
+@using MiNICarRentalBrowser.Services
+@using MiNICarRentalBrowser.Services.Car_Service
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using SharedDataModels
+@using System.Security.Claims
+@rendermode InteractiveServer
+@inject AggregatedCarService aggregatedCarService
+@inject IUserService userService
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject IAuthorizationService AuthorizationService
+@inject NavigationManager navigation
+
+<div class="container">
+	<div class="card">
+		<h3>Car Details</h3>
+		@if (_isCarLoaded)
+		{
+			<CarDisplay car="_car" />
+		}
+		else
+		{
+			<MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+		}
+	</div>
+	<div class="card">
+		@if (_isCarLoaded)
+		{
+			<LocationDisplay car="_car" />
+			<RentalDisplay rental="_rental" />
+
+			if (_rental != null && _rental.RentalStatus == RentalStatus.ACTIVE)
+			{
+				<button @onclick="() => ReturnAction()" class="button">Zamów zwrot</button>
+			}
+		}
+		else
+		{
+			<MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+		}
+	</div>
+	@if (_rental != null && _rental.RentalStatus == RentalStatus.CLOSED)
+	{
+		<div class="card">
+			<CarImageDisplay rental="_rental" />
+			<AcceptationDescriptionDisplay rental="_rental" />
+		</div>
+	}
+</div>
+
+
+@code {
+	[Parameter]
+	public int rentalId { get; set; }
+	[Parameter]
+	public int apiId { get; set; }
+	private Rental _rental { get; set; }
+	private Car _car;
+
+	private bool _isCarLoaded = false;
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+		var user = authState.User;
+		if (!(await AuthorizationService.AuthorizeAsync(user, "RegisteredPolicy")).Succeeded)
+		{
+			navigation.NavigateTo("/", true);
+		}
+		await base.OnInitializedAsync();
+		var email = user.FindFirstValue(ClaimTypes.Email);
+
+		_rental = await aggregatedCarService.GetRentalAsync(rentalId, apiId, email);
+		if (_rental != null)
+		{
+			if (email != _rental.UserEmail)
+			{
+				navigation.NavigateTo("/home", true);
+			}
+			_car = await aggregatedCarService.GetCarDetailsAsync(_rental.SourceAPI, _rental.CarID);
+		}
+
+		_isCarLoaded = true;
+
+	}
+	public async void ReturnAction()
+	{
+		await aggregatedCarService.ReturnCarAsync(_rental);
+		navigation.NavigateTo(navigation.Uri, forceLoad: true);
+	}
+}

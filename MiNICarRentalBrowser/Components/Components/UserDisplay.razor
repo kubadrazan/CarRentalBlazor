@@ -1,0 +1,11 @@
+﻿@using SharedDataModels
+
+<p><strong>First Name:</strong> @_user.FirstName</p>
+<p><strong>Last Name:</strong> @_user.LastName</p>
+<p><strong>Email:</strong> @_user.Email</p>
+<p><strong>Driving License Obtain Date:</strong> @_user.DrivingLicenseObtainDate.ToShortDateString()</p>
+<p><strong>BirthDate:</strong> @_user.BirthDate.ToShortDateString()</p>
+@code {
+	[Parameter]
+	public required User _user { get; set; }
+}

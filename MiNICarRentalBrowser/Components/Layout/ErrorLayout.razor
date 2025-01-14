@@ -1,0 +1,18 @@
+﻿@inherits LayoutComponentBase
+@layout MainLayout
+
+<MudLayout>
+    <MudAppBar Color="Color.Primary" Fixed="false" Elevation="1">
+        <MudButton DropShadow="false" Href="/" Color="Color.Inherit" Style="display: inline-flex; align-items: center; justify-content: left">
+            <MudText Typo="Typo.h5" Class="ml-3" Style="display: inline-flex">MiNICarRental</MudText>
+        </MudButton>
+    </MudAppBar>
+
+    <MudMainContent Style="padding-top: 20 px;">
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+@code {
+
+}

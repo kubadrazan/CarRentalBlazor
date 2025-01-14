@@ -1,0 +1,49 @@
+﻿@using SharedDataModels
+
+<MudGrid Class="mt-4" Spacing="12">
+    @if (collection != null && collection.Any())
+    {
+        <MudItem xs="12" Style="margin: 5px">
+            <MudText Typo="Typo.h5">@collectionSummaryText @collectionCount</MudText>
+        </MudItem>
+
+        @foreach (var item in collection)
+        {
+            <MudItem xs="12" Style="margin: 5px">
+                @RenderCard(item)
+            </MudItem>
+        }
+    }
+    else if (isLoading)
+    {
+        <MudItem xs="12" Style="margin: 5px; ">
+            <MudText Typo="Typo.h4" Color="Color.Primary" Class="text-center">Loading...</MudText>
+        </MudItem>
+    }
+    else
+    {
+        <MudItem xs="12" Style="margin: 5px">
+            <MudText Typo="Typo.h4" Color="Color.Secondary" Class="text-center">@emptyCollectionText</MudText>
+        </MudItem>
+    }
+</MudGrid>
+
+@code {
+    [Parameter]
+    public required bool isLoading { get; set; }
+
+    [Parameter]
+    public required string emptyCollectionText { get; set; }
+
+    [Parameter]
+    public required string collectionSummaryText { get; set; }
+
+    [Parameter]
+    public required int collectionCount { get; set; }
+
+    [Parameter]
+    public required IEnumerable<object> collection { get; set; }
+
+    [Parameter]
+    public required RenderFragment<object> RenderCard { get; set; }
+}

@@ -1,0 +1,124 @@
+﻿@page "/CarToRentDetails/{apiID:int}/{HangfireCarID:int}"
+@using MiNICarRentalBrowser.Components.Components
+@using MiNICarRentalBrowser.Services
+@using MiNICarRentalBrowser.Services.Car_Service
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using SharedDataModels
+@using System.Security.Claims
+@rendermode InteractiveServer
+@inject AggregatedCarService aggregatedCarService
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject NavigationManager navigation
+@inject IUserService userService
+<div class="container">
+	<div class="card">
+		<h3>Car Details</h3>
+		@if (_isCarLoaded)
+		{
+			<CarDisplay car="_car" />
+		}
+		else
+		{
+
+			<MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+		}
+	</div>
+
+	<div class="card">
+		@if (_isCarLoaded)
+		{
+			<LocationDisplay car="_car" />
+		}
+		else
+		{
+			<p>Loading Car Details</p>
+		}
+		<h3>Offers</h3>
+		@if (_areOffersLoaded)
+		{
+			if (_offers != null)
+			{
+				@foreach (Offer offer in _offers)
+				{
+					<div class="offer-row">
+						<p>
+							<strong>Price Per Day: @Math.Round(offer.Price) zł</strong><br />
+							Insurance @(offer.IsInsurance ? "Included" : "Not Included")
+						</p>
+						<button @onclick="() => RentMeAction(offer.ID)" class="button">Rent Me</button>
+					</div>
+				}
+			}
+			else
+			{
+				<p>No offers found...</p>
+			}
+		}
+		else
+		{
+			<MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+		}
+	</div>
+</div>
+
+
+@code {
+	[Parameter]
+	public int HangfireCarID { get; set; }
+
+	[Parameter]
+	public int apiID { get; set; }
+
+	private Car _car;
+
+	private bool _areOffersLoaded = false;
+	private bool _isCarLoaded = false;
+	private ClaimsPrincipal _user;
+
+	private List<Offer> _offers;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+		var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+		_user = authState.User;
+		_car = await aggregatedCarService.GetCarDetailsAsync(apiID, HangfireCarID);
+		_isCarLoaded = true;
+		if (_car != null)
+		{
+			if (_user.Identity != null && _user.Identity.IsAuthenticated)
+			{
+				var email = _user.FindFirstValue(ClaimTypes.Email);
+				User userDB = await userService.GetUserAsync(email);
+				_offers = await aggregatedCarService.GetOffersAsync(apiID, _car.ID, userDB);
+			}
+			else
+				_offers = await aggregatedCarService.GetOffersAsync(apiID, _car.ID);
+
+		}
+		else
+			_offers = new();
+		_areOffersLoaded = true;
+	}
+
+	public async Task RentMeAction(int offerID)
+	{
+		if (_user.Identity != null && _user.Identity.IsAuthenticated)
+		{
+			var email = _user.FindFirstValue(ClaimTypes.Email);
+			var result = await aggregatedCarService.ChooseOffer(apiID, offerID, email);
+			if (result == "Error")
+			{
+				navigation.NavigateTo("/error-page/");
+				return;
+			}
+			navigation.NavigateTo("/check-mail");
+		}
+		else
+		{
+			string url = (new Uri(navigation.Uri)).AbsolutePath;
+			navigation.NavigateTo($"/login?returnUrl={url}", true);
+		}
+	}
+}

@@ -1,0 +1,38 @@
+﻿@attribute [Authorize]
+@page "/login"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Web
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject IAuthorizationService AuthorizationService
+
+@code {
+
+	private string? returnUrl;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+		var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+		var user = authState.User;
+
+		var uri = new Uri(navigation.Uri);
+		var queryParams = HttpUtility.ParseQueryString(uri.Query);
+		returnUrl = queryParams["returnUrl"];
+
+		if ((await AuthorizationService.AuthorizeAsync(user, "RegisteredPolicy")).Succeeded)
+		{
+			if (returnUrl != null)
+				navigation.NavigateTo(returnUrl, true);
+			else
+				navigation.NavigateTo("/", true);
+
+		}
+		else
+		{
+			navigation.NavigateTo("/registration", true);
+		}
+	}
+}

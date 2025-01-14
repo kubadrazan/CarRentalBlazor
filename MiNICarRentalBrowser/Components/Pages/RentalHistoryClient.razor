@@ -1,0 +1,139 @@
+﻿@page "/rentalhistory-client"
+@attribute [Authorize(Policy = "RegisteredPolicy")]
+
+@using MiNICarRentalBrowser.Services.Car_Service
+@using SharedDataModels
+@using System.Security.Claims
+@using MiNICarRentalBrowser.Services
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@rendermode RenderMode.InteractiveServer
+@inject NavigationManager Navigation
+@inject AggregatedCarService rentalService
+@inject IUserService userService
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject IAuthorizationService AuthorizationService
+
+<MudContainer>
+    <MudGrid>
+        <!-- Lista wypożyczeń -->
+        <MudItem xs="12">
+            <MiNICarRentalBrowser.Components.Shared.ItemListWithLoading collection="@rentals.Select(item => (object)item).ToList()" collectionCount="userRentalsCount" isLoading="isLoading"
+             collectionSummaryText="Your rentals:" emptyCollectionText="No rentals..." RenderCard="RenderMyCard" />
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+<div class="mt-5 mb-5 d-flex flex-column align-center">
+    <MudPagination PageSize="@pageSize" Count="@pagesCount" SelectedChanged="OnPageChanged"/>
+</div>
+
+@code {
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "pageInd")]
+    public int? pageInd { get; set; }
+
+    public int pageSize = 15;
+
+    private List<(Rental, int browserID)> rentals = new List<(Rental, int)>();
+
+    bool isLoading = false;
+
+    private int userRentalsCount = 0;
+
+    private int pagesCount = 1;
+
+    private void NavigateToRentalDetails(int apiId, int rentalID)
+    {
+        Navigation.NavigateTo($"/RentalDetailsClient/{apiId}/{rentalID}", true);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity != null && user.Identity.IsAuthenticated)
+        {
+            var email = user.FindFirstValue(ClaimTypes.Email);
+            userRentalsCount = userService.GetUsersRentalsCount(email);
+            if (userRentalsCount % pageSize == 0 && userRentalsCount != 0)
+                pagesCount = userRentalsCount / pageSize;
+            else
+                pagesCount = userRentalsCount / pageSize + 1;
+
+        }
+        else
+            Navigation.NavigateTo($"/login", true);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        isLoading = true;
+        await base.OnParametersSetAsync();
+
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity != null && user.Identity.IsAuthenticated)
+        {
+            var email = user.FindFirstValue(ClaimTypes.Email);
+
+            if (pageInd == null || pageInd < 1 || pageInd > pagesCount)
+                pageInd = 1;
+            List<RentalBrowser> rentalsBrowser = await userService.GetUsersRentalsAsync(email, pageInd, pageSize);
+            if (rentalsBrowser.Count != 0)
+            {
+                Rental rental;
+                foreach (var rent in rentalsBrowser)
+                {
+                    rental = await rentalService.GetRentalAsync(rent.ApiID, rent.SourceApiID, email);
+
+                    if (rental != null)
+                        rentals.Add((rental, rent.ID));
+                }
+            }
+        }
+        else
+            Navigation.NavigateTo($"/login", true);
+        isLoading = false;
+    }
+
+    private RenderFragment<object> RenderMyCard => item =>
+    {
+        if (item is (Rental rental, int ID))
+        {
+            return@<MiNICarRentalBrowser.Components.Shared.RentalCard rental="@rental" 
+                            rentalID="rental.ID" apiID="rental.SourceAPI" OnButtonClicked="NavigateToRentalDetails"/>;
+        }
+        else
+        {
+            return @<MudCard>
+                        <MudCardContent>
+                            <MudText Typo="Typo.body1">Unknown item type</MudText>
+                        </MudCardContent>
+                    </MudCard>;
+        }
+    };
+
+    private void OnPageChanged(int page)
+    {
+        pageInd = page;
+        rentals.Clear();
+        UpdateUrl();
+    }
+
+    private void UpdateUrl()
+    {
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+
+        query.Remove("pageInd");
+
+        query.Add("pageInd", pageInd.ToString());
+
+        var newUri = $"{uri.GetLeftPart(UriPartial.Path)}?{query}";
+        Navigation.NavigateTo(newUri, forceLoad: false);
+    }
+}

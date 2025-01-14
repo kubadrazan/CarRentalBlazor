@@ -1,0 +1,152 @@
+﻿@page "/"
+
+@using System.Threading
+@using SharedDataModels
+@using SharedDataModels.DTO
+@using MiNICarRentalBrowser.Services
+@using MiNICarRentalBrowser.Services.Car_Service
+@inject AggregatedCarService aggregatedCarService
+@inject BrowserUriService browserUriService
+@inject BrandModelParserService brandModelParser
+@inject NavigationManager Navigation
+
+<MudContainer Style="justify-content: center">
+    <MudCard Class="centered-top rounded-xl" Style="padding-top:20px;
+    padding-left:50px; padding-right:50px; padding-bottom:20px;">
+        <MudStack Row="true">
+            <MudStack Style="width: 300px; height:300px; margin-top:50px; margin-right:20px"
+            Justify="Justify.Center">
+                <MudSelect @bind-Value="_brand"
+                TextChanged="BrandChanged"
+                Label="Brand"
+                Clearable="true"
+                Variant=Variant.Outlined
+                Style="margin-top:15px"
+                Class="purple-accents">
+                    @foreach (var state in _brands ?? new List<string>())
+                    {
+                        <MudSelectItem Value="state">@state</MudSelectItem>
+                    }
+                </MudSelect>
+
+                @if (String.IsNullOrEmpty(_brand))
+                {
+
+                    <MudSelect @bind-Value="_brand"
+                    Label="Model"
+                    Disabled="true"
+                    Variant=Variant.Outlined
+                    Style="margin-bottom:15px"
+                    Class="gray-accents">
+                    </MudSelect>
+                }
+                else
+                {
+                    <MudSelect @bind-Value="_model"
+                    Label="Model"
+                    Clearable="true"
+                    Variant=Variant.Outlined
+                    Style="margin-bottom:15px"
+                    Class="purple-accents">
+                        @foreach (var state in _models[_brand])
+                        {
+                            <MudSelectItem Value="state">@state</MudSelectItem>
+                        }
+                    </MudSelect>
+                }
+
+                <button @onclick=SearchCar class="button home_btn">Search</button>
+            </MudStack>
+
+            <img class="home d-none d-md-block" src="landing_page_car.jpg" height="400" />
+        </MudStack>
+    </MudCard>
+
+</MudContainer>
+
+@if (_showBrandAlert)
+{
+    <MudCard Class="centered-top rounded-xl">
+        <MudAlert Class="rounded-xl" Severity="Severity.Error" ShowCloseIcon="true"
+        CloseIconClicked="(() => CloseAlert(true))">Car brand is required!</MudAlert>
+    </MudCard>
+}
+
+@code {
+    private string? _brand;
+    private string? _model;
+    private bool _showBrandAlert = false;
+
+    private List<string> _brands;
+    private Dictionary<string, List<string>> _models;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        List<BrandModelDTO> brandModels = await aggregatedCarService.GetBrandsModelsAsync();
+        _models = new();
+        _brands = new();
+        brandModelParser.ParseBrandsModels(brandModels, _brands, _models);
+    }
+
+    protected async Task BrandChanged(string newValue)
+    {
+        _model = String.Empty;
+    }
+
+    private async Task SearchCar()
+    {
+        if (String.IsNullOrEmpty(_brand))
+        {
+            _showBrandAlert = true;
+            await CloseAlertAfterDelay(10 * 1000);
+        }
+        else
+        {
+            _showBrandAlert = false;
+            var uri = Navigation.ToAbsoluteUri("/car-browser");
+            var newUri = browserUriService.AddCarBrandModelToUri(uri, _brand, _model);
+            Navigation.NavigateTo(newUri);
+        }
+    }
+
+    public async Task CloseAlertAfterDelay(int delay)
+    {
+        await Task.Delay(delay);
+        CloseAlert(true);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void CloseAlert(bool value)
+    {
+        _showBrandAlert = !value;
+    }
+}
+
+<style>
+
+    .centered {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+
+    .centered-top {
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%, 0);
+    }
+
+    .purple-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
+        border-color: #A64DB6;
+        border-width: 3px
+    }
+
+    .gray-accents > .mud-input-control-input-container > .mud-input.mud-input-outlined > /* input:focus ~ */ .mud-input-outlined-border {
+        border-color: #808080;
+        border-width: 3px
+    }
+
+</style>

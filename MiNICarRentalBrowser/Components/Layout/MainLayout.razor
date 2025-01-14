@@ -1,23 +1,30 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<MudThemeProvider @rendermode="InteractiveServer" />
+<MudPopoverProvider @rendermode="InteractiveServer" />
+<MudDialogProvider @rendermode="InteractiveServer" />
+<MudSnackbarProvider @rendermode="InteractiveServer" />
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
+<MudLayout>
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+    <MudMainContent Style="padding: 0;">
+        @Body
+    </MudMainContent>
 
-<div id="blazor-error-ui">
-    An unhandled error has occurred.
-    <a href="" class="reload">Reload</a>
-    <a class="dismiss">🗙</a>
-</div>
+    <footer>
+        <p>©MiNiCarRental 2024-2025</p>
+        <p>Authors: Igor Kober, Kuba Drażan, Piotr Iśtok</p>
+        <a href="mailto:minicarrental@hotmail.com">minicarrental@hotmail.com</a>
+    </footer>
+</MudLayout>
+
+@code {
+
+}
+
+<style>
+    footer {
+        text-align: center;
+        padding: 40px;
+    }
+</style>
