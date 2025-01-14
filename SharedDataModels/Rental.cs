@@ -24,6 +24,7 @@ namespace SharedDataModels
 
         [EmailAddress(ErrorMessage = "Invalid email address format.")]
         public string UserEmail { get; set; }
+
         public int SourceAPI {  get; set; }
 
         [DataType(DataType.Currency)]

@@ -3,6 +3,8 @@ using SharedDataModels.DTO;
 using SharedDataModels;
 using Newtonsoft.Json;
 using MiNICarRentalBrowser.Extensions;
+using AutoMapper;
+using AutoMapper.Configuration.Annotations;
 
 namespace MiNICarRentalBrowser.Services.Car_Service
 {
@@ -11,13 +13,16 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 		private readonly HttpClient _httpClient;
 		private readonly string _apiUrl;
 		private readonly int _apiID;
+		private readonly IMapper _mapper;
 
-		public CarRentalB(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+		public CarRentalB(IHttpClientFactory httpClientFactory, IConfiguration configuration, IMapper mapper)
 		{
 			_httpClient = httpClientFactory.CreateClient("BApiHttpClient");
 			_apiUrl = configuration.GetValue<string>("bApiUrl") ?? throw new Exception("No apiB Url!");
 			_apiID = 1;
+			_mapper = mapper;
 		}
+
 		public async Task<string> ChooseOffer(int offerid, string emailAddress)
 		{
 			throw new NotImplementedException();
@@ -37,8 +42,8 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 		{
 			try
 			{
-				var car = await _httpClient.GetFromJsonAsync<apiBCarDTO>($"{_apiUrl}/car/getcar/{carId}");
-				var result = new Car() { ID = car.id, Model = new Model() { Name = car.carModel, Brand = new Brand() { Name = car.carBrand } }, ProductionYear = 1990 };
+                var car = await _httpClient.GetFromJsonAsync<apiBCarDTO>($"{_apiUrl}/car/getcar/{carId}");
+				var result = _mapper.Map<Car>(car);
 				return result;
 			}
 			catch (Exception ex)
@@ -58,13 +63,11 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			var response = await _httpClient.GetFromJsonAsync<List<apiBCarDTO>>($"{_apiUrl}/Car/Get");
 
 			List<CarCache> result = new List<CarCache>();
-			// TODO add mapper
+
 			if (response != null)
 			{
-				foreach (var car in response)
-				{
-					result.Add(new CarCache() { CarID = car.id, BrandName = car.carBrand, ModelName = car.carModel, ProductionYear = 1990, SourceApiID = _apiID });
-				}
+				result = _mapper.Map<List<CarCache>>(response);
+				result.ForEach(car => car.SourceApiID = _apiID);
 			}
 
 			return result;
@@ -103,11 +106,18 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 
 		public async Task<Rental> GetRentalAsync(int rentalId, string email)
 		{
-
 			try
 			{
-				var response = await _httpClient.GetFromJsonAsync<Rental>($"{_apiUrl}/car/GetRent/{rentalId}");
-				return response;
+				var response = await _httpClient.GetFromJsonAsync<apiBRentHistoryDTO>($"{_apiUrl}/car/GetRent/{rentalId}");
+				if (response != null)
+				{
+					var rental = _mapper.Map<Rental>(response);
+					rental.Car.InsurancePricePerDay = response.offer.priceInsurance;
+					rental.Car.PricePerDay = response.offer.priceDay;
+					rental.SourceAPI = _apiID;
+					return rental;
+				}
+				return null;
 			}
 			catch (Exception ex)
 			{
