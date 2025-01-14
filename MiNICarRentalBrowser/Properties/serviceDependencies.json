@@ -9,6 +9,10 @@
       "type": "mssql",
       "connectionId": "ConnectionStrings:DatabaseConnection",
       "dynamicId": null
+    },
+    "redis1": {
+      "type": "redis",
+      "connectionId": "CacheConnection"
     }
   }
 }

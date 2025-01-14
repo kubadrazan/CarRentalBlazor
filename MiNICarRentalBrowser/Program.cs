@@ -40,7 +40,7 @@ namespace MiNICarRentalBrowser
 				.Parse($"{builder.Configuration["redisCacheHostName"]}:6380")
 				.ConfigureForAzureWithTokenCredentialAsync(new DefaultAzureCredential())
 				.GetAwaiter().GetResult();
-            var connectionMultiplexer = ConnectionMultiplexer.Connect(configurationOptions);
+			var connectionMultiplexer = ConnectionMultiplexer.Connect(configurationOptions);
 			IDatabase database = connectionMultiplexer.GetDatabase();
 
 			builder.Services.AddSingleton(database);
@@ -48,7 +48,7 @@ namespace MiNICarRentalBrowser
 
 			builder.Services.AddSingleton<CacheManager>();
 
-            builder.Services.AddScoped<UserValidationService>();
+			builder.Services.AddScoped<UserValidationService>();
 			builder.Services.AddScoped<EmployeeValidationService>();
 
 			// Google Authentication
@@ -77,7 +77,7 @@ namespace MiNICarRentalBrowser
 			builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
 			builder.Services.AddHttpContextAccessor();
 
-            builder.Services.AddScoped<ICarRepository, CarRepository>();
+			builder.Services.AddScoped<ICarRepository, CarRepository>();
 
 			builder.Services.AddHangfire(config =>
 			{
@@ -90,16 +90,16 @@ namespace MiNICarRentalBrowser
 
 			builder.Services.AddHangfireServer();
 
-            // Add services to the container.
-            builder.Services.AddRazorComponents()
+			// Add services to the container.
+			builder.Services.AddRazorComponents()
 				.AddInteractiveServerComponents();
 			builder.Services.AddMudServices();
 
 			builder.Services.AddSingleton<ApiKeyProvider>();
-            builder.Services.AddTransient<AApiHttpMessageHandler>();
-            builder.Services.AddTransient<BApiHttpMessageHandler>();
+			builder.Services.AddTransient<AApiHttpMessageHandler>();
+			builder.Services.AddTransient<BApiHttpMessageHandler>();
 
-            builder.Services.AddHttpClient("AApiHttpClient")
+			builder.Services.AddHttpClient("AApiHttpClient")
 					.AddHttpMessageHandler<AApiHttpMessageHandler>();
 			builder.Services.AddHttpClient("BApiHttpClient")
 					.AddHttpMessageHandler<BApiHttpMessageHandler>();
@@ -107,20 +107,20 @@ namespace MiNICarRentalBrowser
 			builder.Services.AddScoped<IUserService, UserServices>();
 			builder.Services.AddTransient<CarRentalServiceFactory>();
 
-            builder.Services.AddScoped<CarRentalA>();
+			builder.Services.AddScoped<CarRentalA>();
 			builder.Services.AddScoped<CarRentalB>();
 			//builder.Services.AddScoped<CarRentalB>();
 			builder.Services.AddScoped<ICarRental, CarRentalA>();
 			builder.Services.AddScoped<ICarRental, CarRentalB>();
 			builder.Services.AddScoped<IRentalAdminService, CarRentalA>();
-            //builder.Services.AddScoped<ICarRental, CarRentalB>();
-            builder.Services.AddScoped<AggregatedCarService>();
+			//builder.Services.AddScoped<ICarRental, CarRentalB>();
+			builder.Services.AddScoped<AggregatedCarService>();
 
 			builder.Services.AddSingleton<BrowserUriService>();
-            builder.Services.AddTransient<BrandModelParserService>();
-            builder.Services.AddSingleton<ImageFileService>();
+			builder.Services.AddTransient<BrandModelParserService>();
+			builder.Services.AddSingleton<ImageFileService>();
 
-            var app = builder.Build();
+			var app = builder.Build();
 
 			// Configure the HTTP request pipeline.
 			if (!app.Environment.IsDevelopment())
@@ -130,9 +130,9 @@ namespace MiNICarRentalBrowser
 				app.UseHsts();
 			}
 
-            app.UseStatusCodePagesWithReExecute("/error-page/{0}");
+			app.UseStatusCodePagesWithReExecute("/error-page/{0}");
 
-            app.UseHttpsRedirection();
+			app.UseHttpsRedirection();
 
 			app.UseStaticFiles();
 			app.UseAntiforgery();
@@ -143,14 +143,17 @@ namespace MiNICarRentalBrowser
 			if (app.Environment.IsDevelopment())
 				app.UseHangfireDashboard();
 
-            app.MapRazorComponents<App>()
+			app.MapRazorComponents<App>()
 				.AddInteractiveServerRenderMode();
 
-			RecurringJob.AddOrUpdate<Services.Car_Service.AggregatedCarService>(
-				"update-car-data",
-				service => service.UpdateCarsInDBAsync(),
-                "*/30 * * * *"
-                );
+			app.Lifetime.ApplicationStarted.Register(() =>
+			{
+				RecurringJob.AddOrUpdate<Services.Car_Service.AggregatedCarService>(
+					"update-car-data",
+					service => service.UpdateCarsInDBAsync(),
+					"*/30 * * * *"
+				);
+			});
 
 			app.Run();
 		}
