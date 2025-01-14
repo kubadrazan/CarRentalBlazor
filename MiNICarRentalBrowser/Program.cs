@@ -16,6 +16,10 @@ using MiNICarRentalBrowser.Services.Car_Service;
 using MudBlazor.Services;
 using StackExchange.Redis;
 using MiNICarRentalBrowser.Services.Rentals;
+using SharedDataModels;
+using SharedDataModels.DTO.APIB_DTO;
+using AutoMapper;
+using AutoMapper.Extensions.EnumMapping;
 
 namespace MiNICarRentalBrowser
 {
@@ -90,6 +94,55 @@ namespace MiNICarRentalBrowser
 
 			builder.Services.AddHangfireServer();
 
+			// AutoMapper
+			var mapperConfig = new MapperConfiguration(cfg =>
+			{
+				cfg.CreateMap<apiBCarDTO, CarCache>()
+				.ForMember(dest => dest.ProductionYear, act => act.MapFrom(_ => 1990))
+				.ForMember(dest => dest.BrandName, act => act.MapFrom(act => act.carBrand))
+				.ForMember(dest => dest.ModelName, act => act.MapFrom(act => act.carModel))
+				.ForMember(dest => dest.CarID, act => act.MapFrom(act => act.id))
+                .ForMember(dest => dest.SourceApiID, act => act.Ignore());
+
+				cfg.CreateMap<apiBCarDTO, Car>()
+				.ForMember(dest => dest.ID, act => act.MapFrom(src => src.id))
+				.ForMember(dest => dest.Model, act => act.MapFrom(src => new Model
+				{
+					Name = src.carModel,
+					Brand = new Brand { Name = src.carBrand }
+				}))
+				.ForMember(dest => dest.ProductionYear, act => act.MapFrom(_ => 1990))
+				.ForMember(dest => dest.Availability, act => act.MapFrom(src => src.isRented ? Availability.NOT_AVAILABLE : Availability.AVAILABLE))
+				.ForMember(dest => dest.DoorsNumber, act => act.Ignore())
+				.ForMember(dest => dest.Colour, act => act.Ignore())
+				.ForMember(dest => dest.Transmission, act => act.Ignore())
+				.ForMember(dest => dest.FuelType, act => act.Ignore())
+				.ForMember(dest => dest.Drive, act => act.Ignore())
+				.ForMember(dest => dest.HorsePower, act => act.Ignore())
+                .ForMember(dest => dest.PricePerDay, act => act.Ignore())
+                .ForMember(dest => dest.InsurancePricePerDay, act => act.Ignore())
+                .ForMember(dest => dest.Rentals, act => act.Ignore())
+                .ForMember(dest => dest.Location, act => act.Ignore())
+                .ForMember(dest => dest.ModelID, act => act.Ignore());
+
+                cfg.CreateMap<apiBRentStateDTO, RentalStatus>()
+				.ConvertUsingEnumMapping(opt => opt.MapByName()
+					.MapValue(apiBRentStateDTO.FAILURE, RentalStatus.CLOSED));
+
+				cfg.CreateMap<apiBRentHistoryDTO, Rental>()
+				.ForMember(dest => dest.OfferGuid, act => act.Ignore())
+				.ForMember(dest => dest.CarID, act => act.MapFrom(src => src.offer.carId))
+				.ForMember(dest => dest.SourceAPI, act => act.Ignore())
+				.ForMember(dest => dest.PricePerDay, act => act.MapFrom(src => src.offer.priceDay))
+				.ForMember(dest => dest.IsInsurance, act => act.MapFrom(src => src.offer.priceInsurance == 0))
+				.ForMember(dest => dest.Car, act => act.MapFrom(src => src.offer.car))
+                .ForMember(dest => dest.Return, act => act.Ignore());
+            });
+
+			var mapper = mapperConfig.CreateMapper();
+            mapperConfig.AssertConfigurationIsValid();
+            builder.Services.AddSingleton(mapper);
+
 			// Add services to the container.
 			builder.Services.AddRazorComponents()
 				.AddInteractiveServerComponents();
@@ -109,11 +162,11 @@ namespace MiNICarRentalBrowser
 
 			builder.Services.AddScoped<CarRentalA>();
 			builder.Services.AddScoped<CarRentalB>();
-			//builder.Services.AddScoped<CarRentalB>();
+
 			builder.Services.AddScoped<ICarRental, CarRentalA>();
 			builder.Services.AddScoped<ICarRental, CarRentalB>();
 			builder.Services.AddScoped<IRentalAdminService, CarRentalA>();
-			//builder.Services.AddScoped<ICarRental, CarRentalB>();
+
 			builder.Services.AddScoped<AggregatedCarService>();
 
 			builder.Services.AddSingleton<BrowserUriService>();
