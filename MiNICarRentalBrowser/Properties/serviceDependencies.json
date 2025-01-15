@@ -5,14 +5,20 @@
       "connectionId": "VaultUri",
       "dynamicId": null
     },
-    "mssql1": {
-      "type": "mssql",
-      "connectionId": "ConnectionStrings:DatabaseConnection",
+    "secrets2": {
+      "type": "secrets",
+      "connectionId": "VaultUri1",
       "dynamicId": null
     },
     "redis1": {
       "type": "redis",
-      "connectionId": "CacheConnection"
+      "connectionId": "CacheConnection",
+      "dynamicId": null
+    },
+    "mssql1": {
+      "type": "mssql",
+      "connectionId": "ConnectionStrings:DatabaseConnection",
+      "dynamicId": null
     }
   }
 }
