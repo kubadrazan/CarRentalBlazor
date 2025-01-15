@@ -22,7 +22,7 @@
 		var queryParams = HttpUtility.ParseQueryString(uri.Query);
 		returnUrl = queryParams["returnUrl"];
 
-		if ((await AuthorizationService.AuthorizeAsync(user, "RegisteredPolicy")).Succeeded)
+		if ((await AuthorizationService.AuthorizeAsync(user, "RegisteredPolicy")).Succeeded || (await AuthorizationService.AuthorizeAsync(user, "EmployeePolicy")).Succeeded)
 		{
 			if (returnUrl != null)
 				navigation.NavigateTo(returnUrl, true);

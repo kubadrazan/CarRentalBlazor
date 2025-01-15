@@ -1,5 +1,5 @@
 ﻿@page "/acceptReturn/{rentalId:int}"
-@attribute [Authorize(Policy = "RegisteredPolicy")]
+@attribute [Authorize(Policy = "EmployeePolicy")]
 
 @using MiNICarRentalBrowser.Services
 @using MiNICarRentalBrowser.Services.Car_Service
