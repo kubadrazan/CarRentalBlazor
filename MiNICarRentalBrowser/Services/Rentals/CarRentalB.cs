@@ -5,6 +5,8 @@ using Newtonsoft.Json;
 using MiNICarRentalBrowser.Extensions;
 using AutoMapper;
 using AutoMapper.Configuration.Annotations;
+using SharedDataModels.Requests.ApiB;
+using SharedDataModels.Factories.ApiB;
 
 namespace MiNICarRentalBrowser.Services.Car_Service
 {
@@ -14,21 +16,24 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 		private readonly string _apiUrl;
 		private readonly int _apiID;
 		private readonly IMapper _mapper;
+        private readonly ReturnRequestFactory _returnRequestFactory;
 
-		public CarRentalB(IHttpClientFactory httpClientFactory, IConfiguration configuration, IMapper mapper)
+        public CarRentalB(IHttpClientFactory httpClientFactory, IConfiguration configuration, IMapper mapper, ReturnRequestFactory returnRequestFactory)
 		{
 			_httpClient = httpClientFactory.CreateClient("BApiHttpClient");
 			_apiUrl = configuration.GetValue<string>("bApiUrl") ?? throw new Exception("No apiB Url!");
 			_apiID = 1;
 			_mapper = mapper;
-		}
+			_returnRequestFactory = returnRequestFactory;
 
-		public async Task<string> ChooseOffer(int offerid, string emailAddress)
+        }
+
+		public async Task<string> ChooseOffer(int offerid, User? user)
 		{
 			throw new NotImplementedException();
 			try
 			{
-				var response = await _httpClient.PutAsJsonAsync($"{_apiUrl}/api/car/rent/{offerid}", emailAddress);
+				var response = await _httpClient.PutAsJsonAsync($"{_apiUrl}/api/car/rent/{offerid}", user.Email);
 				return await response.Content.ReadAsStringAsync();
 			}
 			catch (Exception ex)
@@ -126,12 +131,17 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			}
 		}
 
-		public async Task ReturnCarAsync(Rental rental)
+		public async Task ReturnCarAsync(Rental rental, User? user)
 		{
-			throw new NotImplementedException();
-
-			var response = await _httpClient.PutAsJsonAsync($"{_apiUrl}/api/car/return/{rental.ID}", rental);
-
+			try
+            {
+				var returnRequest = _returnRequestFactory.CreateReturnRequest(rental, user);
+                var response = await _httpClient.PutAsJsonAsync<ReturnRequest>($"{_apiUrl}/Car/Return", returnRequest);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error fetching offers data: {ex.Message}");
+			}
 		}
 	}
 }
