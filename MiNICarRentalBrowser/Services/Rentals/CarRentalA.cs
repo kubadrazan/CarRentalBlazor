@@ -96,7 +96,8 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 				{
 					return "Error";
                 }
-                await _userService.AddRentalAsync(await response.Content.ReadFromJsonAsync<Rental>());
+				var rental = await response.Content.ReadFromJsonAsync<Rental>();
+                await _userService.AddRentalAsync(_apiID, rental.ID, user.ID);
                 return await response.Content.ReadAsStringAsync();
 			}
 			catch (Exception ex)

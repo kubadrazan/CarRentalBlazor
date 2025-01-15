@@ -15,26 +15,36 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 		private readonly HttpClient _httpClient;
 		private readonly string _apiUrl;
 		private readonly int _apiID;
-		private readonly IMapper _mapper;
+        private readonly IUserService _userService;
+        private readonly IMapper _mapper;
         private readonly ReturnRequestFactory _returnRequestFactory;
+        private readonly OfferChoiceFactory _offerChoiceFactory;
 
-        public CarRentalB(IHttpClientFactory httpClientFactory, IConfiguration configuration, IMapper mapper, ReturnRequestFactory returnRequestFactory)
+        public CarRentalB(IHttpClientFactory httpClientFactory, IConfiguration configuration, IUserService userService, IMapper mapper, ReturnRequestFactory returnRequestFactory, OfferChoiceFactory offerChoiceFactory)
 		{
 			_httpClient = httpClientFactory.CreateClient("BApiHttpClient");
 			_apiUrl = configuration.GetValue<string>("bApiUrl") ?? throw new Exception("No apiB Url!");
 			_apiID = 1;
+			_userService = userService;
 			_mapper = mapper;
 			_returnRequestFactory = returnRequestFactory;
+			_offerChoiceFactory = offerChoiceFactory;
 
         }
 
 		public async Task<string> ChooseOffer(int offerid, User? user)
 		{
-			throw new NotImplementedException();
 			try
 			{
-				var response = await _httpClient.PutAsJsonAsync($"{_apiUrl}/api/car/rent/{offerid}", user.Email);
-				return await response.Content.ReadAsStringAsync();
+				var offerChoice = _offerChoiceFactory.CreateOfferChoice(offerid, user);
+				var response = await _httpClient.PutAsJsonAsync<OfferChoice>($"{_apiUrl}/api/Car/Rent", offerChoice);
+                if (!response.IsSuccessStatusCode)
+                {
+                    return "Error";
+                }
+				var rentalId = await response.Content.ReadFromJsonAsync<int>();
+                await _userService.AddRentalAsync(_apiID, rentalId, user.ID);
+                return await response.Content.ReadAsStringAsync();
 			}
 			catch (Exception ex)
 			{
@@ -93,12 +103,18 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			try
 			{
 				List<Offer> result = new List<Offer>();
-				var offerRequest = new apiBOfferRequestDTO() { Age = user.BirthDate.YearsElapsed(), DriversLicenceDuration = user.DrivingLicenseObtainDate.YearsElapsed(), CarId = carId, Start = DateTime.Now, Return = DateTime.Now.AddDays(1), ExtraInfo = ""};
+				var offerRequest = new apiBOfferRequestDTO() { 
+					Age = user.BirthDate.YearsElapsed(),
+					DriversLicenceDuration = user.DrivingLicenseObtainDate.YearsElapsed(),
+					CarId = carId, Start = DateTime.Now,
+					Return = DateTime.Now.AddDays(1),
+					ExtraInfo = ""
+				};
 				var response = await _httpClient.PostAsJsonAsync<apiBOfferRequestDTO>($"{_apiUrl}/car/createoffer", offerRequest);
 				var jsonResponse = await response.Content.ReadAsStringAsync();
 				var responseDto = JsonConvert.DeserializeObject<apiBOfferDTO>(jsonResponse);
 				result.Add(new Offer() { ID = responseDto.Id, Price = responseDto.PriceDay, CarId = carId, IsInsurance = false });
-				result.Add(new Offer() { ID = responseDto.Id, Price = responseDto.PriceDay + responseDto.PriceInsurance, CarId = carId, IsInsurance = false });
+				result.Add(new Offer() { ID = responseDto.Id, Price = responseDto.PriceDay + responseDto.PriceInsurance, CarId = carId, IsInsurance = true });
 
 				return result;
 			}

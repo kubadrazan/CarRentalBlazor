@@ -97,7 +97,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			return _carRentalServiceFactory.GetService(apiId).ChooseOffer(offerid, user);
 		}
 
-		public Task<Rental> GetRentalAsync(int rentalId, int apiId, string email)
+		public Task<Rental> GetRentalAsync(int apiId, int rentalId, string email)
 		{
 			return _carRentalServiceFactory.GetService(apiId).GetRentalAsync(rentalId, email);
 		}
