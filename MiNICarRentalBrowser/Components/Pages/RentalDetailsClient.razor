@@ -74,9 +74,9 @@
 		}
 		await base.OnInitializedAsync();
 		var email = _user.FindFirstValue(ClaimTypes.Email);
-				_userDB = await userService.GetUserAsync(email);
+		_userDB = await userService.GetUserAsync(email);
 
-		_rental = await aggregatedCarService.GetRentalAsync(rentalId, apiId, email);
+		_rental = await aggregatedCarService.GetRentalAsync(apiId, rentalId, email);
 		if (_rental != null)
 		{
 			if (email != _rental.UserEmail)
