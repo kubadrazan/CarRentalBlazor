@@ -59,7 +59,7 @@ namespace MiniCarRentalAPI.Services
 			tableY += 20;
 			tableY += 20;
 			gfx.DrawString("Summary: ", boldFont, XBrushes.Black, new XPoint(tableX + 2 * columnWidth, tableY));
-			gfx.DrawString((rental.PricePerDay * (localNow - rental.RentDate.ToLocalTime()).Days).ToString() + "$", font, XBrushes.Black, new XPoint(tableX + 3 * columnWidth, tableY));
+			gfx.DrawString((rental.PricePerDay * (1 + (localNow - rental.RentDate.ToLocalTime()).Days)).ToString() + "$", font, XBrushes.Black, new XPoint(tableX + 3 * columnWidth, tableY));
 
 			using (var memoryStream = new MemoryStream())
 			{
