@@ -104,19 +104,19 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			return offers;
         }
 
-		public Task<string> ChooseOffer(int apiId, int offerid, string emailAddress)
+		public Task<string> ChooseOffer(int apiId, int offerid, User? user)
 		{
-			return _carRentalServiceFactory.GetService(apiId).ChooseOffer(offerid, emailAddress);
+			return _carRentalServiceFactory.GetService(apiId).ChooseOffer(offerid, user);
 		}
 
-		public Task<Rental> GetRentalAsync(int rentalId, int apiId, string email)
+		public Task<Rental> GetRentalAsync(int apiId, int rentalId, string email)
 		{
 			return _carRentalServiceFactory.GetService(apiId).GetRentalAsync(rentalId, email);
 		}
 
-		public Task ReturnCarAsync(Rental rental)
+		public Task ReturnCarAsync(Rental rental, User? user)
 		{
-			return _carRentalServiceFactory.GetService(rental.SourceAPI).ReturnCarAsync(rental);
+			return _carRentalServiceFactory.GetService(rental.SourceAPI).ReturnCarAsync(rental, user);
 		}
 
 		public Task<byte[]> GetCarImage(Rental rental)

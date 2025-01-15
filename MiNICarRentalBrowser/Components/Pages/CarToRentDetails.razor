@@ -75,6 +75,7 @@
 	private bool _areOffersLoaded = false;
 	private bool _isCarLoaded = false;
 	private ClaimsPrincipal _user;
+	private User? _userDB = null;
 
 	private List<Offer> _offers;
 
@@ -90,8 +91,8 @@
 			if (_user.Identity != null && _user.Identity.IsAuthenticated)
 			{
 				var email = _user.FindFirstValue(ClaimTypes.Email);
-				User userDB = await userService.GetUserAsync(email);
-				_offers = await aggregatedCarService.GetOffersAsync(apiID, _car.ID, userDB);
+				_userDB = await userService.GetUserAsync(email);
+				_offers = await aggregatedCarService.GetOffersAsync(apiID, _car.ID, _userDB);
 			}
 			else
 				_offers = await aggregatedCarService.GetOffersAsync(apiID, _car.ID);
@@ -107,7 +108,7 @@
 		if (_user.Identity != null && _user.Identity.IsAuthenticated)
 		{
 			var email = _user.FindFirstValue(ClaimTypes.Email);
-			var result = await aggregatedCarService.ChooseOffer(apiID, offerID, email);
+			var result = await aggregatedCarService.ChooseOffer(apiID, offerID, _userDB);
 			if (result == "Error")
 			{
 				navigation.NavigateTo("/error-page/");

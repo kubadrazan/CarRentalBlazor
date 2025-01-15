@@ -15,11 +15,20 @@ namespace SharedDataModels
 
         public int UserID { get; set; } 
 
+        public int RentalID { get; set; }
+
         public int ApiID { get; set; }
 
-        public int SourceApiID { get; set; }
-
         public User User { get; set; }
+
+        public RentalBrowser() { }
+
+        public RentalBrowser(int userID, int rentalID, int apiID)
+        {
+            UserID = userID;
+            RentalID = rentalID;
+            ApiID = apiID;
+        }
     }
 }
 

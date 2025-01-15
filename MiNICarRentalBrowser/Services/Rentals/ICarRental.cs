@@ -10,9 +10,9 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 		Task<List<CarCache>> GetCarsAsync();
 		Task<Car> GetCarDetailsAsync(int carId);
 		Task<List<Offer>> GetOffersAsync(int carId, User? user);
-		Task<string> ChooseOffer(int offerid, string emailAddress);
+		Task<string> ChooseOffer(int offerid, User? user);
 		Task<Rental> GetRentalAsync(int rentalId, string email);
-		Task ReturnCarAsync(Rental rental);
+		Task ReturnCarAsync(Rental rental, User? user);
 		Task<byte[]> GetCarImage(int rentalId);
 		Task<string> GetDescription(int rentalId);
 	}

@@ -86,17 +86,18 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			}
 		}
 
-		public async Task<string> ChooseOffer(int offerid, string emailAddress)
+		public async Task<string> ChooseOffer(int offerid, User? user)
 		{
 			try
 			{
-				var content = new StringContent(JsonSerializer.Serialize(emailAddress), Encoding.UTF8, "application/json");
+				var content = new StringContent(JsonSerializer.Serialize(user.Email), Encoding.UTF8, "application/json");
 				var response = await _httpClient.PutAsync($"{_apiUrl}/api/Rental/offers/chooseOffer/{offerid}", content);
 				if (!response.IsSuccessStatusCode)
 				{
 					return "Error";
                 }
-                await _userService.AddRentalAsync(await response.Content.ReadFromJsonAsync<Rental>());
+				var rental = await response.Content.ReadFromJsonAsync<Rental>();
+                await _userService.AddRentalAsync(_apiID, rental.ID, user.ID);
                 return await response.Content.ReadAsStringAsync();
 			}
 			catch (Exception ex)
@@ -154,7 +155,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			}
 		}
 
-		public async Task ReturnCarAsync(Rental rental)
+		public async Task ReturnCarAsync(Rental rental, User? user)
 		{
 			var response = await _httpClient.PutAsJsonAsync<string>($"{_apiUrl}/api/Rental/rentals/returnCar/{rental.ID}", rental.UserEmail);
 		}

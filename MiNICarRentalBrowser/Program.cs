@@ -20,6 +20,8 @@ using SharedDataModels;
 using SharedDataModels.DTO.APIB_DTO;
 using AutoMapper;
 using AutoMapper.Extensions.EnumMapping;
+using SharedDataModels.Factories;
+using SharedDataModels.Factories.ApiB;
 
 namespace MiNICarRentalBrowser
 {
@@ -173,7 +175,12 @@ namespace MiNICarRentalBrowser
 			builder.Services.AddTransient<BrandModelParserService>();
 			builder.Services.AddSingleton<ImageFileService>();
 
-			var app = builder.Build();
+			// Factories
+            builder.Services.AddTransient<ReturnRequestFactory>();
+            builder.Services.AddTransient<OfferChoiceFactory>();
+            builder.Services.AddTransient<AskPriceFactory>();
+
+            var app = builder.Build();
 
 			// Configure the HTTP request pipeline.
 			if (!app.Environment.IsDevelopment())

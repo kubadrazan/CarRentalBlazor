@@ -76,14 +76,10 @@ namespace MiNICarRentalBrowser.Services
             return user;
 		}
 
-		public async Task AddRentalAsync(Rental rental)
+		public async Task AddRentalAsync(int apiId, int rentalId, int userId)
 		{
 
-			var rentalBrowser = new RentalBrowser()
-			{
-				ApiID = rental.ID, // todo change for our api 
-				UserID = (await GetUserAsync(rental.UserEmail)).ID
-			};
+			var rentalBrowser = new RentalBrowser(userId, rentalId, apiId);
 			_context.Rentals.Add(rentalBrowser);
 			await _context.SaveChangesAsync();
 
