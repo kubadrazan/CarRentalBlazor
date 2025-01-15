@@ -164,8 +164,12 @@ namespace MiniCarRentalAPI.Controllers
 				return NotFound();
 			}
 
-			var bytes = Convert.FromBase64String(request.Base64EncodedCarImage);
-			var blobUri = await _azureBlobService.Upload(bytes);
+			string blobUri = "";
+			if (!request.Base64EncodedCarImage.IsNullOrEmpty())
+			{
+                var bytes = Convert.FromBase64String(request.Base64EncodedCarImage);
+                blobUri = await _azureBlobService.Upload(bytes);
+            }
 
 			var acceptation = _acceptationFactory.CreateAcceptation(carReturn, request.EmployeeEmail, request.ReturnDescription, blobUri);
 
