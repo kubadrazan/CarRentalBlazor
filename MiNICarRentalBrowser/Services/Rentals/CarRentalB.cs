@@ -8,6 +8,9 @@ using AutoMapper.Configuration.Annotations;
 using SharedDataModels.Requests.ApiB;
 using SharedDataModels.Factories.ApiB;
 using System.Net.Http.Json;
+using System.Net.Http;
+using System.Net.Mime;
+using System.Text;
 
 namespace MiNICarRentalBrowser.Services.Car_Service
 {
@@ -40,12 +43,12 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			try
 			{
 				var offerChoice = _offerChoiceFactory.CreateOfferChoice(offerid, user);
-				var response = await _httpClient.PutAsJsonAsync<OfferChoice>($"{_apiUrl}/api/Car/Rent", offerChoice);
-                if (!response.IsSuccessStatusCode)
+				var response = await _httpClient.PutAsJsonAsync<OfferChoice>($"{_apiUrl}/Car/Rent", offerChoice);
+				var rentalId = await response.Content.ReadFromJsonAsync<int>();
+                if (!response.IsSuccessStatusCode || rentalId < 0)
                 {
                     return "Error";
                 }
-				var rentalId = await response.Content.ReadFromJsonAsync<int>();
                 await _userService.AddRentalAsync(_apiID, rentalId, user.ID);
                 return await response.Content.ReadAsStringAsync();
 			}
@@ -60,8 +63,8 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 		{
 			try
 			{
-                var car = await _httpClient.GetFromJsonAsync<apiBCarDTO>($"{_apiUrl}/car/getcar/{carId}");
-				var result = _mapper.Map<Car>(car);
+                var car = await _httpClient.GetFromJsonAsync<apiBCarDTO>($"{_apiUrl}/Car/GetCar/{carId}");
+                var result = _mapper.Map<Car>(car);
 				return result;
 			}
 			catch (Exception ex)
@@ -128,8 +131,11 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 				if (response != null)
 				{
 					var rental = _mapper.Map<Rental>(response);
-					rental.Car.InsurancePricePerDay = response.offer.priceInsurance;
-					rental.Car.PricePerDay = response.offer.priceDay;
+					if (response.offer is not null)
+                    {
+                        rental.Car.InsurancePricePerDay = response.offer.priceInsurance;
+                        rental.Car.PricePerDay = response.offer.priceDay;
+                    }
 					rental.SourceAPI = _apiID;
 					return rental;
 				}
