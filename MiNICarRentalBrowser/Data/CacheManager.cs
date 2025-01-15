@@ -76,5 +76,26 @@ namespace MiNICarRentalBrowser.Data
             string offersKey = $"Offers:{apiId}:{offers.First().CarId}:{email}";
             await _db.StringSetAsync(offersKey, JsonConvert.SerializeObject(offers), TimeSpan.FromMinutes(10));
         }
+
+        public async Task<Rental?> GetRental(int apiId, int rentalId)
+        {
+            string rentalKey = $"Rental:{apiId}:{rentalId}";
+
+             var rentalValue = await _db.StringGetAsync(rentalKey);
+
+            if(!rentalValue.IsNullOrEmpty)
+            {
+                return JsonConvert.DeserializeObject<Rental>(rentalValue);
+            }
+
+            return null;
+        }
+
+        public async Task SetRental(Rental rental)
+        {
+            string rentalKey = $"Rental:{rental.SourceAPI}:{rental.ID}";
+
+            await _db.StringSetAsync(rentalKey, JsonConvert.SerializeObject(rental), TimeSpan.FromMinutes(10));
+        }
     }
 }
