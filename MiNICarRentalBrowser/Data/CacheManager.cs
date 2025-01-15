@@ -44,6 +44,7 @@ namespace MiNICarRentalBrowser.Data
             {
                 return JsonConvert.DeserializeObject<User>(userValue);
             }
+
             return null;
         }
 
@@ -52,6 +53,28 @@ namespace MiNICarRentalBrowser.Data
             string userKey = $"User:{user.Email}";
 
             await _db.StringSetAsync(userKey, JsonConvert.SerializeObject(user), TimeSpan.FromMinutes(10));
+        }
+
+        public async Task<List<Offer>> GetOffers(int apiId, int carId, string email)
+        {
+            string offersKey = $"Offers:{apiId}:{carId}:{email}";
+
+            var offerValue = await _db.StringGetAsync(offersKey);
+
+            if(!offerValue.IsNullOrEmpty)
+            {
+                return JsonConvert.DeserializeObject<List<Offer>>(offerValue);
+            }
+
+            return null;
+        }
+
+        public async Task SetOffers(int apiId, List<Offer> offers, string email)
+        {
+            if (offers == null || offers.Count == 0)
+                return;
+            string offersKey = $"Offers:{apiId}:{offers.First().CarId}:{email}";
+            await _db.StringSetAsync(offersKey, JsonConvert.SerializeObject(offers), TimeSpan.FromMinutes(10));
         }
     }
 }
