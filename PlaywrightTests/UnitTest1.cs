@@ -11,12 +11,12 @@ namespace PlaywrightTests;
 public class ExampleTest : PageTest
 {
 	[Test]
-	public async Task MyTest()
+	public async Task LinkWorkingTest()
 	{
 		await Page.GotoAsync("https://localhost:7156/");
 	}
 	[Test]
-	public async Task Test2()
+	public async Task FromLinkToRentMeTest()
 	{
 		await Page.GotoAsync("https://localhost:7156/");
 
@@ -29,4 +29,16 @@ public class ExampleTest : PageTest
 		await Page.GetByRole(AriaRole.Button, new() { Name = "See offers" }).First.ClickAsync();
 		await Expect(Page.GetByRole(AriaRole.Button, new() { Name = "Rent Me" }).First).ToBeVisibleAsync();
 	}
+	[Test]
+	public async Task CarBrowserTest()
+	{
+		await Page.GotoAsync("https://localhost:7156/car-browser?brand=BMW");
+		await Expect(Page.GetByRole(AriaRole.Button, new() { Name = "Apply filters" })).ToBeVisibleAsync();
+		await Page.GetByLabel("Current page").ClickAsync();
+		await Page.GetByLabel("Page 2").ClickAsync();
+		await Page.GetByRole(AriaRole.Heading, new() { Name = "Available cars:" }).ClickAsync();
+		await Page.GetByRole(AriaRole.Button, new() { Name = "See offers" }).First.ClickAsync();
+		await Page.Locator("#selectxueqgqza").GetByText("BMW").ClickAsync();
+	}
+
 }
