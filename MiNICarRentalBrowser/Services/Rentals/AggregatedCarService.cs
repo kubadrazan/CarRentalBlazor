@@ -102,16 +102,25 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 				await _cacheManager.SetOffers(apiId, offers, user.Email);
 
 			return offers;
-        }
+        }	  
 
 		public Task<string> ChooseOffer(int apiId, int offerid, User? user)
 		{
 			return _carRentalServiceFactory.GetService(apiId).ChooseOffer(offerid, user);
 		}
 
-		public Task<Rental> GetRentalAsync(int apiId, int rentalId, string email)
+		public async Task<Rental> GetRentalAsync(int apiId, int rentalId, string email)
 		{
-			return _carRentalServiceFactory.GetService(apiId).GetRentalAsync(rentalId, email);
+			var rental = await _cacheManager.GetRental(apiId, rentalId);
+			if (rental != null)
+				return rental;
+
+			rental = await _carRentalServiceFactory.GetService(apiId).GetRentalAsync(rentalId, email);
+
+			if (rental != null && rental.RentalStatus == RentalStatus.CLOSED)
+				await _cacheManager.SetRental(rental);
+
+			return rental;
 		}
 
 		public Task ReturnCarAsync(Rental rental, User? user)
