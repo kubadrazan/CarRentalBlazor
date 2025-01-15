@@ -7,6 +7,7 @@ using AutoMapper;
 using AutoMapper.Configuration.Annotations;
 using SharedDataModels.Requests.ApiB;
 using SharedDataModels.Factories.ApiB;
+using System.Net.Http.Json;
 
 namespace MiNICarRentalBrowser.Services.Car_Service
 {
@@ -19,8 +20,9 @@ namespace MiNICarRentalBrowser.Services.Car_Service
         private readonly IMapper _mapper;
         private readonly ReturnRequestFactory _returnRequestFactory;
         private readonly OfferChoiceFactory _offerChoiceFactory;
+		private readonly AskPriceFactory _askPriceFactory;
 
-        public CarRentalB(IHttpClientFactory httpClientFactory, IConfiguration configuration, IUserService userService, IMapper mapper, ReturnRequestFactory returnRequestFactory, OfferChoiceFactory offerChoiceFactory)
+        public CarRentalB(IHttpClientFactory httpClientFactory, IConfiguration configuration, IUserService userService, IMapper mapper, ReturnRequestFactory returnRequestFactory, OfferChoiceFactory offerChoiceFactory, AskPriceFactory askPriceFactory)
 		{
 			_httpClient = httpClientFactory.CreateClient("BApiHttpClient");
 			_apiUrl = configuration.GetValue<string>("bApiUrl") ?? throw new Exception("No apiB Url!");
@@ -29,6 +31,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			_mapper = mapper;
 			_returnRequestFactory = returnRequestFactory;
 			_offerChoiceFactory = offerChoiceFactory;
+			_askPriceFactory = askPriceFactory;
 
         }
 
@@ -96,21 +99,13 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 		public async Task<List<Offer>> GetOffersAsync(int carId, User? user)
 		{
 
-			if (user == null)
+			if (user == null) return null;
+
+            List<Offer> result = new List<Offer>();
+            try
 			{
-				user = new User() { BirthDate = DateTime.Now.AddYears(-20), DrivingLicenseObtainDate = DateTime.Now.AddYears(-2) };
-			}
-			try
-			{
-				List<Offer> result = new List<Offer>();
-				var offerRequest = new apiBOfferRequestDTO() { 
-					Age = user.BirthDate.YearsElapsed(),
-					DriversLicenceDuration = user.DrivingLicenseObtainDate.YearsElapsed(),
-					CarId = carId, Start = DateTime.Now,
-					Return = DateTime.Now.AddDays(1),
-					ExtraInfo = ""
-				};
-				var response = await _httpClient.PostAsJsonAsync<apiBOfferRequestDTO>($"{_apiUrl}/car/createoffer", offerRequest);
+				var askPrice = _askPriceFactory.CreateAskPrice(carId, user);
+				var response = await _httpClient.PostAsJsonAsync<AskPrice>($"{_apiUrl}/Car/CreateOffer", askPrice);
 				var jsonResponse = await response.Content.ReadAsStringAsync();
 				var responseDto = JsonConvert.DeserializeObject<apiBOfferDTO>(jsonResponse);
 				result.Add(new Offer() { ID = responseDto.Id, Price = responseDto.PriceDay, CarId = carId, IsInsurance = false });
@@ -121,7 +116,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			catch (Exception ex)
 			{
 				Console.WriteLine($"Error fetching offers data: {ex.Message}");
-				return null;
+				return result;
 			}
 		}
 

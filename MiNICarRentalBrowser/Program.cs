@@ -174,8 +174,11 @@ namespace MiNICarRentalBrowser
 			builder.Services.AddSingleton<BrowserUriService>();
 			builder.Services.AddTransient<BrandModelParserService>();
 			builder.Services.AddSingleton<ImageFileService>();
+
+			// Factories
             builder.Services.AddTransient<ReturnRequestFactory>();
             builder.Services.AddTransient<OfferChoiceFactory>();
+            builder.Services.AddTransient<AskPriceFactory>();
 
             var app = builder.Build();
 
