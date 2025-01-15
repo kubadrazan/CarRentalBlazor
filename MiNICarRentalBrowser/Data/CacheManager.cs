@@ -79,7 +79,7 @@ namespace MiNICarRentalBrowser.Data
 
         public async Task<Rental?> GetRental(int apiId, int rentalId)
         {
-            string rentalKey = $"Rentals:{apiId}:{rentalId}";
+            string rentalKey = $"Rental:{apiId}:{rentalId}";
 
              var rentalValue = await _db.StringGetAsync(rentalKey);
 
@@ -93,7 +93,7 @@ namespace MiNICarRentalBrowser.Data
 
         public async Task SetRental(Rental rental)
         {
-            string rentalKey = $"Rentals:{rental.SourceAPI}:{rental.ID}";
+            string rentalKey = $"Rental:{rental.SourceAPI}:{rental.ID}";
 
             await _db.StringSetAsync(rentalKey, JsonConvert.SerializeObject(rental), TimeSpan.FromMinutes(10));
         }
