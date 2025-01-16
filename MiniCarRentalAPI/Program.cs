@@ -90,6 +90,7 @@ namespace MiniCarRentalAPI
 			builder.Services.AddTransient<AzureBlobService>();
             builder.Services.AddTransient<OfferService>();
             builder.Services.AddTransient<CarService>();
+            builder.Services.AddTransient<RentalService>();
 
             builder.Services.AddTransient<IApiKeyValidatorService, ApiKeyValidatorService>();
 

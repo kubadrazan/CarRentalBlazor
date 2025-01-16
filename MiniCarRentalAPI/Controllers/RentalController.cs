@@ -24,8 +24,9 @@ namespace MiniCarRentalAPI.Controllers
         private readonly TimeProvider _timeProvider;
 		private readonly OfferService _offerService;
         private readonly CarService _carService;
+        private readonly RentalService _rentalService;
 
-        public RentalController(CarRentalContext context, EmailService emailService, OfferFactory offerFactory, RentalFactory rentalFactory, ReturnFactory returnFactory, AcceptationFactory acceptationFactory, AzureBlobService azureBlobService, TimeProvider timeProvider, OfferService offerService, CarService carService)
+        public RentalController(CarRentalContext context, EmailService emailService, OfferFactory offerFactory, RentalFactory rentalFactory, ReturnFactory returnFactory, AcceptationFactory acceptationFactory, AzureBlobService azureBlobService, TimeProvider timeProvider, OfferService offerService, CarService carService, RentalService rentalService)
 		{
 			_context = context;
 			_emailService = emailService;
@@ -37,6 +38,7 @@ namespace MiniCarRentalAPI.Controllers
             _timeProvider = timeProvider;
 			_offerService = offerService;
 			_carService = carService;
+			_rentalService = rentalService;
         }
 
 		[HttpGet("offers/{carId}")]
@@ -102,18 +104,20 @@ namespace MiniCarRentalAPI.Controllers
 
             var rental = await _context.Rentals.FirstOrDefaultAsync(r => r.OfferGuid == offerGuid);
 
-            if (rental == null || rental.UserEmail is null)
+            if (rental == null)
             {
                 return NotFound();
             }
+
+            if (!(await _rentalService.StartRental(rental)))
+			{
+				return UnprocessableEntity();
+			}
 
             if (!(await _carService.ChangeCarToUnavailable(_context, rental.CarID)))
             {
                 return UnprocessableEntity();
             }
-
-            rental.RentalStatus = RentalStatus.ACTIVE;
-			rental.RentDate = _timeProvider.GetUtcNow().DateTime;
 
             await _context.SaveChangesAsync();
 
