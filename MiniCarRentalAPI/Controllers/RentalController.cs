@@ -70,12 +70,10 @@ namespace MiniCarRentalAPI.Controllers
                 return NotFound();
             }
 
-            if (offer.ExpirationDate < _timeProvider.GetUtcNow().DateTime || !offer.UserEmail.IsNullOrEmpty())
-                return UnprocessableEntity();
-
-            offer.UserEmail = emailAddress;
-
-            _context.Offers.Update(offer);
+            if (!(await _offerService.SetUserEmail(offer, emailAddress)))
+			{
+				return UnprocessableEntity();
+			}
 
             var car = await _context.Cars
                 .Include(c => c.Model)
@@ -97,14 +95,10 @@ namespace MiniCarRentalAPI.Controllers
         [HttpPut("offers/acceptOffer")]
         public async Task<IActionResult> AcceptOffer([FromBody] Guid offerGuid)
         {
-            var offer = await _context.Offers.FirstOrDefaultAsync(f => f.OfferGuid == offerGuid);
-            if (offer == null)
-            {
-                return NotFound();
-            }
-
-            if (offer.ExpirationDate < _timeProvider.GetUtcNow().DateTime || offer.UserEmail.IsNullOrEmpty())
-                return UnprocessableEntity();
+            if (!(await _offerService.CheckIfOfferVaild(_context, offerGuid)))
+			{
+				return UnprocessableEntity();
+			}
 
             var rental = await _context.Rentals.FirstOrDefaultAsync(r => r.OfferGuid == offerGuid);
 
