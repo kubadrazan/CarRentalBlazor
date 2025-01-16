@@ -33,7 +33,7 @@ namespace MiniCarRentalAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Car>> GetCar(int id)
         {
-            var car = await _carService.GetCarWithSubData(_context, id);
+            var car = await _carService.GetCarWithSubDataAsync(_context, id);
 
             if (car == null) return NotFound();
 

@@ -14,7 +14,7 @@ namespace MiniCarRentalAPI.Services
             _timeProvider = timeProvider;
         }
 
-        public async Task<bool> SetUserEmail(Offer offer, string emailAddress)
+        public async Task<bool> SetUserEmailAsync(Offer offer, string emailAddress)
         {
             if (offer.ExpirationDate < _timeProvider.GetUtcNow().DateTime ||
                 !string.IsNullOrEmpty(offer.UserEmail))
@@ -25,7 +25,7 @@ namespace MiniCarRentalAPI.Services
             return true;
         }
 
-        public async Task<bool> CheckIfOfferVaild(CarRentalContext context, Guid offerGuid)
+        public async Task<bool> CheckIfOfferVaildAsync(CarRentalContext context, Guid offerGuid)
         {
             var offer = await context.Offers.FirstOrDefaultAsync(f => f.OfferGuid == offerGuid);
             return !(offer == null ||

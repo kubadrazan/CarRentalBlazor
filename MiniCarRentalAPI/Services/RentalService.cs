@@ -30,7 +30,7 @@ namespace MiniCarRentalAPI.Services
                 .ToListAsync();
 
 
-        public async Task<bool> StartRental(CarRentalContext context, Guid offerGuid)
+        public async Task<bool> StartRentalAsync(CarRentalContext context, Guid offerGuid)
         {
             var rental = await context.Rentals.FirstOrDefaultAsync(r => r.OfferGuid == offerGuid);
 
@@ -39,10 +39,10 @@ namespace MiniCarRentalAPI.Services
                 return false;
             }
 
-            return await StartRental(rental);
+            return await StartRentalAsync(rental);
         }
 
-        public async Task<bool> StartRental(Rental rental)
+        public async Task<bool> StartRentalAsync(Rental rental)
         {
             if (rental.UserEmail is null)
             {

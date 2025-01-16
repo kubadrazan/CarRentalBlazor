@@ -15,13 +15,13 @@ namespace MiniCarRentalAPI.Services
         {
         }
 
-        public async Task<Car?> GetCarWithSubData(CarRentalContext context, int carId)
+        public async Task<Car?> GetCarWithSubDataAsync(CarRentalContext context, int carId)
             => await context.Cars
                 .Include(c => c.Model)
                 .ThenInclude(m => m.Brand)
                 .FirstOrDefaultAsync(c => c.ID == carId);
 
-        public async Task<bool> ChangeCarToAvailable(CarRentalContext context, int carId)
+        public async Task<bool> ChangeCarToAvailableAsync(CarRentalContext context, int carId)
         {
             var car = await context.Cars.FirstOrDefaultAsync(c => c.ID == carId);
 
@@ -35,7 +35,7 @@ namespace MiniCarRentalAPI.Services
             return true;
         }
 
-        public async Task<bool> ChangeCarToUnavailable(CarRentalContext context, int carId)
+        public async Task<bool> ChangeCarToUnavailableAsync(CarRentalContext context, int carId)
         {
             var car = await context.Cars.FirstOrDefaultAsync(c => c.ID == carId);
 

@@ -21,12 +21,11 @@ namespace MiniCarRentalAPI.Controllers
         private readonly ReturnFactory _returnFactory;
         private readonly AcceptationFactory _acceptationFactory;
         private readonly AzureBlobService _azureBlobService;
-        private readonly TimeProvider _timeProvider;
         private readonly OfferService _offerService;
         private readonly CarService _carService;
         private readonly RentalService _rentalService;
 
-        public RentalController(CarRentalContext context, EmailService emailService, OfferFactory offerFactory, RentalFactory rentalFactory, ReturnFactory returnFactory, AcceptationFactory acceptationFactory, AzureBlobService azureBlobService, TimeProvider timeProvider, OfferService offerService, CarService carService, RentalService rentalService)
+        public RentalController(CarRentalContext context, EmailService emailService, OfferFactory offerFactory, RentalFactory rentalFactory, ReturnFactory returnFactory, AcceptationFactory acceptationFactory, AzureBlobService azureBlobService, OfferService offerService, CarService carService, RentalService rentalService)
         {
             _context = context;
             _emailService = emailService;
@@ -35,7 +34,6 @@ namespace MiniCarRentalAPI.Controllers
             _returnFactory = returnFactory;
             _acceptationFactory = acceptationFactory;
             _azureBlobService = azureBlobService;
-            _timeProvider = timeProvider;
             _offerService = offerService;
             _carService = carService;
             _rentalService = rentalService;
@@ -66,9 +64,9 @@ namespace MiniCarRentalAPI.Controllers
             var offer = await _context.Offers.FirstOrDefaultAsync(f => f.ID == offerId);
             if (offer == null) return NotFound();
 
-            if (!(await _offerService.SetUserEmail(offer, emailAddress))) return UnprocessableEntity();
+            if (!(await _offerService.SetUserEmailAsync(offer, emailAddress))) return UnprocessableEntity();
 
-            var car = await _carService.GetCarWithSubData(_context, offer.CarId);
+            var car = await _carService.GetCarWithSubDataAsync(_context, offer.CarId);
 
             if (car == null || car.Availability != Availability.AVAILABLE) return UnprocessableEntity();
 
@@ -85,7 +83,7 @@ namespace MiniCarRentalAPI.Controllers
         [HttpPut("offers/acceptOffer")]
         public async Task<IActionResult> AcceptOffer([FromBody] Guid offerGuid)
         {
-            if (!(await _offerService.CheckIfOfferVaild(_context, offerGuid)))
+            if (!(await _offerService.CheckIfOfferVaildAsync(_context, offerGuid)))
             {
                 return UnprocessableEntity();
             }
@@ -94,9 +92,9 @@ namespace MiniCarRentalAPI.Controllers
 
             if (rental == null) return NotFound();
 
-            if (!(await _rentalService.StartRental(rental))) return UnprocessableEntity();
+            if (!(await _rentalService.StartRentalAsync(rental))) return UnprocessableEntity();
 
-            if (!(await _carService.ChangeCarToUnavailable(_context, rental.CarID)))
+            if (!(await _carService.ChangeCarToUnavailableAsync(_context, rental.CarID)))
                 return UnprocessableEntity();
 
             await _context.SaveChangesAsync();
@@ -141,7 +139,7 @@ namespace MiniCarRentalAPI.Controllers
 
             rental.RentalStatus = RentalStatus.CLOSED;
 
-            if (!(await _carService.ChangeCarToAvailable(_context, rental.CarID)))
+            if (!(await _carService.ChangeCarToAvailableAsync(_context, rental.CarID)))
                 return UnprocessableEntity();
 
             _context.Acceptations.Add(acceptation);
