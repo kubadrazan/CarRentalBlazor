@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using MiniCarRentalAPI.Data;
+using SendGrid.Helpers.Mail;
 using SharedDataModels;
 
 namespace MiniCarRentalAPI.Services
@@ -11,6 +13,22 @@ namespace MiniCarRentalAPI.Services
         {
             _timeProvider = timeProvider;
         }
+
+        public async Task<Rental> GetRentalWithCarAsync(CarRentalContext context, int rentalId)
+            => await context.Rentals
+                .Include(r => r.Car)
+                .ThenInclude(c => c.Model)
+                .ThenInclude(m => m.Brand)
+                .FirstOrDefaultAsync(r => r.ID == rentalId);
+
+        public async Task<List<Rental>> GetAllUserRentalsWithCarAsync(CarRentalContext context, string email)
+            => await context.Rentals
+                .Include(r => r.Car)
+                .Include(r => r.Car.Model)
+                .Include(r => r.Car.Model.Brand)
+                .Where(r => r.UserEmail == email)
+                .ToListAsync();
+
 
         public async Task<bool> StartRental(CarRentalContext context, Guid offerGuid)
         {

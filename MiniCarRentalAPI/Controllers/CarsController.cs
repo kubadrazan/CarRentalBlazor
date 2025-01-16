@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using MiniCarRentalAPI.Data;
+using MiniCarRentalAPI.Services;
 using NuGet.Versioning;
 using PdfSharp;
 using SharedDataModels;
@@ -20,25 +21,21 @@ namespace MiniCarRentalAPI.Controllers
     public class CarsController : ControllerBase
     {
         private readonly CarRentalContext _context;
+        private readonly CarService _carService;
 
-        public CarsController(CarRentalContext context)
+        public CarsController(CarRentalContext context, CarService carService)
         {
             _context = context;
+            _carService = carService;
         }
 
         // GET: api/Cars/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Car>> GetCar(int id)
         {
-            var car = await _context.Cars
-                .Include(c => c.Model)
-                .ThenInclude(m => m.Brand)
-                .FirstOrDefaultAsync(c => c.ID == id);
+            var car = await _carService.GetCarWithSubData(_context, id);
 
-            if (car == null)
-            {
-                return NotFound();
-            }
+            if (car == null) return NotFound();
 
             return Ok(car);
         }

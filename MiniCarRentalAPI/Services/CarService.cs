@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MiniCarRentalAPI.Data;
+using SendGrid.Helpers.Mail;
 using SharedDataModels;
+using System;
 
 namespace MiniCarRentalAPI.Services
 {
@@ -12,6 +14,12 @@ namespace MiniCarRentalAPI.Services
         public CarService()
         {
         }
+
+        public async Task<Car?> GetCarWithSubData(CarRentalContext context, int carId)
+            => await context.Cars
+                .Include(c => c.Model)
+                .ThenInclude(m => m.Brand)
+                .FirstOrDefaultAsync(c => c.ID == carId);
 
         public async Task<bool> ChangeCarToAvailable(CarRentalContext context, int carId)
         {

@@ -68,12 +68,9 @@ namespace MiniCarRentalAPI.Controllers
 
             if (!(await _offerService.SetUserEmail(offer, emailAddress))) return UnprocessableEntity();
 
-            var car = await _context.Cars
-                .Include(c => c.Model)
-                .ThenInclude(m => m.Brand)
-                .FirstOrDefaultAsync(c => c.ID == offer.CarId);
+            var car = await _carService.GetCarWithSubData(_context, offer.CarId);
 
-            if (car.Availability != Availability.AVAILABLE) return UnprocessableEntity();
+            if (car == null || car.Availability != Availability.AVAILABLE) return UnprocessableEntity();
 
             _emailService.SendConfirmationEmail(offer, car);
 
@@ -138,11 +135,7 @@ namespace MiniCarRentalAPI.Controllers
 
             var acceptation = _acceptationFactory.CreateAcceptation(carReturn, request.EmployeeEmail, request.ReturnDescription, blobUri);
 
-            var rental = await _context.Rentals
-                .Include(r => r.Car)
-                .ThenInclude(c => c.Model)
-                .ThenInclude(m => m.Brand)
-                .FirstOrDefaultAsync(r => r.ID == rentalId);
+            var rental = await _rentalService.GetRentalWithCarAsync(_context, rentalId);
 
             if (rental == null) return NotFound();
 
@@ -175,12 +168,7 @@ namespace MiniCarRentalAPI.Controllers
         [HttpGet("rentals/allRentals/{email}")]
         public async Task<IActionResult> GetAllRental(string email)
         {
-            var rental = await _context.Rentals
-                .Include(r => r.Car)
-                .Include(r => r.Car.Model)
-                .Include(r => r.Car.Model.Brand)
-                .Where(r => r.UserEmail == email)
-                .ToListAsync();
+            var rental = await _rentalService.GetAllUserRentalsWithCarAsync(_context, email);
 
             if (rental == null) return NotFound();
 
@@ -190,11 +178,7 @@ namespace MiniCarRentalAPI.Controllers
         [HttpGet("rentals/admin/{rentalId}")]
         public async Task<IActionResult> GetRental(int rentalId)
         {
-            var rental = await _context.Rentals
-                .Include(r => r.Car)
-                .Include(r => r.Car.Model)
-                .Include(r => r.Car.Model.Brand)
-                .FirstOrDefaultAsync(r => r.ID == rentalId);
+            var rental = await _rentalService.GetRentalWithCarAsync(_context, rentalId);
 
             if (rental == null) return NotFound();
 
