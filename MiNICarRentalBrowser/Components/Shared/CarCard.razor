@@ -5,7 +5,10 @@
         <MudItem xs="7" sm="7">
             <div style="display: flex; flex-direction: column; align-items: flex-start; padding-left: 16px">
                 <MudText Typo="Typo.h5">@car.BrandName @car.ModelName</MudText>
-                <MudText Typo="Typo.body2" Class="my-1">Production year: @car.ProductionYear</MudText>
+                @if (car.ProductionYear != 0)
+                {
+                    <MudText Typo="Typo.body2" Class="my-1">Production year: @car.ProductionYear</MudText>
+                }
                 <MudText Typo="Typo.body2" Class="my-1">No mileage limit</MudText>
             </div>
         </MudItem>
