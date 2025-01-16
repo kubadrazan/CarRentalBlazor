@@ -32,7 +32,7 @@
 		}
 		else
 		{
-			<p>Loading Car Details</p>
+			<MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
 		}
 		<h3>Offers</h3>
 		@if (_areOffersLoaded)
@@ -43,7 +43,7 @@
 				{
 					<div class="offer-row">
 						<p>
-							<strong>Price Per Day: @Math.Round(offer.Price) zł</strong><br />
+							<strong>Price Per Day: @Math.Round(offer.Price) $</strong><br />
 							Insurance @(offer.IsInsurance ? "Included" : "Not Included")
 						</p>
 						<button @onclick="() => RentMeAction(offer.ID)" class="button">Rent Me</button>
