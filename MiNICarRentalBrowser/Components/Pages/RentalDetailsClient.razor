@@ -58,6 +58,8 @@
 	public int apiId { get; set; }
 	private Rental _rental { get; set; }
 	private Car _car;
+	private ClaimsPrincipal _user;
+	private User? _userDB = null;
 
 	private bool _isCarLoaded = false;
 
@@ -65,15 +67,16 @@
 	protected override async Task OnInitializedAsync()
 	{
 		var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
-		var user = authState.User;
-		if (!(await AuthorizationService.AuthorizeAsync(user, "RegisteredPolicy")).Succeeded)
+		_user = authState.User;
+		if (!(await AuthorizationService.AuthorizeAsync(_user, "RegisteredPolicy")).Succeeded)
 		{
 			navigation.NavigateTo("/", true);
 		}
 		await base.OnInitializedAsync();
-		var email = user.FindFirstValue(ClaimTypes.Email);
+		var email = _user.FindFirstValue(ClaimTypes.Email);
+		_userDB = await userService.GetUserAsync(email);
 
-		_rental = await aggregatedCarService.GetRentalAsync(rentalId, apiId, email);
+		_rental = await aggregatedCarService.GetRentalAsync(apiId, rentalId, email);
 		if (_rental != null)
 		{
 			if (email != _rental.UserEmail)
@@ -88,7 +91,7 @@
 	}
 	public async void ReturnAction()
 	{
-		await aggregatedCarService.ReturnCarAsync(_rental);
+		await aggregatedCarService.ReturnCarAsync(_rental, _userDB);
 		navigation.NavigateTo(navigation.Uri, forceLoad: true);
 	}
 }

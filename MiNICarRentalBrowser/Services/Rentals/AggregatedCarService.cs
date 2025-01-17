@@ -53,21 +53,6 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			return await _carRepository.GetFilteredCarsCount(brand, models);
 		}
 
-		public async Task<List<string>> GetUniqueBrands()
-		{
-			return await _carRepository.GetUniqueBrandsAsync();
-		}
-
-		public async Task<List<string>> GetUniqueModels()
-		{
-			return await _carRepository.GetUniqueModelsAsync();
-		}
-
-        public async Task<List<string>> GetUniqueModels(string brand)
-        {
-            return await _carRepository.GetUniqueModelsAsync(brand);
-        }
-
         public async Task<List<BrandModelDTO>> GetBrandsModelsAsync()
 		{
             return await _carRepository.GetBrandsModelsAsync();
@@ -89,22 +74,43 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 
 		public async Task<List<Offer>> GetOffersAsync(int apiId, int carId, User? user = null)
 		{
-			return await _carRentalServiceFactory.GetService(apiId).GetOffersAsync(carId, user);
+			if (user == null || user.Email == string.Empty)
+                return await _carRentalServiceFactory.GetService(apiId).GetOffersAsync(carId, user);
+
+			var offers = await _cacheManager.GetOffers(apiId, carId, user.Email);
+			if (offers != null)
+				return offers;
+
+			offers = await _carRentalServiceFactory.GetService(apiId).GetOffersAsync(carId, user);
+
+			if (offers != null && offers.Count != 0)
+				await _cacheManager.SetOffers(apiId, offers, user.Email);
+
+			return offers;
+        }	  
+
+		public Task<string> ChooseOffer(int apiId, int offerid, User? user)
+		{
+			return _carRentalServiceFactory.GetService(apiId).ChooseOffer(offerid, user);
 		}
 
-		public Task<string> ChooseOffer(int apiId, int offerid, string emailAddress)
+		public async Task<Rental> GetRentalAsync(int apiId, int rentalId, string email)
 		{
-			return _carRentalServiceFactory.GetService(apiId).ChooseOffer(offerid, emailAddress);
+			var rental = await _cacheManager.GetRental(apiId, rentalId);
+			if (rental != null)
+				return rental;
+
+			rental = await _carRentalServiceFactory.GetService(apiId).GetRentalAsync(rentalId, email);
+
+			if (rental != null && rental.RentalStatus == RentalStatus.CLOSED)
+				await _cacheManager.SetRental(rental);
+
+			return rental;
 		}
 
-		public Task<Rental> GetRentalAsync(int rentalId, int apiId, string email)
+		public Task ReturnCarAsync(Rental rental, User? user)
 		{
-			return _carRentalServiceFactory.GetService(apiId).GetRentalAsync(rentalId, email);
-		}
-
-		public Task ReturnCarAsync(Rental rental)
-		{
-			return _carRentalServiceFactory.GetService(rental.SourceAPI).ReturnCarAsync(rental);
+			return _carRentalServiceFactory.GetService(rental.SourceAPI).ReturnCarAsync(rental, user);
 		}
 
 		public Task<byte[]> GetCarImage(Rental rental)

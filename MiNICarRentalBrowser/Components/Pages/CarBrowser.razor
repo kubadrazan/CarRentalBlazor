@@ -3,9 +3,11 @@
 @using System.Linq
 @using SharedDataModels.DTO
 @using MiNICarRentalBrowser.Services.Car_Service
+@using MiNICarRentalBrowser.Services
 @rendermode RenderMode.InteractiveServer
 @inject NavigationManager Navigation
 @inject AggregatedCarService aggregatedCarService
+@inject BrandModelParserService brandModelParser
 
 <MudContainer>
     <MudGrid>
@@ -138,27 +140,20 @@
 
     protected override async Task OnInitializedAsync()
     {
-        List<BrandModelDTO> bmDTO = await aggregatedCarService.GetBrandsModelsAsync();
+        isLoading = true;
+        List<BrandModelDTO> bmDTOs = await aggregatedCarService.GetBrandsModelsAsync();
 
-        foreach (var bm in bmDTO)
-        {
-            if (uniqueModels.ContainsKey(bm.BrandName))
-                uniqueModels[bm.BrandName].Add(bm.ModelName);
-            else
-            {
-                uniqueBrands.Add(bm.BrandName);
-                uniqueModels[bm.BrandName] = new() { bm.ModelName };
-            }
-        }
+        brandModelParser.ParseBrandsModels(bmDTOs, uniqueBrands, uniqueModels);
 
         await base.OnInitializedAsync();
+        isLoading = false;
     }
 
     protected override async Task OnParametersSetAsync()
     {
         isLoading = true;
 
-        if ((brand == null || brand == string.Empty) && (uniqueBrands != null || uniqueBrands.Count != 0))
+        if ((brand == null || brand == string.Empty) && uniqueBrands != null && uniqueBrands.Count != 0)
             selectedBrand = uniqueBrands.First();
         else if ((uniqueBrands == null || uniqueBrands.Count == 0) && (brand == null || brand == string.Empty))
             selectedBrand = "BMW";
@@ -172,6 +167,7 @@
             pageInd = 1;
 
         filteredCarsCount = await aggregatedCarService.GetFilteredCarsCount(selectedBrand, modelOptions.ToList());
+        isLoading = true;
         cars = await aggregatedCarService.GetFilteredCars(selectedBrand, modelOptions.ToList(), pageInd, pageSize);
 
         if (filteredCarsCount % pageSize == 0 && filteredCarsCount != 0)

@@ -15,7 +15,8 @@
 		</MudButton>
 		<MudSpacer />
 		<MudMenu Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" AriaLabel="Open menu">
-			<MudMenuItem OnClick="accountButtonOnClick" Icon="@Icons.Material.Filled.AccountCircle" IconSize="Size.Large">Account</MudMenuItem>
+			<MudMenuItem OnClick="accountButtonOnClick"><b>@_userEmail</b> </MudMenuItem>
+			<MudMenuItem OnClick="accountButtonOnClick" Icon="@Icons.Material.Filled.AccountCircle" IconSize="Size.Large">Account </MudMenuItem>
 			<MudMenuItem OnClick="historyButtonOnClick" Icon="@Icons.Material.Filled.History" IconSize="Size.Large">Rental history</MudMenuItem>
 			<MudMenuItem OnClick="logOutButtonOnClick" Icon="@Icons.Material.Filled.Logout" IconSize="Size.Large">Logout</MudMenuItem>
 		</MudMenu>
@@ -27,6 +28,13 @@
 </MudLayout>
 
 @code {
+	private string? _userEmail;
+	protected override async Task OnInitializedAsync()
+	{
+		var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+		var user = authState.User;
+		_userEmail = user.FindFirstValue(ClaimTypes.Email);
+	}
 	private void logOutButtonOnClick()
 	{
 		Navigation.NavigateTo("/logout", forceLoad: true);

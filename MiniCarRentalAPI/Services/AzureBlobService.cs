@@ -6,6 +6,7 @@ using SendGrid;
 using System.Configuration;
 using System.Net;
 using System.Text;
+using Azure.Core;
 
 namespace MiniCarRentalAPI.Services
 {
@@ -18,9 +19,13 @@ namespace MiniCarRentalAPI.Services
 			_blobServiceClient = new(options.Value.ConnectionString);
 		}
 
-		public async Task<string> Upload(byte[] image)
-		{
-			BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient("carimages");
+		public async Task<string> Upload(string base64EncodedImage)
+        {
+			if (string.IsNullOrEmpty(base64EncodedImage)) return "";
+
+            var image = Convert.FromBase64String(base64EncodedImage);
+
+            BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient("carimages");
 
 			await containerClient.CreateIfNotExistsAsync();
 

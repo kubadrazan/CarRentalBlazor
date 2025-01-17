@@ -9,6 +9,7 @@
 @rendermode InteractiveServer
 @inject AggregatedCarService aggregatedCarService
 @inject AuthenticationStateProvider authenticationStateProvider
+@inject IAuthorizationService AuthorizationService
 @inject NavigationManager navigation
 @inject IUserService userService
 <div class="container">
@@ -32,7 +33,7 @@
 		}
 		else
 		{
-			<p>Loading Car Details</p>
+			<MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
 		}
 		<h3>Offers</h3>
 		@if (_areOffersLoaded)
@@ -43,10 +44,10 @@
 				{
 					<div class="offer-row">
 						<p>
-							<strong>Price Per Day: @Math.Round(offer.Price) zł</strong><br />
+							<strong>Price Per Day: @Math.Round(offer.Price) $</strong><br />
 							Insurance @(offer.IsInsurance ? "Included" : "Not Included")
 						</p>
-						<button @onclick="() => RentMeAction(offer.ID)" class="button">Rent Me</button>
+						<button @onclick="() => RentMeAction(offer.ID)" class="button" disabled="@_isEmployee">Rent Me</button>
 					</div>
 				}
 			}
@@ -70,11 +71,13 @@
 	[Parameter]
 	public int apiID { get; set; }
 
-	private Car _car;
+	private Car? _car;
 
+	private bool _isEmployee = false;
 	private bool _areOffersLoaded = false;
 	private bool _isCarLoaded = false;
 	private ClaimsPrincipal _user;
+	private User? _userDB = null;
 
 	private List<Offer> _offers;
 
@@ -83,22 +86,24 @@
 		await base.OnInitializedAsync();
 		var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
 		_user = authState.User;
+		_isEmployee = (await AuthorizationService.AuthorizeAsync(_user, "EmployeePolicy")).Succeeded;
 		_car = await aggregatedCarService.GetCarDetailsAsync(apiID, HangfireCarID);
 		_isCarLoaded = true;
+
 		if (_car != null)
 		{
 			if (_user.Identity != null && _user.Identity.IsAuthenticated)
 			{
 				var email = _user.FindFirstValue(ClaimTypes.Email);
-				User userDB = await userService.GetUserAsync(email);
-				_offers = await aggregatedCarService.GetOffersAsync(apiID, _car.ID, userDB);
+				_userDB = await userService.GetUserAsync(email);
+				_offers = await aggregatedCarService.GetOffersAsync(apiID, _car.ID, _userDB);
 			}
 			else
 				_offers = await aggregatedCarService.GetOffersAsync(apiID, _car.ID);
 
 		}
 		else
-			_offers = new();
+		_offers = new();
 		_areOffersLoaded = true;
 	}
 
@@ -107,7 +112,7 @@
 		if (_user.Identity != null && _user.Identity.IsAuthenticated)
 		{
 			var email = _user.FindFirstValue(ClaimTypes.Email);
-			var result = await aggregatedCarService.ChooseOffer(apiID, offerID, email);
+			var result = await aggregatedCarService.ChooseOffer(apiID, offerID, _userDB);
 			if (result == "Error")
 			{
 				navigation.NavigateTo("/error-page/");
@@ -122,3 +127,12 @@
 		}
 	}
 }
+<style>
+	.button:disabled {
+		background: linear-gradient(90deg, #C2C2C2, #E0E0E0);
+		color: #A0A0A0;
+		box-shadow: none;
+		transform: none;
+		cursor: not-allowed;
+	}
+</style>

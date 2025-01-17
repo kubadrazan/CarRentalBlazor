@@ -1,0 +1,4 @@
+,Production_year,Power_HP,Fuel_type,Drive,Transmission,Doors_number,Colour,Availability,pricePerDay,insurancePricePerDay,ModelID,Latitude,Longitude
+0,2016,150,Diesel,Rear wheels,Manual,4,black,0,70.65,81.2475,0,52.22791496537448,21.005406856024276
+1,2021,120,Gasoline,Front wheels,Manual,5,black,0,73.9,84.985,1,52.171943223507355,20.980206416327484
+2,2020,450,Gasoline,4x4 (permanent),Automatic,5,red,0,429.0,493.35,2,52.244548853419815,21.045026485087188

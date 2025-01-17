@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using MiniCarRentalAPI.Data;
+using MiniCarRentalAPI.Services;
 using NuGet.Versioning;
 using PdfSharp;
 using SharedDataModels;
@@ -20,112 +22,25 @@ namespace MiniCarRentalAPI.Controllers
     public class CarsController : ControllerBase
     {
         private readonly CarRentalContext _context;
+        private readonly CarService _carService;
+        private readonly IMapper _mapper;
 
-        public CarsController(CarRentalContext context)
+        public CarsController(CarRentalContext context, CarService carService, IMapper mapper)
         {
             _context = context;
+            _carService = carService;
+            _mapper = mapper;
         }
 
         // GET: api/Cars/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Car>> GetCar(int id)
         {
-            var car = await _context.Cars
-                .Include(c => c.Model)
-                .ThenInclude(m => m.Brand)
-                .FirstOrDefaultAsync(c => c.ID == id);
+            var car = await _carService.GetCarWithSubDataAsync(_context, id);
 
-            if (car == null)
-            {
-                return NotFound();
-            }
+            if (car == null) return NotFound();
 
             return Ok(car);
-        }
-
-        // GET: api/Cars/brands
-        [HttpGet("brands")]
-        public async Task<IActionResult> GetUniqueBrands()
-        {
-            var brands = await _context.Cars
-                .Select(c => c.Model.Brand.Name)
-                .Distinct()
-                .ToListAsync();
-
-            return Ok(brands);
-        }
-
-        // GET: api/Cars/models
-        [HttpGet("models")]
-        public async Task<IActionResult> GetUniqueModels()
-        {
-            var models = await _context.Cars
-                .Select(c => c.Model.Name)
-                .Distinct()
-                .ToListAsync();
-
-            return Ok(models);
-        }
-
-        // GET: api/Cars/brandsModels
-        [HttpGet("brandsModels")]
-        public async Task<IActionResult> GetBrandsModels()
-        {
-
-            var models = await _context.Cars
-                .Where(c => c.Availability == Availability.AVAILABLE)
-                .Select(c => c.Model)
-                .Distinct()
-                .Include(b => b.Brand)
-                .Select(b => new BrandModelDTO
-                {
-                    BrandName = b.Brand.Name,
-                    ModelName = b.Name
-                })
-                .ToListAsync();
-
-            return Ok(models);
-        }
-
-        // GET: api/Cars
-        [HttpGet]
-        public async Task<IActionResult> GetFilteredCars(
-            [FromQuery] List<string> brands,
-            [FromQuery] List<string> models,
-            [FromQuery] int pageInd = 1,
-            [FromQuery] int pageSize = 1)
-        {
-            if (pageInd < 1 || pageSize < 1)
-                return NotFound();
-
-            var query = _context.Cars.AsQueryable();
-
-            if (brands != null && brands.Any())
-                query = query.Where(car => brands.Contains(car.Model.Brand.Name));
-
-            if (models != null && models.Any())
-                query = query.Where(car => models.Contains(car.Model.Name));
-
-            query = query.Where(car => car.Availability == Availability.AVAILABLE);
-
-            int allCount = query.Count();
-
-            List<Car>? cars;
-            query = query.OrderBy(car => car.ID);
-            query = query.Skip((pageInd - 1) * pageSize);
-            cars = await query.Include(c => c.Model)
-                .ThenInclude(m => m.Brand).Take(pageSize).ToListAsync();
-
-            var carsDTO = new List<SimpleCarDTO>();
-            // TODO add mapper
-            foreach (var car in cars)
-            {
-                carsDTO.Add(new SimpleCarDTO { ID = car.ID, BrandName = car.Model.Brand.Name, ModelName = car.Model.Name, ProductionYear = car.ProductionYear });
-            }
-
-            var result = new PagedCarsResponse() { Cars = carsDTO, TotalCount = allCount };
-
-            return Ok(result);
         }
 
         // GET: api/Cars/allAvailable
@@ -142,10 +57,10 @@ namespace MiniCarRentalAPI.Controllers
             cars = await query.Include(c => c.Model).ThenInclude(m => m.Brand).ToListAsync();
 
             List<SimpleCarDTO> carsDTO = new List<SimpleCarDTO>();
-            // TODO add mapper
-            foreach(var car in cars)
+
+            if (cars != null && cars.Count > 0)
             {
-                carsDTO.Add(new SimpleCarDTO { ID = car.ID, BrandName = car.Model.Brand.Name, ModelName = car.Model.Name, ProductionYear = car.ProductionYear });
+                carsDTO = _mapper.Map<List<SimpleCarDTO>>(cars);
             }
 
             return Ok(carsDTO);

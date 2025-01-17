@@ -20,6 +20,9 @@ using SharedDataModels;
 using SharedDataModels.DTO.APIB_DTO;
 using AutoMapper;
 using AutoMapper.Extensions.EnumMapping;
+using SharedDataModels.Factories;
+using SharedDataModels.Factories.ApiB;
+using SharedDataModels.DTO;
 
 namespace MiNICarRentalBrowser
 {
@@ -98,10 +101,10 @@ namespace MiNICarRentalBrowser
 			var mapperConfig = new MapperConfiguration(cfg =>
 			{
 				cfg.CreateMap<apiBCarDTO, CarCache>()
-				.ForMember(dest => dest.ProductionYear, act => act.MapFrom(_ => 1990))
 				.ForMember(dest => dest.BrandName, act => act.MapFrom(act => act.carBrand))
 				.ForMember(dest => dest.ModelName, act => act.MapFrom(act => act.carModel))
 				.ForMember(dest => dest.CarID, act => act.MapFrom(act => act.id))
+                .ForMember(dest => dest.ProductionYear, act => act.Ignore())
                 .ForMember(dest => dest.SourceApiID, act => act.Ignore());
 
 				cfg.CreateMap<apiBCarDTO, Car>()
@@ -111,9 +114,9 @@ namespace MiNICarRentalBrowser
 					Name = src.carModel,
 					Brand = new Brand { Name = src.carBrand }
 				}))
-				.ForMember(dest => dest.ProductionYear, act => act.MapFrom(_ => 1990))
 				.ForMember(dest => dest.Availability, act => act.MapFrom(src => src.isRented ? Availability.NOT_AVAILABLE : Availability.AVAILABLE))
-				.ForMember(dest => dest.DoorsNumber, act => act.Ignore())
+                .ForMember(dest => dest.ProductionYear, act => act.Ignore())
+                .ForMember(dest => dest.DoorsNumber, act => act.Ignore())
 				.ForMember(dest => dest.Colour, act => act.Ignore())
 				.ForMember(dest => dest.Transmission, act => act.Ignore())
 				.ForMember(dest => dest.FuelType, act => act.Ignore())
@@ -137,6 +140,10 @@ namespace MiNICarRentalBrowser
 				.ForMember(dest => dest.IsInsurance, act => act.MapFrom(src => src.offer.priceInsurance == 0))
 				.ForMember(dest => dest.Car, act => act.MapFrom(src => src.offer.car))
                 .ForMember(dest => dest.Return, act => act.Ignore());
+
+				cfg.CreateMap<SimpleCarDTO, CarCache>()
+				.ForMember(dest => dest.CarID, act => act.MapFrom(src => src.ID))
+				.ForMember(dest => dest.SourceApiID, act => act.Ignore());
             });
 
 			var mapper = mapperConfig.CreateMapper();
@@ -173,7 +180,12 @@ namespace MiNICarRentalBrowser
 			builder.Services.AddTransient<BrandModelParserService>();
 			builder.Services.AddSingleton<ImageFileService>();
 
-			var app = builder.Build();
+			// Factories
+            builder.Services.AddTransient<ReturnRequestFactory>();
+            builder.Services.AddTransient<OfferChoiceFactory>();
+            builder.Services.AddTransient<AskPriceFactory>();
+
+            var app = builder.Build();
 
 			// Configure the HTTP request pipeline.
 			if (!app.Environment.IsDevelopment())
