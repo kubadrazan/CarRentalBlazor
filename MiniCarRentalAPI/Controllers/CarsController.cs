@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -22,11 +23,13 @@ namespace MiniCarRentalAPI.Controllers
     {
         private readonly CarRentalContext _context;
         private readonly CarService _carService;
+        private readonly IMapper _mapper;
 
-        public CarsController(CarRentalContext context, CarService carService)
+        public CarsController(CarRentalContext context, CarService carService, IMapper mapper)
         {
             _context = context;
             _carService = carService;
+            _mapper = mapper;
         }
 
         // GET: api/Cars/5
@@ -54,10 +57,10 @@ namespace MiniCarRentalAPI.Controllers
             cars = await query.Include(c => c.Model).ThenInclude(m => m.Brand).ToListAsync();
 
             List<SimpleCarDTO> carsDTO = new List<SimpleCarDTO>();
-            // TODO add mapper
-            foreach(var car in cars)
+
+            if (cars != null && cars.Count > 0)
             {
-                carsDTO.Add(new SimpleCarDTO { ID = car.ID, BrandName = car.Model.Brand.Name, ModelName = car.Model.Name, ProductionYear = car.ProductionYear });
+                carsDTO = _mapper.Map<List<SimpleCarDTO>>(cars);
             }
 
             return Ok(carsDTO);
