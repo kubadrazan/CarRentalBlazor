@@ -15,21 +15,16 @@ namespace MiNICarRentalBrowser.Data
         Task InsertCars(List<CarCache> cars);
         Task<List<CarCache>> GetFilteredCarsAsync(string brands, List<string> models, int pageInd = 1, int pageSize = 1);
         Task<int> GetFilteredCarsCount(string brand, List<string> models);
-        Task<List<string>> GetUniqueBrandsAsync();
-        Task<List<string>> GetUniqueModelsAsync();
-        Task<List<string>> GetUniqueModelsAsync(string brand);
         Task<List<BrandModelDTO>> GetBrandsModelsAsync();
         Task<CarCache?> GetCarCacheAsync(int apiID, int ID);
     }
 
     public class CarRepository : ICarRepository
     {
-        private readonly IServiceProvider _serviceProvider;
         private readonly IDatabase _database;
 
-        public CarRepository(IServiceProvider serviceProvider, IDatabase database)
+        public CarRepository(IDatabase database)
         {
-            _serviceProvider = serviceProvider;
             _database = database;
         }
 
@@ -165,43 +160,6 @@ namespace MiNICarRentalBrowser.Data
             res += tasksResult.Sum();
 
             return (int)res;
-        }
-
-        public async Task<List<string>> GetUniqueBrandsAsync()
-        {
-            if (!await AreCarsAvailable())
-                await WaitForData();
-            string brandsSetKey = "Brands";
-
-            var brands = await _database.SetMembersAsync(brandsSetKey);
-
-            return brands.Select(b => b.ToString()).OrderBy(b => b).ToList();
-        }
-
-        public async Task<List<string>> GetUniqueModelsAsync()
-        {
-            if (!await AreCarsAvailable())
-                await WaitForData();
-            List<string> brands = await GetUniqueBrandsAsync();
-            List<string> models = new List<string>();
-
-            foreach (var brand in brands)
-            {
-                string brandKey = $"Models:{brand}";
-                var res = await _database.SetMembersAsync(brandKey);
-                models.AddRange(res.Select(b => b.ToString()));
-            }
-
-            return models.OrderBy(m => m).ToList();
-        }
-
-        public async Task<List<string>> GetUniqueModelsAsync(string brand)
-        {
-            if (!await AreCarsAvailable())
-                await WaitForData();
-            string brandKey = $"Models:{brand}";
-            var res = await _database.SetMembersAsync(brandKey);
-            return res.Select(b => b.ToString()).OrderBy(m => m).ToList();
         }
 
         public async Task<List<BrandModelDTO>> GetBrandsModelsAsync()
