@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Time.Testing;
 using MiniCarRentalAPI.Data;
 using ThrowawayDb;
 
@@ -13,10 +14,11 @@ namespace DatabaseIntegrationTesting
     public class CustomWebApplicationFactory<TProgram>
         : WebApplicationFactory<TProgram> where TProgram : class
     {
+
+        private readonly FakeTimeProvider _timeProvider = new FakeTimeProvider();
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            // Perform any configuration here that applies to all tests
-            // such as replacing an external data store with a fake.
         }
 
         internal HttpClient CreateClientForDatabase(ThrowawayDatabase db)
@@ -27,7 +29,6 @@ namespace DatabaseIntegrationTesting
 
         internal ThrowawayDatabase CreateThrowawayDb()
         {
-            // Instance could be configured through environment variables.
             var db = ThrowawayDatabase.Create(SqlServerSettings.ConnectionString);
             //var db = ThrowawayDatabase.FromLocalInstance("(localdb)\\mssqllocaldb", "TEST_");
 
@@ -54,6 +55,14 @@ namespace DatabaseIntegrationTesting
                     services.Remove(dbContextDescriptor);
 
                     services.AddDbContext<CarRentalContext>(opt => opt.UseSqlServer(db.ConnectionString));
+                    
+                    var timeProvider = services.SingleOrDefault(d => d.ServiceType == typeof(TimeProvider));
+
+                    ArgumentNullException.ThrowIfNull(timeProvider);
+
+                    services.Remove(timeProvider);
+
+                    services.AddSingleton(_timeProvider);
                 });
 
             });
