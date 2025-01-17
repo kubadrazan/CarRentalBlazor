@@ -1,4 +1,5 @@
 
+using AutoMapper;
 using Azure.Identity;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using MiniCarRentalAPI.Services;
 using Newtonsoft.Json.Converters;
 using SharedDataModels;
 using SharedDataModels.Factories;
+using SharedDataModels.DTO;
 using System.Text.Json.Serialization;
 
 namespace MiniCarRentalAPI
@@ -69,8 +71,21 @@ namespace MiniCarRentalAPI
 			// AzureKeyVault
 			builder.Configuration.AddAzureKeyVault(new Uri(builder.Configuration.GetValue<string>("KeyVault:https")), new DefaultAzureCredential());
 
+            // AutoMapper
+            var mapperConfig = new MapperConfiguration(cfg =>
+            {
+				cfg.CreateMap<Car, SimpleCarDTO>()
+				.ForMember(dest => dest.ID, act => act.MapFrom(c => c.ID))
+				.ForMember(dest => dest.BrandName, act => act.MapFrom(c => c.Model.Brand.Name))
+				.ForMember(dest => dest.ModelName, act => act.MapFrom(c => c.Model.Name));
+            });
+
+            var mapper = mapperConfig.CreateMapper();
+            mapperConfig.AssertConfigurationIsValid();
+            builder.Services.AddSingleton(mapper);
+
 #if DEBUG
-			builder.Services.AddDbContext<CarRentalContext>(options =>
+            builder.Services.AddDbContext<CarRentalContext>(options =>
 				options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 #else
 			builder.Services.AddDbContext<CarRentalContext>(options =>
