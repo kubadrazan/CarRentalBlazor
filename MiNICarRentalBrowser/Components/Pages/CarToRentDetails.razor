@@ -9,6 +9,7 @@
 @rendermode InteractiveServer
 @inject AggregatedCarService aggregatedCarService
 @inject AuthenticationStateProvider authenticationStateProvider
+@inject IAuthorizationService AuthorizationService
 @inject NavigationManager navigation
 @inject IUserService userService
 <div class="container">
@@ -46,7 +47,7 @@
 							<strong>Price Per Day: @Math.Round(offer.Price) $</strong><br />
 							Insurance @(offer.IsInsurance ? "Included" : "Not Included")
 						</p>
-						<button @onclick="() => RentMeAction(offer.ID)" class="button">Rent Me</button>
+						<button @onclick="() => RentMeAction(offer.ID)" class="button" disabled="@_isEmployee">Rent Me</button>
 					</div>
 				}
 			}
@@ -70,8 +71,9 @@
 	[Parameter]
 	public int apiID { get; set; }
 
-	private Car _car;
+	private Car? _car;
 
+	private bool _isEmployee = false;
 	private bool _areOffersLoaded = false;
 	private bool _isCarLoaded = false;
 	private ClaimsPrincipal _user;
@@ -84,8 +86,10 @@
 		await base.OnInitializedAsync();
 		var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
 		_user = authState.User;
+		_isEmployee = (await AuthorizationService.AuthorizeAsync(_user, "EmployeePolicy")).Succeeded;
 		_car = await aggregatedCarService.GetCarDetailsAsync(apiID, HangfireCarID);
 		_isCarLoaded = true;
+
 		if (_car != null)
 		{
 			if (_user.Identity != null && _user.Identity.IsAuthenticated)
@@ -99,7 +103,7 @@
 
 		}
 		else
-			_offers = new();
+		_offers = new();
 		_areOffersLoaded = true;
 	}
 
@@ -123,3 +127,12 @@
 		}
 	}
 }
+<style>
+	.button:disabled {
+		background: linear-gradient(90deg, #C2C2C2, #E0E0E0);
+		color: #A0A0A0;
+		box-shadow: none;
+		transform: none;
+		cursor: not-allowed;
+	}
+</style>
