@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharedDataModels", "SharedD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaywrightTests", "PlaywrightTests\PlaywrightTests.csproj", "{199DD8CC-5B8C-4ABD-BE42-1119F9B0961E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseIntegrationTesting", "DatabaseIntegrationTesting\DatabaseIntegrationTesting.csproj", "{77F60093-4DCB-4DE3-A6C1-67B451535093}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{199DD8CC-5B8C-4ABD-BE42-1119F9B0961E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{199DD8CC-5B8C-4ABD-BE42-1119F9B0961E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{199DD8CC-5B8C-4ABD-BE42-1119F9B0961E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77F60093-4DCB-4DE3-A6C1-67B451535093}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77F60093-4DCB-4DE3-A6C1-67B451535093}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77F60093-4DCB-4DE3-A6C1-67B451535093}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77F60093-4DCB-4DE3-A6C1-67B451535093}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
