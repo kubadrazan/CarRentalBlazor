@@ -1,4 +1,5 @@
-﻿using MiNICarRentalBrowser.Services.Rentals;
+﻿using AutoMapper;
+using MiNICarRentalBrowser.Services.Rentals;
 using SharedDataModels;
 using SharedDataModels.DTO;
 using SharedDataModels.Requests;
@@ -14,8 +15,9 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 		private readonly string _apiUrl;
 		private readonly int _apiID;
 		private readonly IUserService _userService;
+		private readonly IMapper _mapper;
 
-		public CarRentalA(IHttpClientFactory httpClientFactory, IConfiguration configuration, IUserService userService)
+		public CarRentalA(IHttpClientFactory httpClientFactory, IConfiguration configuration, IUserService userService, IMapper mapper)
 		{
 			_httpClient = httpClientFactory.CreateClient("AApiHttpClient");
 			_apiID = 0;
@@ -25,6 +27,7 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			_apiUrl = configuration.GetValue<string>("aApiUrl") ?? throw new Exception("No apiA Url in configuration file!");
 #endif
 			_userService = userService;
+			_mapper = mapper;
 		}
 
 		public async Task<List<CarCache>> GetCarsAsync()
@@ -32,13 +35,11 @@ namespace MiNICarRentalBrowser.Services.Car_Service
 			var response = await _httpClient.GetFromJsonAsync<List<SimpleCarDTO>>($"{_apiUrl}/api/Cars/allAvailable");
 
 			List<CarCache> result = new List<CarCache>();
-			// TODO add mapper
+
 			if (response != null)
 			{
-				foreach (var car in response)
-				{
-					result.Add(new CarCache() { CarID = car.ID, BrandName = car.BrandName, ModelName = car.ModelName, ProductionYear = car.ProductionYear, SourceApiID = _apiID });
-				}
+				result = _mapper.Map<List<CarCache>>(response);
+				result.ForEach(c => c.SourceApiID = _apiID);
 			}
 
 			return result;

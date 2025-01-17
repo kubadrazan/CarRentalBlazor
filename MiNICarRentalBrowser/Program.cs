@@ -22,6 +22,7 @@ using AutoMapper;
 using AutoMapper.Extensions.EnumMapping;
 using SharedDataModels.Factories;
 using SharedDataModels.Factories.ApiB;
+using SharedDataModels.DTO;
 
 namespace MiNICarRentalBrowser
 {
@@ -139,6 +140,10 @@ namespace MiNICarRentalBrowser
 				.ForMember(dest => dest.IsInsurance, act => act.MapFrom(src => src.offer.priceInsurance == 0))
 				.ForMember(dest => dest.Car, act => act.MapFrom(src => src.offer.car))
                 .ForMember(dest => dest.Return, act => act.Ignore());
+
+				cfg.CreateMap<SimpleCarDTO, CarCache>()
+				.ForMember(dest => dest.CarID, act => act.MapFrom(src => src.ID))
+				.ForMember(dest => dest.SourceApiID, act => act.Ignore());
             });
 
 			var mapper = mapperConfig.CreateMapper();
