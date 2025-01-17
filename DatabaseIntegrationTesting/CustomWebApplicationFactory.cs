@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MiniCarRentalAPI.Data;
-using MiNICarRentalBrowser.ApiKey;
 using ThrowawayDb;
 
 namespace DatabaseIntegrationTesting
@@ -22,7 +21,6 @@ namespace DatabaseIntegrationTesting
 
         internal HttpClient CreateClientForDatabase(ThrowawayDatabase db)
             => GetFactoryForDatabase(db).CreateClient();
-
 
         internal IServiceProvider GetServiceProviderForDatabase(ThrowawayDatabase db)
             => GetFactoryForDatabase(db).Services;
