@@ -1,17 +1,12 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Azure.Identity;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
 using MiniCarRentalAPI.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MiNICarRentalBrowser.ApiKey;
 using ThrowawayDb;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DatabaseIntegrationTesting
 {
@@ -61,7 +56,6 @@ namespace DatabaseIntegrationTesting
                     services.Remove(dbContextDescriptor);
 
                     services.AddDbContext<CarRentalContext>(opt => opt.UseSqlServer(db.ConnectionString));
-
                 });
 
             });
